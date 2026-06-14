@@ -1,3 +1,5 @@
+<p align="center"><img src="https://raw.githubusercontent.com/go-embedded-ruby/brand/main/social/go-embedded-ruby.png" alt="go-embedded-ruby/docs" width="720"></p>
+
 # go-embedded-ruby/docs
 
 Versioned documentation for [go-embedded-ruby](https://github.com/go-embedded-ruby),

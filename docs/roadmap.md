@@ -7,7 +7,7 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.
 | Phase | Name | Goal | Status |
 | --- | --- | --- | --- |
 | 0 | Vertical slice | Integers, floats, strings, locals, arithmetic, control flow, `def`/recursion, `puts`/`p` — a thin slice running end to end on the VM. | **Done** |
-| 1 | Object model & dispatch | `RObject`/`RClass`/`RModule`, per-class method tables, ancestor-chain lookup, `method_missing`. | Planned |
+| 1 | Object model & dispatch | `RObject`/`RClass`, per-class method tables, ancestor-chain lookup, `method_missing`, classes + inheritance, `@ivars`, `new`/`initialize`, constants, **modules + `include`**, **`super`**. (Remaining: blocks/`yield`, `Proc`/`lambda`.) | **Done (core)** |
 | 2 | Core types & mixins | Arrays, hashes, symbols, ranges; `Comparable`/`Enumerable` and module inclusion. | Planned |
 | 3 | Control flow, exceptions & Fiber | Real exception objects and status-return propagation; blocks/procs; Fiber-on-goroutine. | Planned |
 | 4 | Metaprogramming | `define_method`, `send`, singleton classes, reflection, monkey-patching surfaced as API. | Planned |
