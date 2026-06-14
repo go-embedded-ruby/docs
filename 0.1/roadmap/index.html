@@ -562,7 +562,7 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
 <tr>
 <td>1</td>
 <td>Object model &amp; dispatch</td>
-<td><code>RObject</code>/<code>RClass</code>, per-class method tables, ancestor-chain lookup, <code>method_missing</code>, classes + inheritance, <code>@ivars</code>, <code>new</code>/<code>initialize</code>, constants, <strong>modules + <code>include</code></strong>, <strong><code>super</code></strong>. (Remaining: blocks/<code>yield</code>, <code>Proc</code>/<code>lambda</code>.)</td>
+<td><code>RObject</code>/<code>RClass</code>, per-class method tables, ancestor-chain lookup, <code>method_missing</code>, classes + inheritance, <code>@ivars</code>, <code>new</code>/<code>initialize</code>, constants, <strong>modules + <code>include</code></strong>, <strong><code>super</code></strong>, <strong>blocks &amp; <code>yield</code></strong> (closures, <code>block_given?</code>, <code>Integer#times</code>). (Remaining: <code>Proc</code>/<code>lambda</code>, <code>do…end</code>.)</td>
 <td><strong>Done (core)</strong></td>
 </tr>
 <tr>
