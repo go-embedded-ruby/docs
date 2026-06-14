@@ -11,7 +11,7 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.
 | 2 | Core types & mixins | Arrays, hashes, symbols, ranges; `Comparable`/`Enumerable` and module inclusion. **Symbols, Array, and ordered Hash done; `method_missing` now gets a Symbol, matching MRI.** | **In progress** |
 | 3 | Control flow, exceptions & Fiber | Real exception objects and status-return propagation; blocks/procs; Fiber-on-goroutine. | Planned |
 | 4 | Metaprogramming | `define_method`, `send`, singleton classes, reflection, monkey-patching surfaced as API. | Planned |
-| 5 | Full front-end | Complete the lexer/parser/compiler to full Ruby 3.4 syntax (or settle the Prism-on-wazero decision). | Planned |
+| 5 | Full front-end | Complete the lexer/parser/compiler to full Ruby 4.0 syntax (or settle the Prism-on-wazero decision). | Planned |
 | 6 | Standard library | Pure-Go stdlib coverage, with the regexp engine from the `go-onigmo` sibling org. | Planned |
 | 7 | Build toolchain | `rbgo build`: require-graph scan, build-tag/`go:embed` stdlib selection, closed-world mode. | Planned |
 | 8 | Conformance & performance | ruby/spec conformance and representation/perf work (tagging, fast paths, allocation). | Planned |

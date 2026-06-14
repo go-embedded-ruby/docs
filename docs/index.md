@@ -13,7 +13,7 @@ work without a separate toolchain. Ruby objects are ordinary Go heap objects, so
 Being pure Go buys three things at once: trivial cross-compilation, a single
 static binary, and — most importantly — it is the **first Ruby embeddable in a
 Go program with no C toolchain** ([go-mruby][go-mruby] needs cgo). The project
-targets **Ruby 3.4** semantics and is grown test-first against an MRI
+targets **Ruby 4.0** semantics and is grown test-first against an MRI
 *differential oracle*.
 
 ## Repositories
@@ -39,7 +39,7 @@ takes a deliberately different path:
   stdlib and links one self-contained executable.
 - **Dynamic `eval` / `require` via an embedded front-end.** The full compiler
   pipeline is in the binary, so code can be parsed and compiled at runtime.
-- **Ruby 3.4 as the target.** Behaviour is checked against MRI rather than
+- **Ruby 4.0 as the target.** Behaviour is checked against MRI rather than
   approximated.
 
 ## Where to go next
