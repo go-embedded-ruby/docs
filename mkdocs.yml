@@ -1,0 +1,58 @@
+site_name: go-embedded-ruby docs
+site_description: "A pure-Go implementation of Ruby: bytecode VM, embedded front-end, single static binary, zero cgo."
+site_url: https://go-embedded-ruby.github.io/docs/
+repo_url: https://github.com/go-embedded-ruby
+repo_name: go-embedded-ruby
+edit_uri: ""
+
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - content.code.copy
+    - search.suggest
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: red
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: red
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+extra:
+  version:
+    provider: mike
+    default: latest
+
+nav:
+  - Home: index.md
+  - Architecture:
+      - Overview: architecture/index.md
+      - Values & object model: architecture/object-model.md
+      - Bytecode & VM: architecture/bytecode-vm.md
+      - Front-end (lexer, parser, compiler): architecture/frontend.md
+      - Build & single binary: architecture/build.md
+  - Roadmap (phases): roadmap.md
+  - Phase 0 — Vertical slice: phases/phase0.md
+  - Contributing: contributing.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
+  - pymdownx.inlinehilite
