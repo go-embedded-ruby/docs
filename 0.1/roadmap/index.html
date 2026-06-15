@@ -590,8 +590,8 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
 <tr>
 <td>6</td>
 <td>Standard library</td>
-<td>Pure-Go stdlib coverage, with the regexp engine from the <code>go-onigmo</code> sibling org.</td>
-<td>Planned</td>
+<td>Pure-Go stdlib coverage, with the regexp engine from the <code>go-onigmo</code> sibling org. <strong>Regexp bridge landed:</strong> <code>/re/imx</code> literals + <code>Regexp</code>/<code>MatchData</code> (<code>source</code>/<code>match</code>/<code>match?</code>/<code>=~</code>/<code>===</code>, <code>[]</code> by index or name, <code>pre_match</code>/<code>post_match</code>/<code>captures</code>/<code>named_captures</code>/<code>begin</code>/<code>end</code>/<code>size</code>), <code>String#=~</code>/<code>match</code>/<code>match?</code>/<code>scan</code>, and <code>sub</code>/<code>gsub</code>/<code>split</code> over a Regexp (backref templates, blocks, captured-group interpolation, field limit). CGO=0 via <code>go-onigmo</code>; differential-tested against MRI.</td>
+<td><strong>In progress</strong></td>
 </tr>
 <tr>
 <td>7</td>
