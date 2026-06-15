@@ -12,7 +12,7 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.
 | 3 | Control flow, exceptions & Fiber | Real exception objects and status-return propagation; blocks/procs; Fiber-on-goroutine. **Exception hierarchy, `is_a?`/`kind_of?`/`instance_of?`, `raise`, and `begin`/`rescue`/`ensure`/`else` done.** | **In progress** |
 | 4 | Metaprogramming | `define_method`, `send`, singleton classes, reflection, monkey-patching surfaced as API. | Planned |
 | 5 | Full front-end | Complete the lexer/parser/compiler to full Ruby 4.0 syntax (or settle the Prism-on-wazero decision). | Planned |
-| 6 | Standard library | Pure-Go stdlib coverage, with the regexp engine from the `go-onigmo` sibling org. | Planned |
+| 6 | Standard library | Pure-Go stdlib coverage, with the regexp engine from the `go-onigmo` sibling org. **Regexp bridge landed:** `/re/imx` literals + `Regexp`/`MatchData` (`source`/`match`/`match?`/`=~`/`===`, `[]` by index or name, `pre_match`/`post_match`/`captures`/`named_captures`/`begin`/`end`/`size`), `String#=~`/`match`/`match?`/`scan`, and `sub`/`gsub`/`split` over a Regexp (backref templates, blocks, captured-group interpolation, field limit). CGO=0 via `go-onigmo`; differential-tested against MRI. | **In progress** |
 | 7 | Build toolchain | `rbgo build`: require-graph scan, build-tag/`go:embed` stdlib selection, closed-world mode. | Planned |
 | 8 | Conformance & performance | ruby/spec conformance and representation/perf work (tagging, fast paths, allocation). | Planned |
 
