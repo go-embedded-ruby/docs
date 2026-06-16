@@ -313,6 +313,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#supported-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported today
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#repositories" class="md-nav__link">
     <span class="md-ellipsis">
       Repositories
@@ -586,6 +595,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#supported-today" class="md-nav__link">
+    <span class="md-ellipsis">
+      Supported today
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#repositories" class="md-nav__link">
     <span class="md-ellipsis">
       Repositories
@@ -639,8 +657,45 @@ work without a separate toolchain. Ruby objects are ordinary Go heap objects, so
 <p>Being pure Go buys three things at once: trivial cross-compilation, a single
 static binary, and — most importantly — it is the <strong>first Ruby embeddable in a
 Go program with no C toolchain</strong> (<a href="https://github.com/mitchellh/go-mruby">go-mruby</a> needs cgo). The project
-targets <strong>Ruby 4.0</strong> semantics and is grown test-first against an MRI
-<em>differential oracle</em>.</p>
+targets <strong>Ruby 4.0</strong> semantics and is grown test-first against an MRI 4.0.5
+<em>differential oracle</em>, with <strong>100% coverage enforced in CI across all six 64-bit
+architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and three OSes.</p>
+<h2 id="supported-today">Supported today<a class="headerlink" href="#supported-today" title="Permanent link">&para;</a></h2>
+<p>Every feature below is <strong>differential-tested against MRI Ruby 4.0.5</strong>:</p>
+<ul>
+<li><strong>Values:</strong> integers (<code>int64</code>), floats, strings, symbols, arrays, hashes,
+  ranges (incl. beginless/endless), <code>true</code>/<code>false</code>/<code>nil</code>, <code>self</code>, <code>Proc</code>/lambda,
+  <code>Regexp</code>/<code>MatchData</code>, <code>Struct</code>.</li>
+<li><strong>Operators:</strong> arithmetic (<code>+ - * / %</code>, Ruby floor division, <code>**</code>),
+  comparison/<code>&lt;=&gt;</code>, <code>==</code>/<code>===</code>, <code>&lt;&lt;</code>, <code>&amp;&amp;</code>/<code>||</code>, ternary, ranges; correct
+  negative-literal precedence (<code>-2.abs == 2</code>, <code>-2**2 == -4</code>).</li>
+<li><strong>Control flow:</strong> <code>if</code>/<code>elsif</code>/<code>else</code>, <code>unless</code>, <code>while</code>/<code>until</code>,
+  <code>case</code>/<code>when</code>, statement modifiers, <code>begin</code>/<code>rescue</code>/<code>ensure</code>/<code>else</code>/<code>retry</code>,
+  <code>break</code>/<code>next</code>.</li>
+<li><strong>Methods:</strong> required / optional / <code>*splat</code> / keyword (<code>a:</code>, <code>b: 2</code>) /
+  <code>**rest</code> / <code>&amp;block</code> parameters, setter defs (<code>def name=</code>), <strong>endless methods</strong>
+  (<code>def foo = expr</code>), recursion, <code>return</code>, <code>super</code>.</li>
+<li><strong>Blocks / Procs / lambdas:</strong> <code>{ }</code> / <code>do…end</code> closures, <code>yield</code>,
+  <code>block_given?</code>, <code>&amp;block</code> capture, <code>Proc</code>/<code>lambda</code>/<strong>stabby <code>-&gt;(){}</code></strong>, <code>&amp;proc</code>
+  block-pass and <code>Symbol#to_proc</code> (the <code>&amp;:sym</code> shorthand).</li>
+<li><strong>Classes &amp; modules:</strong> inheritance, <code>@ivars</code>, <code>new</code>/<code>initialize</code>, constants and
+  constant assignment, <strong>class methods</strong> (<code>def self.foo</code>), modules + <code>include</code>
+  (mixins), <code>super</code>, <strong><code>attr_accessor</code>/<code>reader</code>/<code>writer</code></strong>, <strong><code>Struct.new</code></strong>.</li>
+<li><strong>Metaprogramming:</strong> dynamic dispatch via mutable method tables,
+  <code>method_missing</code>, <code>send</code>/<code>public_send</code>, <code>respond_to?</code>, <strong><code>define_method</code></strong>,
+  <strong><code>instance_eval</code>/<code>instance_exec</code></strong>, <strong><code>class_eval</code>/<code>module_eval</code>/<code>class_exec</code></strong>,
+  <code>instance_variable_get</code>/<code>set</code>/<code>defined?</code>.</li>
+<li><strong>Strings:</strong> interpolation, <code>%</code>/<code>format</code>/<code>sprintf</code>, case/strip/<code>split</code>/
+  <code>each_char</code>/<code>lines</code> and friends.</li>
+<li><strong>Regular expressions:</strong> <code>/re/imx</code> literals, <code>Regexp</code>/<code>MatchData</code>, <code>=~</code> /
+  <code>match</code> / <code>match?</code> / <code>scan</code> / <code>gsub</code> / <code>sub</code> / <code>split</code>, and the match globals
+  <code>$~</code> / <code>$1</code>..<code>$N</code> / <code>$&amp;</code> / <code>$`</code> / <code>$'</code> — running on the standalone pure-Go
+  <a href="https://github.com/go-onigmo">go-onigmo</a> engine, so the build stays <strong>CGO=0</strong>.</li>
+<li><strong>Collections:</strong> Array / Hash / Range with <code>Enumerable</code> (map/select/reduce/…)
+  and <code>Comparable</code>, both written once in embedded Ruby.</li>
+</ul>
+<p>Still ahead (see the <a href="roadmap/">roadmap</a>): mutable String, pattern matching
+<code>case/in</code>, Fiber, bignum.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

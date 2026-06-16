@@ -560,26 +560,26 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
 <tr>
 <td>1</td>
 <td>Object model &amp; dispatch</td>
-<td><code>RObject</code>/<code>RClass</code>, per-class method tables, ancestor-chain lookup, <code>method_missing</code>, classes + inheritance, <code>@ivars</code>, <code>new</code>/<code>initialize</code>, constants, <strong>modules + <code>include</code></strong>, <strong><code>super</code></strong>, <strong>blocks &amp; <code>yield</code></strong> (closures, <code>block_given?</code>, <code>Integer#times</code>). (Remaining: <code>Proc</code>/<code>lambda</code>, <code>do…end</code>.)</td>
-<td><strong>Done (core)</strong></td>
+<td><code>RObject</code>/<code>RClass</code>, per-class method tables, ancestor-chain lookup, <code>method_missing</code>, classes + inheritance, <code>@ivars</code>, <code>new</code>/<code>initialize</code>, constants, <strong>modules + <code>include</code></strong>, <strong><code>super</code></strong>, <strong>blocks &amp; <code>yield</code></strong> (closures, <code>block_given?</code>, <code>Integer#times</code>), and — landed since — <code>Proc</code>/<code>lambda</code> and <code>do…end</code>.</td>
+<td><strong>Done</strong></td>
 </tr>
 <tr>
 <td>2</td>
 <td>Core types &amp; mixins</td>
-<td>Arrays, hashes, symbols, ranges; <code>Comparable</code>/<code>Enumerable</code> and module inclusion. <strong>Symbols, Array, ordered Hash, Range, <code>Comparable</code>/<code>Enumerable</code> (written in an embedded-Ruby prelude on top of <code>&lt;=&gt;</code>/<code>each</code>), <code>&amp;&amp;</code>/<code>\|\|</code>, <code>do…end</code> blocks, a broad String method set, and Integer/Float numeric methods (with Comparable mixed into Integer/Float/String, and Enumerable into Array/Range/Hash, with block auto-splat and <code>{name: value}</code> label hash literals, plus <code>break</code>/<code>next</code> for blocks and loops, compound assignment, top-level instance variables, and a broad Array method set) done; <code>method_missing</code> now gets a Symbol, matching MRI.</strong></td>
+<td>Symbols (incl. variable-name <code>:name</code>), Array, ordered Hash, Range (incl. <strong>beginless/endless</strong>), and <code>Comparable</code>/<code>Enumerable</code> written once in an embedded-Ruby prelude over <code>&lt;=&gt;</code>/<code>each</code> (Comparable into Integer/Float/String, Enumerable into Array/Range/Hash). The <strong>full argument system</strong> — required/optional/<code>*splat</code>/keyword (<code>a:</code>, <code>b: 2</code>)/<code>**rest</code>/<code>&amp;block</code>, plus splat call-args. <strong>Blocks/Procs/lambdas</strong>: <code>&amp;block</code> capture, <code>proc</code>/<code>lambda</code>, the <strong>stabby lambda <code>-&gt;(){}</code></strong>, <code>&amp;proc</code> block-pass and <code>Symbol#to_proc</code> (<code>&amp;:sym</code>). <strong>Object model</strong>: <strong>class methods <code>def self.foo</code></strong>, <strong><code>attr_accessor</code>/<code>reader</code>/<code>writer</code></strong>, <strong><code>Struct.new</code></strong>, setter defs <code>def name=</code>, <strong>constant assignment</strong> and <strong>attribute assignment</strong>, <strong>endless methods <code>def foo = expr</code></strong>. Plus <code>&amp;&amp;</code>/<code>\|\|</code>, ternary, <code>case</code>/<code>when</code>, <code>**</code>, string interpolation, <code>%</code>/<code>format</code>/<code>sprintf</code>, a broad String method set, Integer/Float numeric methods, block auto-splat, <code>{name: value}</code> label hashes, <code>break</code>/<code>next</code>, compound assignment, and top-level ivars.</td>
 <td><strong>In progress</strong></td>
 </tr>
 <tr>
 <td>3</td>
 <td>Control flow, exceptions &amp; Fiber</td>
-<td>Real exception objects and status-return propagation; blocks/procs; Fiber-on-goroutine. <strong>Exception hierarchy, <code>is_a?</code>/<code>kind_of?</code>/<code>instance_of?</code>, <code>raise</code>, and <code>begin</code>/<code>rescue</code>/<code>ensure</code>/<code>else</code> done.</strong></td>
+<td>Real exception objects and status-return propagation; Fiber-on-goroutine. <strong>Exception hierarchy, <code>is_a?</code>/<code>kind_of?</code>/<code>instance_of?</code>, <code>raise</code>, <code>begin</code>/<code>rescue</code>/<code>ensure</code>/<code>else</code>/<code>retry</code> (block- and method-level), and non-local <code>break</code>/<code>next</code> done.</strong> (Remaining: Fiber, Enumerator, <code>loop</code>, <code>lazy</code>.)</td>
 <td><strong>In progress</strong></td>
 </tr>
 <tr>
 <td>4</td>
 <td>Metaprogramming</td>
-<td><code>define_method</code>, <code>send</code>, singleton classes, reflection, monkey-patching surfaced as API.</td>
-<td>Planned</td>
+<td><code>define_method</code>, <code>send</code>, singleton classes, reflection, monkey-patching surfaced as API. <strong>Done so far:</strong> <code>define_method</code>, <code>instance_eval</code>/<code>instance_exec</code>, <code>class_eval</code>/<code>module_eval</code>/<code>class_exec</code>, <code>send</code>/<code>public_send</code>, <code>respond_to?</code>, <code>instance_variable_get</code>/<code>set</code>/<code>defined?</code>, <code>itself</code>/<code>tap</code>/<code>then</code>/<code>yield_self</code>, and the <code>Integer</code>/<code>Float</code>/<code>String</code>/<code>Array</code> conversion methods. (Remaining: hooks — <code>included</code>/<code>inherited</code>/<code>method_added</code> — <code>define_singleton_method</code>, and string <code>eval</code>.)</td>
+<td><strong>In progress</strong></td>
 </tr>
 <tr>
 <td>5</td>
