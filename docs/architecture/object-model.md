@@ -43,10 +43,12 @@ falls out for free —
 
 ## Numbers, tags, and a real tension with Go's GC
 
-Ruby's integers are conceptually unbounded. The plan is the usual MRI-style
-**`Fixnum`/`Bignum` split**: small integers stay machine-width and promote to a
-big-integer representation on overflow. (Phase 0 uses plain `int64` and does
-*not* promote yet — see [Phase 0](../phases/phase0.md).)
+Ruby's integers are conceptually unbounded. Following the usual MRI-style
+**`Fixnum`/`Bignum` split**, small integers stay machine-width and promote to a
+big-integer (`math/big`) representation on overflow; arbitrary-precision
+integer literals are parsed directly to `Bignum`. (This promotion landed after
+the Phase 0 slice, which used plain `int64` and did *not* promote — see
+[Phase 0](../phases/phase0.md).)
 
 There is a genuine design tension here. The fastest representation for small
 integers is an **immediate / tagged value** — stuffing the integer into the

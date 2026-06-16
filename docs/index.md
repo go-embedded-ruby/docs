@@ -21,15 +21,24 @@ architectures** (amd64, arm64, riscv64, loong64, ppc64le, s390x) and three OSes.
 
 Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 
-- **Values:** integers (`int64`), floats, strings, symbols, arrays, hashes,
-  ranges (incl. beginless/endless), `true`/`false`/`nil`, `self`, `Proc`/lambda,
-  `Regexp`/`MatchData`, `Struct`.
+- **Values:** integers (`int64`, with automatic **Bignum** promotion on int64
+  overflow and arbitrary-precision integer literals), floats, strings, symbols,
+  arrays, hashes, ranges (incl. beginless/endless), `true`/`false`/`nil`,
+  `self`, `Proc`/lambda, `Regexp`/`MatchData`, `Struct`.
 - **Operators:** arithmetic (`+ - * / %`, Ruby floor division, `**`),
   comparison/`<=>`, `==`/`===`, `<<`, `&&`/`||`, ternary, ranges; correct
   negative-literal precedence (`-2.abs == 2`, `-2**2 == -4`).
 - **Control flow:** `if`/`elsif`/`else`, `unless`, `while`/`until`,
   `case`/`when`, statement modifiers, `begin`/`rescue`/`ensure`/`else`/`retry`,
-  `break`/`next`.
+  `break`/`next`, `Kernel#loop`.
+- **Pattern matching (`case`/`in`):** value, variable-binding, class/constant,
+  array (incl. splat and nested), hash (`deconstruct_keys`, `**rest`/`**nil`),
+  find (`[*pre, x, *post]`), pin (`^x`) and alternative (`a | b`) patterns;
+  the `=> name` binding suffix, guards (`if`/`unless`), the one-line forms
+  `expr => pattern` and `expr in pattern`, and `NoMatchingPatternError`.
+- **Assignment:** multiple assignment / destructuring (`a, b = 1, 2`,
+  `x, *rest = …`, `*init, last = …`) and compound assignment
+  (`+= -= *= /= %= <<= ||= &&=`).
 - **Methods:** required / optional / `*splat` / keyword (`a:`, `b: 2`) /
   `**rest` / `&block` parameters, setter defs (`def name=`), **endless methods**
   (`def foo = expr`), recursion, `return`, `super`.
@@ -50,10 +59,14 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `$~` / `$1`..`$N` / `$&` / `` $` `` / `$'` — running on the standalone pure-Go
   [go-onigmo][go-onigmo] engine, so the build stays **CGO=0**.
 - **Collections:** Array / Hash / Range with `Enumerable` (map/select/reduce/…)
-  and `Comparable`, both written once in embedded Ruby.
+  and `Comparable`, both written once in embedded Ruby; Array **bang methods**
+  (`map!`/`sort!`/`select!`/`reject!`/`compact!`/`uniq!`/`reverse!`).
+- **Objects:** `dup`/`clone`/`freeze`/`frozen?`, `equal?`,
+  `instance_variable_get`/`set`.
 
-Still ahead (see the [roadmap](roadmap.md)): mutable String, pattern matching
-`case/in`, Fiber, bignum.
+Still ahead (see the [roadmap](roadmap.md)): mutable String, Fiber / Enumerator
+/ lazy, hooks (`included`/`inherited`/…) and string `eval`, and the `rbgo build`
+toolchain.
 
 ## Repositories
 

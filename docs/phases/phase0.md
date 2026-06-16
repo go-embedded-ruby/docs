@@ -66,6 +66,8 @@ Phase 0 and arrive in later [phases](../roadmap.md):
 - **No receiver method calls yet** — only top-level/`self` calls and the
   built-ins above (the object model and dispatch are Phase 1).
 - **No blocks** (Phase 3).
-- **No bignum promotion** — integers are plain `int64` and do not yet promote on
-  overflow (the `Fixnum`/`Bignum` split is part of the object-model work). See
+- **No bignum promotion** — in the Phase 0 slice integers are plain `int64` and
+  do not promote on overflow. (Automatic **Bignum** promotion and
+  arbitrary-precision literals have since landed — see the
+  [roadmap](../roadmap.md).) See
   [Values & object model](../architecture/object-model.md).
