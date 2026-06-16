@@ -13,8 +13,47 @@ work without a separate toolchain. Ruby objects are ordinary Go heap objects, so
 Being pure Go buys three things at once: trivial cross-compilation, a single
 static binary, and — most importantly — it is the **first Ruby embeddable in a
 Go program with no C toolchain** ([go-mruby][go-mruby] needs cgo). The project
-targets **Ruby 4.0** semantics and is grown test-first against an MRI
-*differential oracle*.
+targets **Ruby 4.0** semantics and is grown test-first against an MRI 4.0.5
+*differential oracle*, with **100% coverage enforced in CI across all six 64-bit
+architectures** (amd64, arm64, riscv64, loong64, ppc64le, s390x) and three OSes.
+
+## Supported today
+
+Every feature below is **differential-tested against MRI Ruby 4.0.5**:
+
+- **Values:** integers (`int64`), floats, strings, symbols, arrays, hashes,
+  ranges (incl. beginless/endless), `true`/`false`/`nil`, `self`, `Proc`/lambda,
+  `Regexp`/`MatchData`, `Struct`.
+- **Operators:** arithmetic (`+ - * / %`, Ruby floor division, `**`),
+  comparison/`<=>`, `==`/`===`, `<<`, `&&`/`||`, ternary, ranges; correct
+  negative-literal precedence (`-2.abs == 2`, `-2**2 == -4`).
+- **Control flow:** `if`/`elsif`/`else`, `unless`, `while`/`until`,
+  `case`/`when`, statement modifiers, `begin`/`rescue`/`ensure`/`else`/`retry`,
+  `break`/`next`.
+- **Methods:** required / optional / `*splat` / keyword (`a:`, `b: 2`) /
+  `**rest` / `&block` parameters, setter defs (`def name=`), **endless methods**
+  (`def foo = expr`), recursion, `return`, `super`.
+- **Blocks / Procs / lambdas:** `{ }` / `do…end` closures, `yield`,
+  `block_given?`, `&block` capture, `Proc`/`lambda`/**stabby `->(){}`**, `&proc`
+  block-pass and `Symbol#to_proc` (the `&:sym` shorthand).
+- **Classes & modules:** inheritance, `@ivars`, `new`/`initialize`, constants and
+  constant assignment, **class methods** (`def self.foo`), modules + `include`
+  (mixins), `super`, **`attr_accessor`/`reader`/`writer`**, **`Struct.new`**.
+- **Metaprogramming:** dynamic dispatch via mutable method tables,
+  `method_missing`, `send`/`public_send`, `respond_to?`, **`define_method`**,
+  **`instance_eval`/`instance_exec`**, **`class_eval`/`module_eval`/`class_exec`**,
+  `instance_variable_get`/`set`/`defined?`.
+- **Strings:** interpolation, `%`/`format`/`sprintf`, case/strip/`split`/
+  `each_char`/`lines` and friends.
+- **Regular expressions:** `/re/imx` literals, `Regexp`/`MatchData`, `=~` /
+  `match` / `match?` / `scan` / `gsub` / `sub` / `split`, and the match globals
+  `$~` / `$1`..`$N` / `$&` / `` $` `` / `$'` — running on the standalone pure-Go
+  [go-onigmo][go-onigmo] engine, so the build stays **CGO=0**.
+- **Collections:** Array / Hash / Range with `Enumerable` (map/select/reduce/…)
+  and `Comparable`, both written once in embedded Ruby.
+
+Still ahead (see the [roadmap](roadmap.md)): mutable String, pattern matching
+`case/in`, Fiber, bignum.
 
 ## Repositories
 
