@@ -663,15 +663,24 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
 <h2 id="supported-today">Supported today<a class="headerlink" href="#supported-today" title="Permanent link">&para;</a></h2>
 <p>Every feature below is <strong>differential-tested against MRI Ruby 4.0.5</strong>:</p>
 <ul>
-<li><strong>Values:</strong> integers (<code>int64</code>), floats, strings, symbols, arrays, hashes,
-  ranges (incl. beginless/endless), <code>true</code>/<code>false</code>/<code>nil</code>, <code>self</code>, <code>Proc</code>/lambda,
-  <code>Regexp</code>/<code>MatchData</code>, <code>Struct</code>.</li>
+<li><strong>Values:</strong> integers (<code>int64</code>, with automatic <strong>Bignum</strong> promotion on int64
+  overflow and arbitrary-precision integer literals), floats, strings, symbols,
+  arrays, hashes, ranges (incl. beginless/endless), <code>true</code>/<code>false</code>/<code>nil</code>,
+  <code>self</code>, <code>Proc</code>/lambda, <code>Regexp</code>/<code>MatchData</code>, <code>Struct</code>.</li>
 <li><strong>Operators:</strong> arithmetic (<code>+ - * / %</code>, Ruby floor division, <code>**</code>),
   comparison/<code>&lt;=&gt;</code>, <code>==</code>/<code>===</code>, <code>&lt;&lt;</code>, <code>&amp;&amp;</code>/<code>||</code>, ternary, ranges; correct
   negative-literal precedence (<code>-2.abs == 2</code>, <code>-2**2 == -4</code>).</li>
 <li><strong>Control flow:</strong> <code>if</code>/<code>elsif</code>/<code>else</code>, <code>unless</code>, <code>while</code>/<code>until</code>,
   <code>case</code>/<code>when</code>, statement modifiers, <code>begin</code>/<code>rescue</code>/<code>ensure</code>/<code>else</code>/<code>retry</code>,
-  <code>break</code>/<code>next</code>.</li>
+  <code>break</code>/<code>next</code>, <code>Kernel#loop</code>.</li>
+<li><strong>Pattern matching (<code>case</code>/<code>in</code>):</strong> value, variable-binding, class/constant,
+  array (incl. splat and nested), hash (<code>deconstruct_keys</code>, <code>**rest</code>/<code>**nil</code>),
+  find (<code>[*pre, x, *post]</code>), pin (<code>^x</code>) and alternative (<code>a | b</code>) patterns;
+  the <code>=&gt; name</code> binding suffix, guards (<code>if</code>/<code>unless</code>), the one-line forms
+  <code>expr =&gt; pattern</code> and <code>expr in pattern</code>, and <code>NoMatchingPatternError</code>.</li>
+<li><strong>Assignment:</strong> multiple assignment / destructuring (<code>a, b = 1, 2</code>,
+  <code>x, *rest = …</code>, <code>*init, last = …</code>) and compound assignment
+  (<code>+= -= *= /= %= &lt;&lt;= ||= &amp;&amp;=</code>).</li>
 <li><strong>Methods:</strong> required / optional / <code>*splat</code> / keyword (<code>a:</code>, <code>b: 2</code>) /
   <code>**rest</code> / <code>&amp;block</code> parameters, setter defs (<code>def name=</code>), <strong>endless methods</strong>
   (<code>def foo = expr</code>), recursion, <code>return</code>, <code>super</code>.</li>
@@ -692,10 +701,14 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>$~</code> / <code>$1</code>..<code>$N</code> / <code>$&amp;</code> / <code>$`</code> / <code>$'</code> — running on the standalone pure-Go
   <a href="https://github.com/go-onigmo">go-onigmo</a> engine, so the build stays <strong>CGO=0</strong>.</li>
 <li><strong>Collections:</strong> Array / Hash / Range with <code>Enumerable</code> (map/select/reduce/…)
-  and <code>Comparable</code>, both written once in embedded Ruby.</li>
+  and <code>Comparable</code>, both written once in embedded Ruby; Array <strong>bang methods</strong>
+  (<code>map!</code>/<code>sort!</code>/<code>select!</code>/<code>reject!</code>/<code>compact!</code>/<code>uniq!</code>/<code>reverse!</code>).</li>
+<li><strong>Objects:</strong> <code>dup</code>/<code>clone</code>/<code>freeze</code>/<code>frozen?</code>, <code>equal?</code>,
+  <code>instance_variable_get</code>/<code>set</code>.</li>
 </ul>
-<p>Still ahead (see the <a href="roadmap/">roadmap</a>): mutable String, pattern matching
-<code>case/in</code>, Fiber, bignum.</p>
+<p>Still ahead (see the <a href="roadmap/">roadmap</a>): mutable String, Fiber / Enumerator
+/ lazy, hooks (<code>included</code>/<code>inherited</code>/…) and string <code>eval</code>, and the <code>rbgo build</code>
+toolchain.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>

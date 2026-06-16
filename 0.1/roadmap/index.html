@@ -572,7 +572,7 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
 <tr>
 <td>3</td>
 <td>Control flow, exceptions &amp; Fiber</td>
-<td>Real exception objects and status-return propagation; Fiber-on-goroutine. <strong>Exception hierarchy, <code>is_a?</code>/<code>kind_of?</code>/<code>instance_of?</code>, <code>raise</code>, <code>begin</code>/<code>rescue</code>/<code>ensure</code>/<code>else</code>/<code>retry</code> (block- and method-level), and non-local <code>break</code>/<code>next</code> done.</strong> (Remaining: Fiber, Enumerator, <code>loop</code>, <code>lazy</code>.)</td>
+<td>Real exception objects and status-return propagation; Fiber-on-goroutine. <strong>Exception hierarchy, <code>is_a?</code>/<code>kind_of?</code>/<code>instance_of?</code>, <code>raise</code>, <code>begin</code>/<code>rescue</code>/<code>ensure</code>/<code>else</code>/<code>retry</code> (block- and method-level), non-local <code>break</code>/<code>next</code>, and <code>Kernel#loop</code> done.</strong> (Remaining: Fiber, Enumerator, <code>lazy</code>.)</td>
 <td><strong>In progress</strong></td>
 </tr>
 <tr>
@@ -584,8 +584,8 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
 <tr>
 <td>5</td>
 <td>Full front-end</td>
-<td>Complete the lexer/parser/compiler to full Ruby 4.0 syntax (or settle the Prism-on-wazero decision).</td>
-<td>Planned</td>
+<td>Complete the lexer/parser/compiler to full Ruby 4.0 syntax (or settle the Prism-on-wazero decision). <strong>Landed:</strong> string interpolation, keyword args, endless methods (<code>def foo = expr</code>), beginless/endless ranges, the stabby lambda, <strong>multiple assignment / destructuring</strong>, <strong>full pattern matching <code>case</code>/<code>in</code></strong> (value/bind/class/array/hash/find/pin/alternative patterns, guards, one-line <code>=&gt;</code>/<code>in</code>, <code>deconstruct</code>/<code>deconstruct_keys</code>), <strong>safe navigation <code>&amp;.</code></strong>, and <strong>numbered params (<code>_1</code>/<code>_2</code>) and <code>it</code></strong>. (Remaining: heredocs, <code>%</code>-literals.)</td>
+<td><strong>In progress</strong></td>
 </tr>
 <tr>
 <td>6</td>

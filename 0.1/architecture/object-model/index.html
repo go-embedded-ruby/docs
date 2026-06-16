@@ -670,10 +670,12 @@ falls out for free —</p>
 <li><strong>reflection</strong> (the tables <em>are</em> the metadata).</li>
 </ul>
 <h2 id="numbers-tags-and-a-real-tension-with-gos-gc">Numbers, tags, and a real tension with Go's GC<a class="headerlink" href="#numbers-tags-and-a-real-tension-with-gos-gc" title="Permanent link">&para;</a></h2>
-<p>Ruby's integers are conceptually unbounded. The plan is the usual MRI-style
-<strong><code>Fixnum</code>/<code>Bignum</code> split</strong>: small integers stay machine-width and promote to a
-big-integer representation on overflow. (Phase 0 uses plain <code>int64</code> and does
-<em>not</em> promote yet — see <a href="../../phases/phase0/">Phase 0</a>.)</p>
+<p>Ruby's integers are conceptually unbounded. Following the usual MRI-style
+<strong><code>Fixnum</code>/<code>Bignum</code> split</strong>, small integers stay machine-width and promote to a
+big-integer (<code>math/big</code>) representation on overflow; arbitrary-precision
+integer literals are parsed directly to <code>Bignum</code>. (This promotion landed after
+the Phase 0 slice, which used plain <code>int64</code> and did <em>not</em> promote — see
+<a href="../../phases/phase0/">Phase 0</a>.)</p>
 <p>There is a genuine design tension here. The fastest representation for small
 integers is an <strong>immediate / tagged value</strong> — stuffing the integer into the
 pointer-sized slot with a tag bit, as MRI does. But tagged non-pointer values
