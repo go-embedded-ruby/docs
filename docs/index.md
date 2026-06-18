@@ -64,9 +64,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 - **Objects:** `dup`/`clone`/`freeze`/`frozen?`, `equal?`,
   `instance_variable_get`/`set`.
 
-Still ahead (see the [roadmap](roadmap.md)): mutable String, Fiber / Enumerator
-/ lazy, hooks (`included`/`inherited`/…) and string `eval`, and the `rbgo build`
-toolchain.
+Still ahead (see the [roadmap](roadmap.md)): Fiber / Enumerator / lazy, hooks
+(`included`/`inherited`/…) and string `eval`, and the `rbgo build` toolchain.
 
 ## Repositories
 
