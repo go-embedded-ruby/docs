@@ -22,14 +22,18 @@ architectures** (amd64, arm64, riscv64, loong64, ppc64le, s390x) and three OSes.
 Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 
 - **Values:** integers (`int64`, with automatic **Bignum** promotion on int64
-  overflow and arbitrary-precision integer literals), floats, strings, symbols,
-  arrays, hashes, ranges (incl. beginless/endless), `true`/`false`/`nil`,
-  `self`, `Proc`/lambda, `Regexp`/`MatchData`, `Struct`.
+  overflow and arbitrary-precision integer literals, **radix literals** `0x`/`0o`/
+  bare-`0`-octal/`0b`/`0d` with underscores), floats, strings, symbols (incl.
+  **operator-method symbols** `:+`/`:<<`/`:[]=`/`:<=>`), arrays, hashes, ranges
+  (incl. beginless/endless), `true`/`false`/`nil`, `self`, `Proc`/lambda,
+  `Regexp`/`MatchData`, `Struct`.
 - **Operators:** arithmetic (`+ - * / %`, Ruby floor division, `**`),
-  comparison/`<=>`, `==`/`===`, `<<`, `&&`/`||`, ternary, ranges; correct
-  negative-literal precedence (`-2.abs == 2`, `-2**2 == -4`).
+  comparison/`<=>`, `==`/`===`, bitwise/shift (`<< >> & | ^ ~`, arbitrary
+  precision), `&&`/`||`, ternary, ranges; correct negative-literal precedence
+  (`-2.abs == 2`, `-2**2 == -4`).
 - **Control flow:** `if`/`elsif`/`else`, `unless`, `while`/`until`,
-  `case`/`when`, statement modifiers, `begin`/`rescue`/`ensure`/`else`/`retry`,
+  `case`/`when`, statement modifiers (incl. modifier `rescue`,
+  `expr rescue fallback`), `begin`/`rescue`/`ensure`/`else`/`retry`,
   `break`/`next`, `Kernel#loop`.
 - **Pattern matching (`case`/`in`):** value, variable-binding, class/constant,
   array (incl. splat and nested), hash (`deconstruct_keys`, `**rest`/`**nil`),
@@ -43,8 +47,9 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `**rest` / `&block` parameters, setter defs (`def name=`), **endless methods**
   (`def foo = expr`), recursion, `return`, `super`.
 - **Blocks / Procs / lambdas:** `{ }` / `do…end` closures, `yield`,
-  `block_given?`, `&block` capture, `Proc`/`lambda`/**stabby `->(){}`**, `&proc`
-  block-pass and `Symbol#to_proc` (the `&:sym` shorthand).
+  `block_given?`, `&block` capture, **numbered params (`_1`/`_2`) and `it`**,
+  `Proc`/`lambda`/**stabby `->(){}`**, `&proc` block-pass and `Symbol#to_proc`
+  (the `&:sym` shorthand).
 - **Classes & modules:** inheritance, `@ivars`, `new`/`initialize`, constants and
   constant assignment, **class methods** (`def self.foo`), modules + `include`
   (mixins), `super`, **`attr_accessor`/`reader`/`writer`**, **`Struct.new`**.
@@ -52,8 +57,10 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `method_missing`, `send`/`public_send`, `respond_to?`, **`define_method`**,
   **`instance_eval`/`instance_exec`**, **`class_eval`/`module_eval`/`class_exec`**,
   `instance_variable_get`/`set`/`defined?`.
-- **Strings:** interpolation, `%`/`format`/`sprintf`, case/strip/`split`/
-  `each_char`/`lines` and friends.
+- **Strings:** mutable (reference semantics) with `<<`/concat/replace/prepend/
+  insert/`[]=`/slice!/the bang methods and `freeze`/`FrozenError`;
+  interpolation, heredocs (`<<`/`<<-`/`<<~`), `%w`/`%i` literals,
+  `%`/`format`/`sprintf`, case/strip/`split`/`each_char`/`lines` and friends.
 - **Regular expressions:** `/re/imx` literals, `Regexp`/`MatchData`, `=~` /
   `match` / `match?` / `scan` / `gsub` / `sub` / `split`, and the match globals
   `$~` / `$1`..`$N` / `$&` / `` $` `` / `$'` — running on the standalone pure-Go
