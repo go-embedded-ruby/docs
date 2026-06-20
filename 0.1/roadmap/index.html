@@ -596,8 +596,8 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
 <tr>
 <td>7</td>
 <td>Build toolchain</td>
-<td><code>rbgo build</code>: require-graph scan, build-tag/<code>go:embed</code> stdlib selection, closed-world mode.</td>
-<td>Planned</td>
+<td><code>rbgo build</code>. <strong>Landed:</strong> ahead-of-time <strong>method compilation</strong> to native Go (bytecode → Go → machine code), with <strong>unboxed <code>int64</code> integer kernels</strong> that deopt to the interpreter on overflow/<code>÷0</code> — the generated <code>fib(30)</code> beats <strong>MRI + YJIT ~4×</strong> while staying correct for every input (<a href="../architecture/build/#ahead-of-time-method-compilation-landed">AOT compiler</a>). (Remaining: require-graph scan, build-tag/<code>go:embed</code> stdlib selection, closed-world single-binary mode.)</td>
+<td><strong>In progress</strong></td>
 </tr>
 <tr>
 <td>8</td>

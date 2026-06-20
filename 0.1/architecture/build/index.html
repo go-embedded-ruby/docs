@@ -479,6 +479,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ahead-of-time-method-compilation-landed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ahead-of-time method compilation (landed)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#precedent" class="md-nav__link">
     <span class="md-ellipsis">
       Precedent
@@ -608,6 +617,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#ahead-of-time-method-compilation-landed" class="md-nav__link">
+    <span class="md-ellipsis">
+      Ahead-of-time method compilation (landed)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#precedent" class="md-nav__link">
     <span class="md-ellipsis">
       Precedent
@@ -658,6 +676,26 @@ already compiled to bytecode at build time. The result is a noticeably <strong>s
 binary</strong>, at the cost of giving up runtime code loading.</p>
 <p>The open-world default keeps the front-end embedded so <code>eval</code> and dynamic
 <code>require</code> keep working (see <a href="../frontend/">Front-end</a>).</p>
+<h2 id="ahead-of-time-method-compilation-landed">Ahead-of-time method compilation (landed)<a class="headerlink" href="#ahead-of-time-method-compilation-landed" title="Permanent link">&para;</a></h2>
+<p><code>rbgo build</code> already does more than embed bytecode: it <strong>compiles the program's
+lowerable methods to native Go</strong> and links them in, so dispatch runs machine
+code instead of the bytecode loop. Each method's bytecode is lowered to a Go
+function (straight-line control flow, locals as Go variables, a direct call for
+self-recursion); a method using something the compiler cannot lower yet simply
+stays interpreted.</p>
+<p>A method that is <strong>pure integer arithmetic</strong> on integer parameters (with
+self-recursion) is specialised further, to an <strong>unboxed <code>int64</code> kernel</strong>: the
+boxed entry guards the arguments are integers and runs the kernel, and a
+<strong>deopt</strong> edge recovers any signed overflow or divide-by-zero by re-running the
+sound interpreted body — so the fast path stays correct for <em>every</em> input
+(overflow still promotes to the identical Bignum). Because the whole program is
+visible at build time and the Go compiler (plus PGO) does the backend, the
+generated <code>fib(30)</code> runs <strong>~4× faster than MRI + YJIT</strong> — an ahead-of-time
+compiler with an unlimited budget beats a runtime JIT on compute-bound code, and
+falls back to the interpreter for the genuinely dynamic parts. Design notes:
+<a href="https://github.com/go-embedded-ruby/ruby/blob/main/docs/aot-compiler.md"><code>docs/aot-compiler.md</code></a>.</p>
+<p>Still ahead (the <em>single-binary</em> half of <code>rbgo build</code>): the require-graph scan,
+build-tag/<code>go:embed</code> stdlib selection and closed-world mode described above.</p>
 <h2 id="precedent">Precedent<a class="headerlink" href="#precedent" title="Permanent link">&para;</a></h2>
 <p>This is not a new idea: <strong>mruby</strong> does essentially the same thing with
 <em>mrbgems</em>, where the set of compiled-in components is selected at build time via
