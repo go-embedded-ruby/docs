@@ -30,6 +30,30 @@ binary**, at the cost of giving up runtime code loading.
 The open-world default keeps the front-end embedded so `eval` and dynamic
 `require` keep working (see [Front-end](frontend.md)).
 
+## Ahead-of-time method compilation (landed)
+
+`rbgo build` already does more than embed bytecode: it **compiles the program's
+lowerable methods to native Go** and links them in, so dispatch runs machine
+code instead of the bytecode loop. Each method's bytecode is lowered to a Go
+function (straight-line control flow, locals as Go variables, a direct call for
+self-recursion); a method using something the compiler cannot lower yet simply
+stays interpreted.
+
+A method that is **pure integer arithmetic** on integer parameters (with
+self-recursion) is specialised further, to an **unboxed `int64` kernel**: the
+boxed entry guards the arguments are integers and runs the kernel, and a
+**deopt** edge recovers any signed overflow or divide-by-zero by re-running the
+sound interpreted body — so the fast path stays correct for *every* input
+(overflow still promotes to the identical Bignum). Because the whole program is
+visible at build time and the Go compiler (plus PGO) does the backend, the
+generated `fib(30)` runs **~4× faster than MRI + YJIT** — an ahead-of-time
+compiler with an unlimited budget beats a runtime JIT on compute-bound code, and
+falls back to the interpreter for the genuinely dynamic parts. Design notes:
+[`docs/aot-compiler.md`](https://github.com/go-embedded-ruby/ruby/blob/main/docs/aot-compiler.md).
+
+Still ahead (the *single-binary* half of `rbgo build`): the require-graph scan,
+build-tag/`go:embed` stdlib selection and closed-world mode described above.
+
 ## Precedent
 
 This is not a new idea: **mruby** does essentially the same thing with
