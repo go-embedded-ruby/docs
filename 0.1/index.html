@@ -737,6 +737,9 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>match</code> / <code>match?</code> / <code>scan</code> / <code>gsub</code> / <code>sub</code> / <code>split</code>, and the match globals
   <code>$~</code> / <code>$1</code>..<code>$N</code> / <code>$&amp;</code> / <code>$`</code> / <code>$'</code> — running on the standalone pure-Go
   <a href="https://github.com/go-onigmo">go-onigmo</a> engine, so the build stays <strong>CGO=0</strong>.</li>
+<li><strong>Standard library leaves:</strong> <strong><code>JSON</code></strong> (<code>generate</code>/<code>dump</code>/<code>pretty_generate</code>/
+  <code>parse</code> + <code>Object#to_json</code>, key order preserved), <strong><code>Digest</code></strong> (MD5/SHA1/
+  SHA256/SHA512), and <strong><code>Base64</code></strong> — all <code>require</code>-able and pure-Go.</li>
 <li><strong>Collections:</strong> Array / Hash / Range with <code>Enumerable</code> (map/select/reduce/…)
   and <code>Comparable</code>, both written once in embedded Ruby; Array <strong>bang methods</strong>
   (<code>map!</code>/<code>sort!</code>/<code>select!</code>/<code>reject!</code>/<code>compact!</code>/<code>uniq!</code>/<code>reverse!</code>);
