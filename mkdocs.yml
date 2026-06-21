@@ -47,6 +47,7 @@ nav:
       - Bytecode & VM: architecture/bytecode-vm.md
       - Front-end (lexer, parser, compiler): architecture/frontend.md
       - Build & single binary: architecture/build.md
+  - Scientific stack & WebAssembly: scientific-stack.md
   - Roadmap (phases): roadmap.md
   - Phase 0 — Vertical slice: phases/phase0.md
   - Contributing: contributing.md
