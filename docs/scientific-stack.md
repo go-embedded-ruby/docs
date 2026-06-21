@@ -74,6 +74,46 @@ Binds [go-composites/set](https://github.com/go-composites/set): `Set.new`/`[]`,
 p (Set.new([1, 2, 3]) & Set.new([2, 3, 4])).to_a.sort   # => [2, 3]
 ```
 
+## Bag
+
+A multiset / counter (element → multiplicity), binding
+[go-composites/bag](https://github.com/go-composites/bag): `add`(`<<`)/`delete`,
+`count`/`size`/`distinct`/`distinct_size`/`most_common`,
+`union`(`+`)/`difference`(`-`)/`intersection`, `include?`/`member?`/`empty?`,
+and `each`/`to_a`.
+
+```ruby
+b = Bag.new
+b << :a << :a << :b
+p b.count(:a)        # => 2
+p b.most_common(1)   # => [[:a, 2]]
+```
+
+## Time & Date
+
+`Time` binds [go-composites/time](https://github.com/go-composites/time) and
+`Date` binds [go-composites/date](https://github.com/go-composites/date):
+construction (`Time.now`/`at`/`parse`, `Date.new`/`parse`), arithmetic,
+`strftime`/`strptime` (Time), the field accessors
+(`year`/`month`/`mday`/`hour`/`min`/`sec`/`wday`/`yday`), weekday predicates and
+`leap?`, day/month stepping (`next_day`/`prev_month`/`<<`/`>>`), and
+comparisons via `<=>`.
+
+```ruby
+p Date.new(2026, 6, 21).next_month.to_s   # => "2026-07-21"
+```
+
+## BigDecimal
+
+Arbitrary-precision decimal, binding
+[go-composites/bigfloat](https://github.com/go-composites/bigfloat): `+ - * / **`,
+`sqrt`/`abs`/`ceil`/`floor`/`round`/`pow`, `to_f`/`to_i`/`to_s`, `zero?`, and
+comparisons — exact decimals without the float rounding of `Float`.
+
+```ruby
+p (BigDecimal("0.1") + BigDecimal("0.2")).to_s   # exact, no 0.30000000000000004
+```
+
 ## In the browser (WebAssembly)
 
 The interpreter and the whole stack above compile to `GOOS=js GOARCH=wasm` and

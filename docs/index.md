@@ -76,8 +76,10 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `instance_variable_get`/`set`.
 - **Numeric & scientific stack:** `Complex`, `Rational`, the `Math` module, and a
   **cgo-free scientific stack** — `NDArray` (NumPy-style arrays), an `FFT` module
-  (numpy.fft-style transforms), `Image` (scikit-image-style processing) and
-  `Set` — each binding a pure-Go sibling library. See
+  (numpy.fft-style transforms), `Image` (scikit-image-style processing) — plus
+  container/value types `Set`, `Bag` (multiset), `Time`, `Date` and
+  `BigDecimal`, each binding a pure-Go sibling library (go-ndarray / go-fft /
+  go-images / go-composites). See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
 Still ahead (see the [roadmap](roadmap.md)): Fiber / Enumerator / lazy, the
