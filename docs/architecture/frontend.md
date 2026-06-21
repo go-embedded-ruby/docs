@@ -5,6 +5,16 @@ context-sensitive, so each stage carries a little state to disambiguate. The
 front-end is **the largest single effort** in the project and ships *inside* the
 binary so that `eval` and runtime `require` can re-run it.
 
+!!! note "The lexer, parser and AST are a standalone module"
+    The lexer, parser and AST have been **extracted** into the pure-Go
+    [go-ruby-parser](https://github.com/go-ruby-parser/parser) module
+    (`github.com/go-ruby-parser/parser`), which this interpreter imports — the
+    same dogfooding model as the [go-onigmo](https://github.com/go-onigmo)
+    regexp engine. They are still compiled *into* the binary, so `eval`/`require`
+    keep working; they are simply maintained, tested and reusable on their own
+    (any Go program can now parse Ruby to an AST without cgo). The **compiler**
+    (AST → bytecode) remains in this repository.
+
 ## Lexer
 
 The lexer is **stateful**. The key piece of state is `SpaceBefore` — the direct
@@ -39,16 +49,16 @@ named local variables into the integer slot indices the VM loads and stores. (It
 also builds the catch tables described in
 [Bytecode & VM](bytecode-vm.md).)
 
-## Open decision: hand-written vs Prism
+## Decision: hand-written (extracted as a reusable module)
 
-How far to hand-write the front-end is an **open question**. The two candidates:
+How far to hand-write the front-end was an early open question. It is now
+**settled in favour of hand-writing**: the lexer + parser + AST are a complete,
+100%-covered, MRI-differential-tested module
+([go-ruby-parser](https://github.com/go-ruby-parser/parser)) that this
+interpreter consumes and that any Go program can reuse. Full control won out, and
+extracting it turned the "most work" cost into ecosystem value.
 
-- **Hand-written** lexer + parser, as described above — full control, but the
-  most work, and a moving target against MRI.
-- **Port Prism** (Ruby's official parser library) compiled **to WebAssembly**
-  and run under a **pure-Go [wazero](https://wazero.io/) runtime** — this would
-  reuse MRI's own parser while keeping the cgo-free guarantee, at the cost of an
-  embedded WASM module and the wazero dependency.
-
-The trade-off is conformance-for-free versus footprint and control; it is not
-yet settled.
+The alternative once considered — porting **Prism** (Ruby's official parser)
+compiled to WebAssembly under a pure-Go [wazero](https://wazero.io/) runtime —
+remains theoretically possible (conformance-for-free at the cost of an embedded
+WASM module + the wazero dependency), but is not planned.

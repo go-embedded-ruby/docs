@@ -23,7 +23,9 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 
 - **Values:** integers (`int64`, with automatic **Bignum** promotion on int64
   overflow and arbitrary-precision integer literals, **radix literals** `0x`/`0o`/
-  bare-`0`-octal/`0b`/`0d` with underscores), floats, strings, symbols (incl.
+  bare-`0`-octal/`0b`/`0d` with underscores), floats (incl. **scientific
+  notation** `1.5e3`/`1e-3`), strings (**single- and double-quoted**, with
+  interpolation and heredocs), symbols (incl.
   **operator-method symbols** `:+`/`:<<`/`:[]=`/`:<=>`), arrays, hashes, ranges
   (incl. beginless/endless), `true`/`false`/`nil`, `self`, `Proc`/lambda,
   `Regexp`/`MatchData`, `Struct`.
@@ -83,12 +85,17 @@ Still ahead (see the [roadmap](roadmap.md)): Fiber / Enumerator / lazy, hooks
 
 | Repo | What it is |
 | --- | --- |
-| [`ruby`](https://github.com/go-embedded-ruby/ruby) | the interpreter — the bytecode VM, embedded front-end, and the `rbgo` CLI binary |
+| [`ruby`](https://github.com/go-embedded-ruby/ruby) | the interpreter — the bytecode VM, the compiler, and the `rbgo` CLI binary (it imports the front-end below) |
 | [`docs`](https://github.com/go-embedded-ruby/docs) | this documentation site (MkDocs Material, versioned with mike) |
 | [`go-embedded-ruby.github.io`](https://github.com/go-embedded-ruby/go-embedded-ruby.github.io) | the organization landing page (Hugo) |
 
-The regexp engine is **not** in this org: it is a separate pure-Go Onigmo
-reimplementation in the sibling org [go-onigmo][go-onigmo] (repo `regexp`).
+Two core pieces live in **sibling orgs**, reused by the interpreter (and by any
+other Go program) without cgo:
+
+- the **front-end** — lexer, parser and AST — is the pure-Go
+  [go-ruby-parser][go-ruby-parser] module (repo `parser`);
+- the **regexp engine** is a pure-Go Onigmo reimplementation in
+  [go-onigmo][go-onigmo] (repo `regexp`).
 
 ## How it differs from goruby
 
@@ -119,4 +126,5 @@ Source lives at
 
 [go-mruby]: https://github.com/mitchellh/go-mruby
 [go-onigmo]: https://github.com/go-onigmo
+[go-ruby-parser]: https://github.com/go-ruby-parser/parser
 [goruby]: https://github.com/goruby/goruby
