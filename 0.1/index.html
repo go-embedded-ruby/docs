@@ -738,8 +738,10 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>instance_variable_get</code>/<code>set</code>.</li>
 <li><strong>Numeric &amp; scientific stack:</strong> <code>Complex</code>, <code>Rational</code>, the <code>Math</code> module, and a
   <strong>cgo-free scientific stack</strong> — <code>NDArray</code> (NumPy-style arrays), an <code>FFT</code> module
-  (numpy.fft-style transforms), <code>Image</code> (scikit-image-style processing) and
-  <code>Set</code> — each binding a pure-Go sibling library. See
+  (numpy.fft-style transforms), <code>Image</code> (scikit-image-style processing) — plus
+  container/value types <code>Set</code>, <code>Bag</code> (multiset), <code>Time</code>, <code>Date</code> and
+  <code>BigDecimal</code>, each binding a pure-Go sibling library (go-ndarray / go-fft /
+  go-images / go-composites). See
   <a href="scientific-stack/">Scientific stack &amp; WebAssembly</a>.</li>
 </ul>
 <p>Still ahead (see the <a href="roadmap/">roadmap</a>): Fiber / Enumerator / lazy, the
