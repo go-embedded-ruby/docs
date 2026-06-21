@@ -75,6 +75,9 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `match` / `match?` / `scan` / `gsub` / `sub` / `split`, and the match globals
   `$~` / `$1`..`$N` / `$&` / `` $` `` / `$'` — running on the standalone pure-Go
   [go-onigmo][go-onigmo] engine, so the build stays **CGO=0**.
+- **Standard library leaves:** **`JSON`** (`generate`/`dump`/`pretty_generate`/
+  `parse` + `Object#to_json`, key order preserved), **`Digest`** (MD5/SHA1/
+  SHA256/SHA512), and **`Base64`** — all `require`-able and pure-Go.
 - **Collections:** Array / Hash / Range with `Enumerable` (map/select/reduce/…)
   and `Comparable`, both written once in embedded Ruby; Array **bang methods**
   (`map!`/`sort!`/`select!`/`reject!`/`compact!`/`uniq!`/`reverse!`);
