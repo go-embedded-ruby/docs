@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://go-embedded-ruby.github.io/docs/0.1/roadmap/">
+        <link rel="canonical" href="https://go-embedded-ruby.github.io/docs/0.1/scientific-stack/">
       
       
-        <link rel="prev" href="../scientific-stack/">
+        <link rel="prev" href="../architecture/build/">
       
       
-        <link rel="next" href="../phases/phase0/">
+        <link rel="next" href="../roadmap/">
       
       
       <link rel="icon" href="../assets/logo.svg">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Roadmap (phases) - go-embedded-ruby docs</title>
+        <title>Scientific stack & WebAssembly - go-embedded-ruby docs</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#roadmap-phases" class="md-skip">
+        <a href="#scientific-stack-webassembly" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Roadmap (phases)
+              Scientific stack & WebAssembly
             
           </span>
         </div>
@@ -438,26 +438,6 @@
       
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../scientific-stack/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Scientific stack & WebAssembly
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -470,7 +450,112 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Scientific stack & WebAssembly
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Scientific stack & WebAssembly
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#numeric-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      Numeric core
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ndarray-numpy-style-arrays" class="md-nav__link">
+    <span class="md-ellipsis">
+      NDArray — NumPy-style arrays
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fft-numpyfft-style-transforms" class="md-nav__link">
+    <span class="md-ellipsis">
+      FFT — numpy.fft-style transforms
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image-scikit-image-style-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image — scikit-image-style processing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in-the-browser-webassembly" class="md-nav__link">
+    <span class="md-ellipsis">
+      In the browser (WebAssembly)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../roadmap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -479,7 +564,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -544,6 +628,68 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#numeric-core" class="md-nav__link">
+    <span class="md-ellipsis">
+      Numeric core
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ndarray-numpy-style-arrays" class="md-nav__link">
+    <span class="md-ellipsis">
+      NDArray — NumPy-style arrays
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fft-numpyfft-style-transforms" class="md-nav__link">
+    <span class="md-ellipsis">
+      FFT — numpy.fft-style transforms
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#image-scikit-image-style-processing" class="md-nav__link">
+    <span class="md-ellipsis">
+      Image — scikit-image-style processing
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set" class="md-nav__link">
+    <span class="md-ellipsis">
+      Set
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in-the-browser-webassembly" class="md-nav__link">
+    <span class="md-ellipsis">
+      In the browser (WebAssembly)
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -557,77 +703,113 @@
                   
 
 
-<h1 id="roadmap-phases">Roadmap (phases)<a class="headerlink" href="#roadmap-phases" title="Permanent link">&para;</a></h1>
-<p>go-embedded-ruby is grown <strong>test-first</strong>, one vertical capability at a time. Each
-phase ends end-to-end runnable and differential-tested against MRI, rather than
-building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
+<h1 id="scientific-stack-webassembly">Scientific stack &amp; WebAssembly<a class="headerlink" href="#scientific-stack-webassembly" title="Permanent link">&para;</a></h1>
+<p>Beyond the language core, go-embedded-ruby ships a <strong>cgo-free numeric and
+scientific stack</strong> as built-in Ruby classes. Each numeric extension binds a
+pure-Go sibling library, so the whole stack keeps the project's <strong>CGO=0</strong>
+guarantee, cross-compiles to all six 64-bit architectures, and — because it is
+pure Go — also compiles to <strong>WebAssembly and runs in the browser</strong>.</p>
+<p>All behaviour is differential-tested against MRI Ruby 4.0.5 (where MRI has an
+equivalent) and the bindings hold the org-wide <strong>100% coverage</strong> gate.</p>
+<h2 id="numeric-core">Numeric core<a class="headerlink" href="#numeric-core" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Phase</th>
-<th>Name</th>
-<th>Goal</th>
-<th>Status</th>
+<th>Type</th>
+<th>Highlights</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>0</td>
-<td>Vertical slice</td>
-<td>Integers, floats, strings, locals, arithmetic, control flow, <code>def</code>/recursion, <code>puts</code>/<code>p</code> — a thin slice running end to end on the VM.</td>
-<td><strong>Done</strong></td>
+<td><code>Complex</code></td>
+<td><code>Complex(re, im)</code>, arithmetic, <code>real</code>/<code>imaginary</code>/<code>abs</code>/<code>conjugate</code>, <code>==</code></td>
 </tr>
 <tr>
-<td>1</td>
-<td>Object model &amp; dispatch</td>
-<td><code>RObject</code>/<code>RClass</code>, per-class method tables, ancestor-chain lookup, <code>method_missing</code>, classes + inheritance, <code>@ivars</code>, <code>new</code>/<code>initialize</code>, constants, <strong>modules + <code>include</code></strong>, <strong><code>super</code></strong>, <strong>blocks &amp; <code>yield</code></strong> (closures, <code>block_given?</code>, <code>Integer#times</code>), and — landed since — <code>Proc</code>/<code>lambda</code> and <code>do…end</code>.</td>
-<td><strong>Done</strong></td>
+<td><code>Rational</code></td>
+<td>exact <code>big.Rat</code>-backed arithmetic, Float contamination, coercion, <code>**</code>, <code>&lt;=&gt;</code> via <code>Comparable</code></td>
 </tr>
 <tr>
-<td>2</td>
-<td>Core types &amp; mixins</td>
-<td>Symbols (incl. variable-name <code>:name</code>), Array, ordered Hash, Range (incl. <strong>beginless/endless</strong>), and <code>Comparable</code>/<code>Enumerable</code> written once in an embedded-Ruby prelude over <code>&lt;=&gt;</code>/<code>each</code> (Comparable into Integer/Float/String, Enumerable into Array/Range/Hash). The <strong>full argument system</strong> — required/optional/<code>*splat</code>/keyword (<code>a:</code>, <code>b: 2</code>)/<code>**rest</code>/<code>&amp;block</code>, plus splat call-args. <strong>Blocks/Procs/lambdas</strong>: <code>&amp;block</code> capture, <code>proc</code>/<code>lambda</code>, the <strong>stabby lambda <code>-&gt;(){}</code></strong>, <code>&amp;proc</code> block-pass and <code>Symbol#to_proc</code> (<code>&amp;:sym</code>). <strong>Object model</strong>: <strong>class methods <code>def self.foo</code></strong>, <strong><code>attr_accessor</code>/<code>reader</code>/<code>writer</code></strong>, <strong><code>Struct.new</code></strong>, setter defs <code>def name=</code>, <strong>constant assignment</strong> and <strong>attribute assignment</strong>, <strong>endless methods <code>def foo = expr</code></strong>. Plus <code>&amp;&amp;</code>/<code>\|\|</code>, ternary, <code>case</code>/<code>when</code>, <code>**</code>, string interpolation, <code>%</code>/<code>format</code>/<code>sprintf</code>, a broad String method set, Integer/Float numeric methods, block auto-splat, <code>{name: value}</code> label hashes, <code>break</code>/<code>next</code>, compound assignment, and top-level ivars.</td>
-<td><strong>In progress</strong></td>
-</tr>
-<tr>
-<td>3</td>
-<td>Control flow, exceptions &amp; Fiber</td>
-<td>Real exception objects and status-return propagation; Fiber-on-goroutine. <strong>Exception hierarchy, <code>is_a?</code>/<code>kind_of?</code>/<code>instance_of?</code>, <code>raise</code>, <code>begin</code>/<code>rescue</code>/<code>ensure</code>/<code>else</code>/<code>retry</code> (block- and method-level), non-local <code>break</code>/<code>next</code>, and <code>Kernel#loop</code> done.</strong> (Remaining: Fiber, Enumerator, <code>lazy</code>.)</td>
-<td><strong>In progress</strong></td>
-</tr>
-<tr>
-<td>4</td>
-<td>Metaprogramming</td>
-<td><code>define_method</code>, <code>send</code>, singleton classes, reflection, monkey-patching surfaced as API. <strong>Done so far:</strong> <code>define_method</code>, <code>instance_eval</code>/<code>instance_exec</code>, <code>class_eval</code>/<code>module_eval</code>/<code>class_exec</code>, <code>send</code>/<code>public_send</code>, <code>respond_to?</code>, <code>instance_variable_get</code>/<code>set</code>/<code>defined?</code>, <code>itself</code>/<code>tap</code>/<code>then</code>/<code>yield_self</code>, and the <code>Integer</code>/<code>Float</code>/<code>String</code>/<code>Array</code> conversion methods. (Remaining: hooks — <code>included</code>/<code>inherited</code>/<code>method_added</code> — <code>define_singleton_method</code>, and string <code>eval</code>.)</td>
-<td><strong>In progress</strong></td>
-</tr>
-<tr>
-<td>5</td>
-<td>Full front-end</td>
-<td>Complete the lexer/parser/compiler to full Ruby 4.0 syntax (or settle the Prism-on-wazero decision). <strong>Landed:</strong> string interpolation, keyword args, endless methods (<code>def foo = expr</code>), beginless/endless ranges, the stabby lambda, <strong>multiple assignment / destructuring</strong>, <strong>full pattern matching <code>case</code>/<code>in</code></strong> (value/bind/class/array/hash/find/pin/alternative patterns, guards, one-line <code>=&gt;</code>/<code>in</code>, <code>deconstruct</code>/<code>deconstruct_keys</code>), <strong>safe navigation <code>&amp;.</code></strong>, <strong>numbered params (<code>_1</code>/<code>_2</code>) and <code>it</code></strong>, <strong>heredocs</strong> (<code>&lt;&lt;</code>/<code>&lt;&lt;-</code>/<code>&lt;&lt;~</code>, interpolating and literal), and <strong><code>%w</code>/<code>%i</code> arrays</strong>. (Remaining: <code>%q</code>/<code>%Q</code>/<code>%W</code>/<code>%I</code> literals.)</td>
-<td><strong>In progress</strong></td>
-</tr>
-<tr>
-<td>6</td>
-<td>Standard library</td>
-<td>Pure-Go stdlib coverage, with the regexp engine from the <code>go-onigmo</code> sibling org. <strong>Regexp bridge landed:</strong> <code>/re/imx</code> literals + <code>Regexp</code>/<code>MatchData</code> (<code>source</code>/<code>match</code>/<code>match?</code>/<code>=~</code>/<code>===</code>, <code>[]</code> by index or name, <code>pre_match</code>/<code>post_match</code>/<code>captures</code>/<code>named_captures</code>/<code>begin</code>/<code>end</code>/<code>size</code>), <code>String#=~</code>/<code>match</code>/<code>match?</code>/<code>scan</code>, and <code>sub</code>/<code>gsub</code>/<code>split</code> over a Regexp (backref templates, blocks, captured-group interpolation, field limit). CGO=0 via <code>go-onigmo</code>; differential-tested against MRI.</td>
-<td><strong>In progress</strong></td>
-</tr>
-<tr>
-<td>7</td>
-<td>Build toolchain</td>
-<td><code>rbgo build</code>. <strong>Landed:</strong> ahead-of-time <strong>method compilation</strong> to native Go (bytecode → Go → machine code), with <strong>unboxed <code>int64</code> integer kernels</strong> that deopt to the interpreter on overflow/<code>÷0</code> — the generated <code>fib(30)</code> beats <strong>MRI + YJIT ~4×</strong> while staying correct for every input (<a href="../architecture/build/#ahead-of-time-method-compilation-landed">AOT compiler</a>). (Remaining: require-graph scan, build-tag/<code>go:embed</code> stdlib selection, closed-world single-binary mode.)</td>
-<td><strong>In progress</strong></td>
-</tr>
-<tr>
-<td>8</td>
-<td>Conformance &amp; performance</td>
-<td>ruby/spec conformance and representation/perf work (tagging, fast paths, allocation).</td>
-<td>Planned</td>
+<td><code>Math</code></td>
+<td><code>sqrt</code>/<code>cbrt</code>/<code>exp</code>/<code>log</code>/<code>log2</code>/<code>log10</code>, trig &amp; hyperbolic, <code>atan2</code>/<code>hypot</code>/<code>pow</code>, <code>Math::PI</code>/<code>Math::E</code></td>
 </tr>
 </tbody>
 </table>
-<p>See <a href="../phases/phase0/">Phase 0 — Vertical slice</a> for what runs today.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">p</span><span class="w"> </span><span class="no">Rational</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="no">Rational</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="w">   </span><span class="c1"># =&gt; (5/6)</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">p</span><span class="w"> </span><span class="no">Complex</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="no">Complex</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">1</span><span class="p">)</span><span class="w">    </span><span class="c1"># =&gt; (3+1i)</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">p</span><span class="w"> </span><span class="no">Math</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">)</span><span class="w">                  </span><span class="c1"># =&gt; 5.0</span>
+</code></pre></div>
+<h2 id="ndarray-numpy-style-arrays">NDArray — NumPy-style arrays<a class="headerlink" href="#ndarray-numpy-style-arrays" title="Permanent link">&para;</a></h2>
+<p>Binds <a href="https://github.com/go-ndarray/ndarray">go-ndarray</a>: constructors
+<code>zeros</code>/<code>ones</code>/<code>full</code>/<code>arange</code>/<code>from</code>, element-wise <code>+ - * /</code> with scalar
+broadcasting, ufuncs (<code>sqrt</code>/<code>exp</code>/<code>log</code>/<code>sin</code>/<code>cos</code>/<code>abs</code>), reductions
+(<code>sum</code>/<code>mean</code>/<code>max</code>/<code>min</code>/<code>prod</code>/<code>argmax</code>/<code>argmin</code>), <code>matmul</code>/<code>dot</code>,
+<code>transpose</code>/<code>reshape</code>/<code>flatten</code>, and <code>shape</code>/<code>to_a</code>/<code>[]</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">NDArray</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">p</span><span class="w"> </span><span class="n">a</span><span class="o">.</span><span class="n">sum</span><span class="w">                 </span><span class="c1"># =&gt; 15.0</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nb">p</span><span class="w"> </span><span class="n">a</span><span class="o">.</span><span class="n">transpose</span><span class="o">.</span><span class="n">shape</span><span class="w">     </span><span class="c1"># =&gt; [3, 2]</span>
+</code></pre></div>
+<h2 id="fft-numpyfft-style-transforms">FFT — numpy.fft-style transforms<a class="headerlink" href="#fft-numpyfft-style-transforms" title="Permanent link">&para;</a></h2>
+<p>Binds <a href="https://github.com/go-fft/fft">go-fft</a> — no FFTW. 1-D
+(<code>fft</code>/<code>ifft</code>/<code>rfft</code>/<code>irfft</code>), N-D and 2-D (<code>fftn</code>/<code>ifftn</code>/<code>fft2</code>/<code>ifft2</code>),
+bin-frequency helpers (<code>fftfreq</code>/<code>rfftfreq</code>), windows
+(<code>hann</code>/<code>hamming</code>/<code>blackman</code>/<code>blackman_harris</code>/<code>bartlett</code>) and spectral helpers
+(<code>psd</code>/<code>spectrogram</code>). Spectra come back as <code>Complex</code> arrays.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">p</span><span class="w"> </span><span class="no">FFT</span><span class="o">.</span><span class="n">fft</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="o">|</span><span class="n">c</span><span class="o">|</span><span class="w"> </span><span class="n">c</span><span class="o">.</span><span class="n">real</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="w"> </span><span class="p">}</span><span class="w">   </span><span class="c1"># =&gt; [10.0, -2.0, -2.0, -2.0]</span>
+</code></pre></div>
+<h2 id="image-scikit-image-style-processing">Image — scikit-image-style processing<a class="headerlink" href="#image-scikit-image-style-processing" title="Permanent link">&para;</a></h2>
+<p>Binds <a href="https://github.com/go-images/images">go-images</a>: <code>Image.new</code>/<code>load</code>/<code>save</code>
+plus in-memory <code>decode</code>/<code>to_png</code>/<code>to_jpeg</code>, pixel <code>get</code>/<code>set</code>, filters
+(<code>gaussian_blur</code>/<code>box_blur</code>/<code>median</code>/<code>sharpen</code>), edges
+(<code>sobel</code>/<code>sobel_mag</code>/<code>prewitt</code>/<code>scharr</code>/<code>laplacian</code>/<code>canny</code>), morphology
+(<code>erode</code>/<code>dilate</code>), geometry (<code>resize</code>/<code>rotate90</code>/<code>crop</code>/<code>flip_*</code>) and colour
+(<code>grayscale</code>/<code>invert</code>/<code>rgb_to_hsv</code>/<code>otsu</code>).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="n">edges</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">Image</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;photo.png&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">gaussian_blur</span><span class="p">(</span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sobel_mag</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">edges</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;edges.png&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="set">Set<a class="headerlink" href="#set" title="Permanent link">&para;</a></h2>
+<p>Binds <a href="https://github.com/go-composites/set">go-composites/set</a>: <code>Set.new</code>/<code>[]</code>,
+<code>add</code>(<code>&lt;&lt;</code>)/<code>add?</code>/<code>delete</code>/<code>merge</code>/<code>clear</code>,
+<code>include?</code>/<code>member?</code>/<code>size</code>/<code>length</code>/<code>count</code>/<code>empty?</code>, <code>subset?</code>/<code>superset?</code>,
+<code>union</code>(<code>|</code>)/<code>intersection</code>(<code>&amp;</code>)/<code>difference</code>(<code>-</code>), and <code>each</code>/<code>to_a</code>/<code>to_set</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">p</span><span class="w"> </span><span class="p">(</span><span class="no">Set</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="o">]</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="no">Set</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">[</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="o">]</span><span class="p">))</span><span class="o">.</span><span class="n">to_a</span><span class="o">.</span><span class="n">sort</span><span class="w">   </span><span class="c1"># =&gt; [2, 3]</span>
+</code></pre></div>
+<h2 id="in-the-browser-webassembly">In the browser (WebAssembly)<a class="headerlink" href="#in-the-browser-webassembly" title="Permanent link">&para;</a></h2>
+<p>The interpreter and the whole stack above compile to <code>GOOS=js GOARCH=wasm</code> and
+run <strong>entirely in the browser</strong> — there is no server-side code. The
+<a href="https://github.com/go-embedded-ruby/ruby/tree/main/web"><code>web/</code></a> directory holds
+a self-contained playground: a Ruby REPL and an image pipeline that loads an
+image, runs <code>gaussian_blur</code>/<code>sobel</code>/<code>canny</code>, and renders the result to a
+<code>&lt;canvas&gt;</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./web/build.sh<span class="w"> </span>serve<span class="w">     </span><span class="c1"># build web/rbgo.wasm and serve http://localhost:8080</span>
+</code></pre></div>
+<p>The wasm module (<a href="https://github.com/go-embedded-ruby/ruby/tree/main/cmd/wasm"><code>cmd/wasm</code></a>)
+publishes two JS functions:</p>
+<table>
+<thead>
+<tr>
+<th>function</th>
+<th>returns</th>
+<th>used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rbgoEval(src)</code></td>
+<td><code>{output, value, error}</code></td>
+<td>the REPL</td>
+</tr>
+<tr>
+<td><code>rbgoImage(src, bytes)</code></td>
+<td><code>{output, value, error, bytes}</code></td>
+<td>the image demo</td>
+</tr>
+</tbody>
+</table>
+<p><code>rbgoImage</code> binds the input image's raw bytes to the Ruby constant <code>INPUT</code>, runs
+<code>src</code>, and returns the result <code>String</code>'s bytes (e.g. from <code>Image#to_png</code>) as a
+<code>Uint8Array</code>. Arbitrary REPL input can never crash the interpreter: a native
+binding that faults on bad arguments is converted to a rescuable Ruby
+<code>ArgumentError</code>.</p>
 
 
 
