@@ -709,20 +709,23 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   (<code>+= -= *= /= %= &lt;&lt;= ||= &amp;&amp;=</code>).</li>
 <li><strong>Methods:</strong> required / optional / <code>*splat</code> / keyword (<code>a:</code>, <code>b: 2</code>) /
   <code>**rest</code> / <code>&amp;block</code> parameters, setter defs (<code>def name=</code>), <strong>endless methods</strong>
-  (<code>def foo = expr</code>), recursion, <code>return</code>, <code>super</code>.</li>
+  (<code>def foo = expr</code>), <strong>singleton method defs</strong> (<code>def obj.foo</code> / <code>def Const.foo</code>),
+  recursion, <code>return</code>, <code>super</code>.</li>
 <li><strong>Blocks / Procs / lambdas:</strong> <code>{ }</code> / <code>do…end</code> closures, <code>yield</code>,
   <code>block_given?</code>, <code>&amp;block</code> capture, <strong>numbered params (<code>_1</code>/<code>_2</code>) and <code>it</code></strong>,
   <code>Proc</code>/<code>lambda</code>/<strong>stabby <code>-&gt;(){}</code></strong>, <code>&amp;proc</code> block-pass and <code>Symbol#to_proc</code>
   (the <code>&amp;:sym</code> shorthand).</li>
-<li><strong>Classes &amp; modules:</strong> inheritance, <code>@ivars</code>, <code>new</code>/<code>initialize</code>, constants and
-  constant assignment, <strong>class methods</strong> (<code>def self.foo</code>), modules + <code>include</code>
-  (mixins), <code>super</code>, <strong><code>attr_accessor</code>/<code>reader</code>/<code>writer</code></strong>, <strong><code>Struct.new</code></strong>.</li>
+<li><strong>Classes &amp; modules:</strong> inheritance, <code>@ivars</code>, <strong><code>@@class variables</code></strong> (shared
+  down the hierarchy), <code>new</code>/<code>initialize</code>, constants and constant assignment,
+  <strong>class methods</strong> (<code>def self.foo</code>), modules + <code>include</code> (mixins), <code>super</code>,
+  <strong><code>attr_accessor</code>/<code>reader</code>/<code>writer</code></strong>, <strong><code>Struct.new</code></strong>.</li>
 <li><strong>Metaprogramming:</strong> dynamic dispatch via mutable method tables,
   <code>method_missing</code>, <code>send</code>/<code>public_send</code>, <code>respond_to?</code>, <strong><code>define_method</code></strong>,
   <strong><code>instance_eval</code>/<code>instance_exec</code></strong>, <strong><code>class_eval</code>/<code>module_eval</code>/<code>class_exec</code></strong>,
   <code>instance_variable_get</code>/<code>set</code>/<code>defined?</code>, <strong>string <code>eval</code></strong> — the embedded
-  front-end compiling Ruby at runtime (against the caller's <code>self</code>) — and the
-  class/module <strong>hooks</strong> <code>inherited</code>/<code>included</code>/<code>method_added</code>.</li>
+  front-end compiling Ruby at runtime (against the caller's <code>self</code>) — the
+  class/module <strong>hooks</strong> <code>inherited</code>/<code>included</code>/<code>method_added</code>/<code>extended</code>,
+  <strong><code>define_singleton_method</code>/<code>extend</code></strong>, and <strong><code>$global variables</code></strong>.</li>
 <li><strong>Runtime loading:</strong> <strong><code>require</code>/<code>require_relative</code></strong> load, compile and run a
   <code>.rb</code> file once (relative + search-path resolution, <code>LoadError</code> on miss) — the
   embedded front-end loading code at runtime.</li>
@@ -736,7 +739,10 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <a href="https://github.com/go-onigmo">go-onigmo</a> engine, so the build stays <strong>CGO=0</strong>.</li>
 <li><strong>Collections:</strong> Array / Hash / Range with <code>Enumerable</code> (map/select/reduce/…)
   and <code>Comparable</code>, both written once in embedded Ruby; Array <strong>bang methods</strong>
-  (<code>map!</code>/<code>sort!</code>/<code>select!</code>/<code>reject!</code>/<code>compact!</code>/<code>uniq!</code>/<code>reverse!</code>).</li>
+  (<code>map!</code>/<code>sort!</code>/<code>select!</code>/<code>reject!</code>/<code>compact!</code>/<code>uniq!</code>/<code>reverse!</code>);
+  <strong><code>Range#step</code>/<code>Integer#step</code></strong>; an eager <strong><code>Enumerator</code></strong> — every blockless
+  iterator returns one, with <code>next</code>/<code>peek</code>/<code>rewind</code>/<code>with_index</code>/<code>to_a</code> and full
+  <code>Enumerable</code> chaining.</li>
 <li><strong>Objects:</strong> <code>dup</code>/<code>clone</code>/<code>freeze</code>/<code>frozen?</code>, <code>equal?</code>,
   <code>instance_variable_get</code>/<code>set</code>.</li>
 <li><strong>Numeric &amp; scientific stack:</strong> <code>Complex</code>, <code>Rational</code>, the <code>Math</code> module, and a
@@ -747,9 +753,9 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   go-images / go-composites). See
   <a href="scientific-stack/">Scientific stack &amp; WebAssembly</a>.</li>
 </ul>
-<p>Still ahead (see the <a href="roadmap/">roadmap</a>): Fiber / Enumerator / lazy, the
-remaining hooks (<code>extended</code>/<code>prepended</code>, once <code>extend</code>/<code>prepend</code> land), a
-<code>Binding</code> for <code>eval</code> local-variable capture, and the <code>rbgo build</code> toolchain.</p>
+<p>Still ahead (see the <a href="roadmap/">roadmap</a>): Fiber and lazy enumerators,
+<code>prepend</code>, a <code>Binding</code> for <code>eval</code> local-variable capture, and the remaining
+<code>rbgo build</code> toolchain work.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
