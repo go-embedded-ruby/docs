@@ -720,8 +720,9 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
 <li><strong>Metaprogramming:</strong> dynamic dispatch via mutable method tables,
   <code>method_missing</code>, <code>send</code>/<code>public_send</code>, <code>respond_to?</code>, <strong><code>define_method</code></strong>,
   <strong><code>instance_eval</code>/<code>instance_exec</code></strong>, <strong><code>class_eval</code>/<code>module_eval</code>/<code>class_exec</code></strong>,
-  <code>instance_variable_get</code>/<code>set</code>/<code>defined?</code>, and <strong>string <code>eval</code></strong> — the embedded
-  front-end compiling Ruby at runtime (against the caller's <code>self</code>).</li>
+  <code>instance_variable_get</code>/<code>set</code>/<code>defined?</code>, <strong>string <code>eval</code></strong> — the embedded
+  front-end compiling Ruby at runtime (against the caller's <code>self</code>) — and the
+  class/module <strong>hooks</strong> <code>inherited</code>/<code>included</code>/<code>method_added</code>.</li>
 <li><strong>Strings:</strong> mutable (reference semantics) with <code>&lt;&lt;</code>/concat/replace/prepend/
   insert/<code>[]=</code>/slice!/the bang methods and <code>freeze</code>/<code>FrozenError</code>;
   interpolation, heredocs (<code>&lt;&lt;</code>/<code>&lt;&lt;-</code>/<code>&lt;&lt;~</code>), <code>%w</code>/<code>%i</code> literals,
@@ -742,7 +743,8 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <a href="scientific-stack/">Scientific stack &amp; WebAssembly</a>.</li>
 </ul>
 <p>Still ahead (see the <a href="roadmap/">roadmap</a>): Fiber / Enumerator / lazy, the
-class/module hooks (<code>included</code>/<code>inherited</code>/…), and the <code>rbgo build</code> toolchain.</p>
+remaining hooks (<code>extended</code>/<code>prepended</code>, once <code>extend</code>/<code>prepend</code> land), a
+<code>Binding</code> for <code>eval</code> local-variable capture, and the <code>rbgo build</code> toolchain.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
