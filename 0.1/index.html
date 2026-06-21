@@ -723,6 +723,9 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>instance_variable_get</code>/<code>set</code>/<code>defined?</code>, <strong>string <code>eval</code></strong> — the embedded
   front-end compiling Ruby at runtime (against the caller's <code>self</code>) — and the
   class/module <strong>hooks</strong> <code>inherited</code>/<code>included</code>/<code>method_added</code>.</li>
+<li><strong>Runtime loading:</strong> <strong><code>require</code>/<code>require_relative</code></strong> load, compile and run a
+  <code>.rb</code> file once (relative + search-path resolution, <code>LoadError</code> on miss) — the
+  embedded front-end loading code at runtime.</li>
 <li><strong>Strings:</strong> mutable (reference semantics) with <code>&lt;&lt;</code>/concat/replace/prepend/
   insert/<code>[]=</code>/slice!/the bang methods and <code>freeze</code>/<code>FrozenError</code>;
   interpolation, heredocs (<code>&lt;&lt;</code>/<code>&lt;&lt;-</code>/<code>&lt;&lt;~</code>), <code>%w</code>/<code>%i</code> literals,
