@@ -58,7 +58,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 - **Metaprogramming:** dynamic dispatch via mutable method tables,
   `method_missing`, `send`/`public_send`, `respond_to?`, **`define_method`**,
   **`instance_eval`/`instance_exec`**, **`class_eval`/`module_eval`/`class_exec`**,
-  `instance_variable_get`/`set`/`defined?`.
+  `instance_variable_get`/`set`/`defined?`, and **string `eval`** — the embedded
+  front-end compiling Ruby at runtime (against the caller's `self`).
 - **Strings:** mutable (reference semantics) with `<<`/concat/replace/prepend/
   insert/`[]=`/slice!/the bang methods and `freeze`/`FrozenError`;
   interpolation, heredocs (`<<`/`<<-`/`<<~`), `%w`/`%i` literals,
@@ -78,8 +79,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `Set` — each binding a pure-Go sibling library. See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
-Still ahead (see the [roadmap](roadmap.md)): Fiber / Enumerator / lazy, hooks
-(`included`/`inherited`/…) and string `eval`, and the `rbgo build` toolchain.
+Still ahead (see the [roadmap](roadmap.md)): Fiber / Enumerator / lazy, the
+class/module hooks (`included`/`inherited`/…), and the `rbgo build` toolchain.
 
 ## Repositories
 
