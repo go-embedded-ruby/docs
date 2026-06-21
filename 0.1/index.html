@@ -685,7 +685,9 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
 <ul>
 <li><strong>Values:</strong> integers (<code>int64</code>, with automatic <strong>Bignum</strong> promotion on int64
   overflow and arbitrary-precision integer literals, <strong>radix literals</strong> <code>0x</code>/<code>0o</code>/
-  bare-<code>0</code>-octal/<code>0b</code>/<code>0d</code> with underscores), floats, strings, symbols (incl.
+  bare-<code>0</code>-octal/<code>0b</code>/<code>0d</code> with underscores), floats (incl. <strong>scientific
+  notation</strong> <code>1.5e3</code>/<code>1e-3</code>), strings (<strong>single- and double-quoted</strong>, with
+  interpolation and heredocs), symbols (incl.
   <strong>operator-method symbols</strong> <code>:+</code>/<code>:&lt;&lt;</code>/<code>:[]=</code>/<code>:&lt;=&gt;</code>), arrays, hashes, ranges
   (incl. beginless/endless), <code>true</code>/<code>false</code>/<code>nil</code>, <code>self</code>, <code>Proc</code>/lambda,
   <code>Regexp</code>/<code>MatchData</code>, <code>Struct</code>.</li>
@@ -751,7 +753,7 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
 <tbody>
 <tr>
 <td><a href="https://github.com/go-embedded-ruby/ruby"><code>ruby</code></a></td>
-<td>the interpreter — the bytecode VM, embedded front-end, and the <code>rbgo</code> CLI binary</td>
+<td>the interpreter — the bytecode VM, the compiler, and the <code>rbgo</code> CLI binary (it imports the front-end below)</td>
 </tr>
 <tr>
 <td><a href="https://github.com/go-embedded-ruby/docs"><code>docs</code></a></td>
@@ -763,8 +765,14 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
 </tr>
 </tbody>
 </table>
-<p>The regexp engine is <strong>not</strong> in this org: it is a separate pure-Go Onigmo
-reimplementation in the sibling org <a href="https://github.com/go-onigmo">go-onigmo</a> (repo <code>regexp</code>).</p>
+<p>Two core pieces live in <strong>sibling orgs</strong>, reused by the interpreter (and by any
+other Go program) without cgo:</p>
+<ul>
+<li>the <strong>front-end</strong> — lexer, parser and AST — is the pure-Go
+  <a href="https://github.com/go-ruby-parser/parser">go-ruby-parser</a> module (repo <code>parser</code>);</li>
+<li>the <strong>regexp engine</strong> is a pure-Go Onigmo reimplementation in
+  <a href="https://github.com/go-onigmo">go-onigmo</a> (repo <code>regexp</code>).</li>
+</ul>
 <h2 id="how-it-differs-from-goruby">How it differs from goruby<a class="headerlink" href="#how-it-differs-from-goruby" title="Permanent link">&para;</a></h2>
 <p>There is an existing Go project also called <a href="https://github.com/goruby/goruby">goruby</a>. go-embedded-ruby
 takes a deliberately different path:</p>

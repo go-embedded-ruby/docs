@@ -467,9 +467,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#open-decision-hand-written-vs-prism" class="md-nav__link">
+  <a href="#decision-hand-written-extracted-as-a-reusable-module" class="md-nav__link">
     <span class="md-ellipsis">
-      Open decision: hand-written vs Prism
+      Decision: hand-written (extracted as a reusable module)
     </span>
   </a>
   
@@ -646,9 +646,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#open-decision-hand-written-vs-prism" class="md-nav__link">
+  <a href="#decision-hand-written-extracted-as-a-reusable-module" class="md-nav__link">
     <span class="md-ellipsis">
-      Open decision: hand-written vs Prism
+      Decision: hand-written (extracted as a reusable module)
     </span>
   </a>
   
@@ -674,6 +674,17 @@
 context-sensitive, so each stage carries a little state to disambiguate. The
 front-end is <strong>the largest single effort</strong> in the project and ships <em>inside</em> the
 binary so that <code>eval</code> and runtime <code>require</code> can re-run it.</p>
+<div class="admonition note">
+<p class="admonition-title">The lexer, parser and AST are a standalone module</p>
+<p>The lexer, parser and AST have been <strong>extracted</strong> into the pure-Go
+<a href="https://github.com/go-ruby-parser/parser">go-ruby-parser</a> module
+(<code>github.com/go-ruby-parser/parser</code>), which this interpreter imports — the
+same dogfooding model as the <a href="https://github.com/go-onigmo">go-onigmo</a>
+regexp engine. They are still compiled <em>into</em> the binary, so <code>eval</code>/<code>require</code>
+keep working; they are simply maintained, tested and reusable on their own
+(any Go program can now parse Ruby to an AST without cgo). The <strong>compiler</strong>
+(AST → bytecode) remains in this repository.</p>
+</div>
 <h2 id="lexer">Lexer<a class="headerlink" href="#lexer" title="Permanent link">&para;</a></h2>
 <p>The lexer is <strong>stateful</strong>. The key piece of state is <code>SpaceBefore</code> — the direct
 analogue of MRI's <code>spaceSeen</code> — which records whether whitespace preceded the
@@ -699,18 +710,17 @@ stack instructions for each node and <strong>resolving locals to slots</strong> 
 named local variables into the integer slot indices the VM loads and stores. (It
 also builds the catch tables described in
 <a href="../bytecode-vm/">Bytecode &amp; VM</a>.)</p>
-<h2 id="open-decision-hand-written-vs-prism">Open decision: hand-written vs Prism<a class="headerlink" href="#open-decision-hand-written-vs-prism" title="Permanent link">&para;</a></h2>
-<p>How far to hand-write the front-end is an <strong>open question</strong>. The two candidates:</p>
-<ul>
-<li><strong>Hand-written</strong> lexer + parser, as described above — full control, but the
-  most work, and a moving target against MRI.</li>
-<li><strong>Port Prism</strong> (Ruby's official parser library) compiled <strong>to WebAssembly</strong>
-  and run under a <strong>pure-Go <a href="https://wazero.io/">wazero</a> runtime</strong> — this would
-  reuse MRI's own parser while keeping the cgo-free guarantee, at the cost of an
-  embedded WASM module and the wazero dependency.</li>
-</ul>
-<p>The trade-off is conformance-for-free versus footprint and control; it is not
-yet settled.</p>
+<h2 id="decision-hand-written-extracted-as-a-reusable-module">Decision: hand-written (extracted as a reusable module)<a class="headerlink" href="#decision-hand-written-extracted-as-a-reusable-module" title="Permanent link">&para;</a></h2>
+<p>How far to hand-write the front-end was an early open question. It is now
+<strong>settled in favour of hand-writing</strong>: the lexer + parser + AST are a complete,
+100%-covered, MRI-differential-tested module
+(<a href="https://github.com/go-ruby-parser/parser">go-ruby-parser</a>) that this
+interpreter consumes and that any Go program can reuse. Full control won out, and
+extracting it turned the "most work" cost into ecosystem value.</p>
+<p>The alternative once considered — porting <strong>Prism</strong> (Ruby's official parser)
+compiled to WebAssembly under a pure-Go <a href="https://wazero.io/">wazero</a> runtime —
+remains theoretically possible (conformance-for-free at the cost of an embedded
+WASM module + the wazero dependency), but is not planned.</p>
 
 
 
