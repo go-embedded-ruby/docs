@@ -47,20 +47,23 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   (`+= -= *= /= %= <<= ||= &&=`).
 - **Methods:** required / optional / `*splat` / keyword (`a:`, `b: 2`) /
   `**rest` / `&block` parameters, setter defs (`def name=`), **endless methods**
-  (`def foo = expr`), recursion, `return`, `super`.
+  (`def foo = expr`), **singleton method defs** (`def obj.foo` / `def Const.foo`),
+  recursion, `return`, `super`.
 - **Blocks / Procs / lambdas:** `{ }` / `do…end` closures, `yield`,
   `block_given?`, `&block` capture, **numbered params (`_1`/`_2`) and `it`**,
   `Proc`/`lambda`/**stabby `->(){}`**, `&proc` block-pass and `Symbol#to_proc`
   (the `&:sym` shorthand).
-- **Classes & modules:** inheritance, `@ivars`, `new`/`initialize`, constants and
-  constant assignment, **class methods** (`def self.foo`), modules + `include`
-  (mixins), `super`, **`attr_accessor`/`reader`/`writer`**, **`Struct.new`**.
+- **Classes & modules:** inheritance, `@ivars`, **`@@class variables`** (shared
+  down the hierarchy), `new`/`initialize`, constants and constant assignment,
+  **class methods** (`def self.foo`), modules + `include` (mixins), `super`,
+  **`attr_accessor`/`reader`/`writer`**, **`Struct.new`**.
 - **Metaprogramming:** dynamic dispatch via mutable method tables,
   `method_missing`, `send`/`public_send`, `respond_to?`, **`define_method`**,
   **`instance_eval`/`instance_exec`**, **`class_eval`/`module_eval`/`class_exec`**,
   `instance_variable_get`/`set`/`defined?`, **string `eval`** — the embedded
-  front-end compiling Ruby at runtime (against the caller's `self`) — and the
-  class/module **hooks** `inherited`/`included`/`method_added`.
+  front-end compiling Ruby at runtime (against the caller's `self`) — the
+  class/module **hooks** `inherited`/`included`/`method_added`/`extended`,
+  **`define_singleton_method`/`extend`**, and **`$global variables`**.
 - **Runtime loading:** **`require`/`require_relative`** load, compile and run a
   `.rb` file once (relative + search-path resolution, `LoadError` on miss) — the
   embedded front-end loading code at runtime.
@@ -74,7 +77,10 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   [go-onigmo][go-onigmo] engine, so the build stays **CGO=0**.
 - **Collections:** Array / Hash / Range with `Enumerable` (map/select/reduce/…)
   and `Comparable`, both written once in embedded Ruby; Array **bang methods**
-  (`map!`/`sort!`/`select!`/`reject!`/`compact!`/`uniq!`/`reverse!`).
+  (`map!`/`sort!`/`select!`/`reject!`/`compact!`/`uniq!`/`reverse!`);
+  **`Range#step`/`Integer#step`**; an eager **`Enumerator`** — every blockless
+  iterator returns one, with `next`/`peek`/`rewind`/`with_index`/`to_a` and full
+  `Enumerable` chaining.
 - **Objects:** `dup`/`clone`/`freeze`/`frozen?`, `equal?`,
   `instance_variable_get`/`set`.
 - **Numeric & scientific stack:** `Complex`, `Rational`, the `Math` module, and a
@@ -85,9 +91,9 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   go-images / go-composites). See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
-Still ahead (see the [roadmap](roadmap.md)): Fiber / Enumerator / lazy, the
-remaining hooks (`extended`/`prepended`, once `extend`/`prepend` land), a
-`Binding` for `eval` local-variable capture, and the `rbgo build` toolchain.
+Still ahead (see the [roadmap](roadmap.md)): Fiber and lazy enumerators,
+`prepend`, a `Binding` for `eval` local-variable capture, and the remaining
+`rbgo build` toolchain work.
 
 ## Repositories
 
