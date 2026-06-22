@@ -122,8 +122,9 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   go-images / go-composites). See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
-Still ahead (see the [roadmap](roadmap.md)): the remaining `rbgo build`
-closed-world toolchain work.
+Closed-world builds have landed (`rbgo build --closed` bakes the program in as
+bytecode and drops the front-end). Still ahead (see the [roadmap](roadmap.md)):
+conformance and representation/perf tuning (Phase 8).
 
 ## Repositories
 
