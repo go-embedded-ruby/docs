@@ -38,6 +38,11 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `expr rescue fallback`), `begin`/`rescue`/`ensure`/`else`/`retry`,
   `break`/`next`, `Kernel#loop`, and **`Fiber`** (cooperative coroutines on
   goroutines — `Fiber.new`/`resume`/`Fiber.yield`/`alive?`).
+- **Concurrency:** **`Thread`** (`new`/`join`/`value`/`status`/`current`/`main`/
+  `list`/`pass`, thread-locals, exception propagation on join), **`Mutex`**
+  (`lock`/`try_lock`/`synchronize`/`owned?`) and **`Queue`** (blocking
+  `push`/`pop`/`close`), on an **emulated GVL** — one Ruby thread runs at a time,
+  matching MRI's memory model (race-free under the Go race detector).
 - **Pattern matching (`case`/`in`):** value, variable-binding, class/constant,
   array (incl. splat and nested), hash (`deconstruct_keys`, `**rest`/`**nil`),
   find (`[*pre, x, *post]`), pin (`^x`) and alternative (`a | b`) patterns;
@@ -108,9 +113,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   go-images / go-composites). See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
-Still ahead (see the [roadmap](roadmap.md)): `Thread` and fuller `IO`/`File`, a
-`Binding` for `eval` local-variable capture, and the remaining `rbgo build`
-toolchain work.
+Still ahead (see the [roadmap](roadmap.md)): fuller `IO`/`File`, a `Binding` for
+`eval` local-variable capture, and the remaining `rbgo build` toolchain work.
 
 ## Repositories
 
