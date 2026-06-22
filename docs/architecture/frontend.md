@@ -9,7 +9,7 @@ binary so that `eval` and runtime `require` can re-run it.
     The lexer, parser and AST have been **extracted** into the pure-Go
     [go-ruby-parser](https://github.com/go-ruby-parser/parser) module
     (`github.com/go-ruby-parser/parser`), which this interpreter imports — the
-    same dogfooding model as the [go-onigmo](https://github.com/go-onigmo)
+    same dogfooding model as the [go-ruby-regexp](https://github.com/go-ruby-regexp)
     regexp engine. They are still compiled *into* the binary, so `eval`/`require`
     keep working; they are simply maintained, tested and reusable on their own
     (any Go program can now parse Ruby to an AST without cgo). The **compiler**

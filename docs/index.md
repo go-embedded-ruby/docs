@@ -76,7 +76,7 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 - **Regular expressions:** `/re/imx` literals, `Regexp`/`MatchData`, `=~` /
   `match` / `match?` / `scan` / `gsub` / `sub` / `split`, and the match globals
   `$~` / `$1`..`$N` / `$&` / `` $` `` / `$'` — running on the standalone pure-Go
-  [go-onigmo][go-onigmo] engine, so the build stays **CGO=0**.
+  [go-ruby-regexp][go-ruby-regexp] engine, so the build stays **CGO=0**.
 - **Standard library leaves:** **`JSON`** (`generate`/`dump`/`pretty_generate`/
   `parse` + `Object#to_json`, key order preserved), **`Digest`** (MD5/SHA1/
   SHA256/SHA512), **`Base64`**, and **`Zlib`** (crc32/adler32 + Deflate/Inflate)
@@ -119,7 +119,7 @@ other Go program) without cgo:
 - the **front-end** — lexer, parser and AST — is the pure-Go
   [go-ruby-parser][go-ruby-parser] module (repo `parser`);
 - the **regexp engine** is a pure-Go Onigmo reimplementation in
-  [go-onigmo][go-onigmo] (repo `regexp`).
+  [go-ruby-regexp][go-ruby-regexp] (repo `regexp`).
 
 ## How it differs from goruby
 
@@ -149,6 +149,6 @@ Source lives at
 [github.com/go-embedded-ruby/ruby](https://github.com/go-embedded-ruby/ruby).
 
 [go-mruby]: https://github.com/mitchellh/go-mruby
-[go-onigmo]: https://github.com/go-onigmo
+[go-ruby-regexp]: https://github.com/go-ruby-regexp
 [go-ruby-parser]: https://github.com/go-ruby-parser/parser
 [goruby]: https://github.com/goruby/goruby

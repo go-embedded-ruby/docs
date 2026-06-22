@@ -19,7 +19,7 @@ self-contained. Please read these before opening a pull request.
 - **Pure Go, cgo disabled.** The whole point is a single static binary with no C
   toolchain. Code must build with `CGO_ENABLED=0`. If a feature seems to need C,
   it needs a pure-Go path instead (as the regexp engine does in the
-  [go-onigmo](https://github.com/go-onigmo) sibling org).
+  [go-ruby-regexp](https://github.com/go-ruby-regexp) sibling org).
 
 ## Workflow
 
