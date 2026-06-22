@@ -82,6 +82,12 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `parse` + `Object#to_json`, key order preserved), **`Digest`** (MD5/SHA1/
   SHA256/SHA512), **`Base64`**, and **`Zlib`** (crc32/adler32 + Deflate/Inflate)
   — all `require`-able and pure-Go.
+- **`Marshal`** (`dump`/`load`/`restore` + `MAJOR_VERSION`/`MINOR_VERSION`):
+  Ruby's binary serialization, **byte-for-byte identical to MRI** across
+  Integer/Bignum, Float, Symbol, String, Array and Hash (incl. defaults), with
+  the symbol and object-link tables so shared objects and cycles round-trip.
+  Runs on the standalone pure-Go [go-ruby-marshal][go-ruby-marshal] engine, so
+  the build stays **CGO=0**.
 - **File & Random:** **`File`** — path helpers and `read`/`write`/`exist?`/
   `size`/`delete` (`Errno::ENOENT` on a missing path); **`Random`** — a bit-exact
   reimplementation of MRI's seeded MT19937.
@@ -102,9 +108,9 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   go-images / go-composites). See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
-Still ahead (see the [roadmap](roadmap.md)): `Thread`, `Marshal` and fuller
-`IO`/`File`, a `Binding` for `eval` local-variable capture, and the remaining
-`rbgo build` toolchain work.
+Still ahead (see the [roadmap](roadmap.md)): `Thread` and fuller `IO`/`File`, a
+`Binding` for `eval` local-variable capture, and the remaining `rbgo build`
+toolchain work.
 
 ## Repositories
 
@@ -151,5 +157,6 @@ Source lives at
 
 [go-mruby]: https://github.com/mitchellh/go-mruby
 [go-ruby-regexp]: https://github.com/go-ruby-regexp
+[go-ruby-marshal]: https://github.com/go-ruby-marshal/marshal
 [go-ruby-parser]: https://github.com/go-ruby-parser/parser
 [goruby]: https://github.com/goruby/goruby
