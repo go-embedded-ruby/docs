@@ -743,7 +743,8 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
 <li><strong>Strings:</strong> mutable (reference semantics) with <code>&lt;&lt;</code>/concat/replace/prepend/
   insert/<code>[]=</code>/slice!/the bang methods and <code>freeze</code>/<code>FrozenError</code>;
   interpolation, heredocs (<code>&lt;&lt;</code>/<code>&lt;&lt;-</code>/<code>&lt;&lt;~</code>), <code>%w</code>/<code>%i</code> literals,
-  <code>%</code>/<code>format</code>/<code>sprintf</code>, case/strip/<code>split</code>/<code>each_char</code>/<code>lines</code> and friends.</li>
+  <code>%</code>/<code>format</code>/<code>sprintf</code>, case/strip/<code>split</code>/<code>each_char</code>/<code>lines</code>/<code>succ</code>(<code>next</code>)
+  and friends.</li>
 <li><strong>Regular expressions:</strong> <code>/re/imx</code> literals, <code>Regexp</code>/<code>MatchData</code>, <code>=~</code> /
   <code>match</code> / <code>match?</code> / <code>scan</code> / <code>gsub</code> / <code>sub</code> / <code>split</code>, and the match globals
   <code>$~</code> / <code>$1</code>..<code>$N</code> / <code>$&amp;</code> / <code>$`</code> / <code>$'</code> — running on the standalone pure-Go
@@ -767,10 +768,12 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>$stdout</code> so reassigning it to a <code>StringIO</code> captures output, as in MRI;
   <strong><code>Dir</code></strong> — <code>entries</code>/<code>children</code>/<code>glob</code>, <code>exist?</code>/<code>empty?</code>/<code>pwd</code>/<code>home</code>,
   <code>mkdir</code>/<code>rmdir</code>/<code>chdir</code>, raising <code>Errno::ENOENT</code>/<code>Errno::EEXIST</code>.</li>
-<li><strong>Collections:</strong> Array / Hash / Range with <code>Enumerable</code> (map/select/reduce/…)
-  and <code>Comparable</code>, both written once in embedded Ruby; Array <strong>bang methods</strong>
-  (<code>map!</code>/<code>sort!</code>/<code>select!</code>/<code>reject!</code>/<code>compact!</code>/<code>uniq!</code>/<code>reverse!</code>);
-  <strong><code>Range#step</code>/<code>Integer#step</code></strong>; an eager <strong><code>Enumerator</code></strong> — every blockless
+<li><strong>Collections:</strong> Array / Hash / Range with <code>Enumerable</code> (map/select/reduce/
+  <code>minmax</code>/…) and <code>Comparable</code>, both written once in embedded Ruby; Array <strong>bang
+  methods</strong> (<code>map!</code>/<code>sort!</code>/<code>select!</code>/<code>reject!</code>/<code>compact!</code>/<code>uniq!</code>/<code>reverse!</code>),
+  <strong>structural/combinatorial ops</strong> (<code>transpose</code>/<code>product</code>/<code>combination</code>/<code>to_h</code>),
+  the <strong><code>Hash[…]</code></strong> constructor, <strong>String ranges</strong> (<code>("a".."e")</code> via
+  <code>String#succ</code>); <strong><code>Range#step</code>/<code>Integer#step</code></strong>; an eager <strong><code>Enumerator</code></strong> — every blockless
   iterator returns one, with <code>next</code>/<code>peek</code>/<code>rewind</code>/<code>with_index</code>/<code>to_a</code> and full
   <code>Enumerable</code> chaining — and <strong><code>Enumerator::Lazy</code></strong> (<code>lazy</code>) for deferred chains
   over finite or infinite sources.</li>
