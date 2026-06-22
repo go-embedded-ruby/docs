@@ -758,6 +758,12 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
 <li><strong>File &amp; Random:</strong> <strong><code>File</code></strong> — path helpers and <code>read</code>/<code>write</code>/<code>exist?</code>/
   <code>size</code>/<code>delete</code> (<code>Errno::ENOENT</code> on a missing path); <strong><code>Random</code></strong> — a bit-exact
   reimplementation of MRI's seeded MT19937.</li>
+<li><strong>IO &amp; Dir:</strong> <strong><code>IO</code></strong> with <code>$stdout</code>/<code>$stderr</code>/<code>STDOUT</code>/<code>STDERR</code>/<code>$stdin</code> as
+  real objects, <strong><code>StringIO</code></strong> (<code>require "stringio"</code>) with the full read/write
+  surface, and <code>Kernel#warn</code> — <code>puts</code>/<code>print</code>/<code>p</code> route through the current
+  <code>$stdout</code> so reassigning it to a <code>StringIO</code> captures output, as in MRI;
+  <strong><code>Dir</code></strong> — <code>entries</code>/<code>children</code>/<code>glob</code>, <code>exist?</code>/<code>empty?</code>/<code>pwd</code>/<code>home</code>,
+  <code>mkdir</code>/<code>rmdir</code>/<code>chdir</code>, raising <code>Errno::ENOENT</code>/<code>Errno::EEXIST</code>.</li>
 <li><strong>Collections:</strong> Array / Hash / Range with <code>Enumerable</code> (map/select/reduce/…)
   and <code>Comparable</code>, both written once in embedded Ruby; Array <strong>bang methods</strong>
   (<code>map!</code>/<code>sort!</code>/<code>select!</code>/<code>reject!</code>/<code>compact!</code>/<code>uniq!</code>/<code>reverse!</code>);
@@ -775,8 +781,9 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   go-images / go-composites). See
   <a href="scientific-stack/">Scientific stack &amp; WebAssembly</a>.</li>
 </ul>
-<p>Still ahead (see the <a href="roadmap/">roadmap</a>): fuller <code>IO</code>/<code>File</code>, a <code>Binding</code> for
-<code>eval</code> local-variable capture, and the remaining <code>rbgo build</code> toolchain work.</p>
+<p>Still ahead (see the <a href="roadmap/">roadmap</a>): file streams via <code>File.open</code>, a
+<code>Binding</code> for <code>eval</code> local-variable capture, and the remaining <code>rbgo build</code>
+toolchain work.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
