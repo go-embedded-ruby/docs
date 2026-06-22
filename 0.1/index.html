@@ -718,9 +718,10 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   (<code>def foo = expr</code>), <strong>singleton method defs</strong> (<code>def obj.foo</code> / <code>def Const.foo</code>),
   recursion, <code>return</code>, <code>super</code>.</li>
 <li><strong>Blocks / Procs / lambdas:</strong> <code>{ }</code> / <code>do…end</code> closures, <code>yield</code>,
-  <code>block_given?</code>, <code>&amp;block</code> capture, <strong>numbered params (<code>_1</code>/<code>_2</code>) and <code>it</code></strong>,
-  <code>Proc</code>/<code>lambda</code>/<strong>stabby <code>-&gt;(){}</code></strong>, <code>&amp;proc</code> block-pass and <code>Symbol#to_proc</code>
-  (the <code>&amp;:sym</code> shorthand).</li>
+  <code>block_given?</code>, <code>&amp;block</code> capture, <strong>block params</strong> with destructuring
+  (<code>|(a, b)|</code>) and <strong>rest</strong> (<code>|*rest|</code>, <code>|head, *rest|</code>), <strong>numbered params
+  (<code>_1</code>/<code>_2</code>) and <code>it</code></strong>, <code>Proc</code>/<code>lambda</code>/<strong>stabby <code>-&gt;(){}</code></strong>, <code>&amp;proc</code> block-pass
+  and <code>Symbol#to_proc</code> (the <code>&amp;:sym</code> shorthand).</li>
 <li><strong>Classes &amp; modules:</strong> inheritance, <code>@ivars</code>, <strong><code>@@class variables</code></strong> (shared
   down the hierarchy), <code>new</code>/<code>initialize</code>, constants and constant assignment,
   <strong>class methods</strong> (<code>def self.foo</code>), modules + <strong><code>include</code>/<code>prepend</code></strong> (mixins,
