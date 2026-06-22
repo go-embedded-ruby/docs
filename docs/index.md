@@ -113,7 +113,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `Enumerable` chaining — and **`Enumerator::Lazy`** (`lazy`) for deferred chains
   over finite or infinite sources.
 - **Objects:** `dup`/`clone`/`freeze`/`frozen?`, `equal?`,
-  `instance_variable_get`/`set`.
+  `object_id`/`__id__` (MRI's deterministic immediate-value ids, stable per
+  reference object), `instance_variable_get`/`set`.
 - **Numeric & scientific stack:** `Complex`, `Rational`, the `Math` module, and a
   **cgo-free scientific stack** — `NDArray` (NumPy-style arrays), an `FFT` module
   (numpy.fft-style transforms), `Image` (scikit-image-style processing) — plus
