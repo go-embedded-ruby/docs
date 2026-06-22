@@ -616,8 +616,8 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
 <tr>
 <td>7</td>
 <td>Build toolchain</td>
-<td><code>rbgo build</code>. <strong>Landed:</strong> ahead-of-time <strong>method compilation</strong> to native Go (bytecode → Go → machine code), with <strong>unboxed <code>int64</code> integer kernels</strong> that deopt to the interpreter on overflow/<code>÷0</code> — the generated <code>fib(30)</code> beats <strong>MRI + YJIT ~4×</strong> while staying correct for every input (<a href="../architecture/build/#ahead-of-time-method-compilation-landed">AOT compiler</a>). (Remaining: require-graph scan, build-tag/<code>go:embed</code> stdlib selection, closed-world single-binary mode.)</td>
-<td><strong>In progress</strong></td>
+<td><code>rbgo build</code>. <strong>Landed:</strong> ahead-of-time <strong>method compilation</strong> to native Go (bytecode → Go → machine code), with <strong>unboxed <code>int64</code> integer kernels</strong> that deopt to the interpreter on overflow/<code>÷0</code> — the generated <code>fib(30)</code> beats <strong>MRI + YJIT ~4×</strong> while staying correct for every input (<a href="../architecture/build/#ahead-of-time-method-compilation-landed">AOT compiler</a>). <strong>Closed-world builds landed</strong> (<code>rbgo build --closed</code>): the program is baked in as bytecode (and the prelude loads from frozen bytecode), the <strong>lexer/parser/compiler are dropped</strong> behind the <code>rbgo_closed</code> build tag, and a require-graph scan reports any <code>eval</code>/<code>require</code> that would then raise — yielding a smaller, self-contained binary that runs with no source file. (Future: finer per-class stdlib tree-shaking beyond the front-end.)</td>
+<td><strong>Done</strong></td>
 </tr>
 <tr>
 <td>8</td>
