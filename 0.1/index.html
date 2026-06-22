@@ -741,13 +741,18 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <a href="https://github.com/go-onigmo">go-onigmo</a> engine, so the build stays <strong>CGO=0</strong>.</li>
 <li><strong>Standard library leaves:</strong> <strong><code>JSON</code></strong> (<code>generate</code>/<code>dump</code>/<code>pretty_generate</code>/
   <code>parse</code> + <code>Object#to_json</code>, key order preserved), <strong><code>Digest</code></strong> (MD5/SHA1/
-  SHA256/SHA512), and <strong><code>Base64</code></strong> — all <code>require</code>-able and pure-Go.</li>
+  SHA256/SHA512), <strong><code>Base64</code></strong>, and <strong><code>Zlib</code></strong> (crc32/adler32 + Deflate/Inflate)
+  — all <code>require</code>-able and pure-Go.</li>
+<li><strong>File &amp; Random:</strong> <strong><code>File</code></strong> — path helpers and <code>read</code>/<code>write</code>/<code>exist?</code>/
+  <code>size</code>/<code>delete</code> (<code>Errno::ENOENT</code> on a missing path); <strong><code>Random</code></strong> — a bit-exact
+  reimplementation of MRI's seeded MT19937.</li>
 <li><strong>Collections:</strong> Array / Hash / Range with <code>Enumerable</code> (map/select/reduce/…)
   and <code>Comparable</code>, both written once in embedded Ruby; Array <strong>bang methods</strong>
   (<code>map!</code>/<code>sort!</code>/<code>select!</code>/<code>reject!</code>/<code>compact!</code>/<code>uniq!</code>/<code>reverse!</code>);
   <strong><code>Range#step</code>/<code>Integer#step</code></strong>; an eager <strong><code>Enumerator</code></strong> — every blockless
   iterator returns one, with <code>next</code>/<code>peek</code>/<code>rewind</code>/<code>with_index</code>/<code>to_a</code> and full
-  <code>Enumerable</code> chaining.</li>
+  <code>Enumerable</code> chaining — and <strong><code>Enumerator::Lazy</code></strong> (<code>lazy</code>) for deferred chains
+  over finite or infinite sources.</li>
 <li><strong>Objects:</strong> <code>dup</code>/<code>clone</code>/<code>freeze</code>/<code>frozen?</code>, <code>equal?</code>,
   <code>instance_variable_get</code>/<code>set</code>.</li>
 <li><strong>Numeric &amp; scientific stack:</strong> <code>Complex</code>, <code>Rational</code>, the <code>Math</code> module, and a
