@@ -36,7 +36,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 - **Control flow:** `if`/`elsif`/`else`, `unless`, `while`/`until`,
   `case`/`when`, statement modifiers (incl. modifier `rescue`,
   `expr rescue fallback`), `begin`/`rescue`/`ensure`/`else`/`retry`,
-  `break`/`next`, `Kernel#loop`.
+  `break`/`next`, `Kernel#loop`, and **`Fiber`** (cooperative coroutines on
+  goroutines — `Fiber.new`/`resume`/`Fiber.yield`/`alive?`).
 - **Pattern matching (`case`/`in`):** value, variable-binding, class/constant,
   array (incl. splat and nested), hash (`deconstruct_keys`, `**rest`/`**nil`),
   find (`[*pre, x, *post]`), pin (`^x`) and alternative (`a | b`) patterns;
@@ -101,8 +102,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   go-images / go-composites). See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
-Still ahead (see the [roadmap](roadmap.md)): Fiber and lazy enumerators,
-`prepend`, a `Binding` for `eval` local-variable capture, and the remaining
+Still ahead (see the [roadmap](roadmap.md)): `Thread`, `Marshal` and fuller
+`IO`/`File`, a `Binding` for `eval` local-variable capture, and the remaining
 `rbgo build` toolchain work.
 
 ## Repositories
