@@ -731,7 +731,10 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>method_missing</code>, <code>send</code>/<code>public_send</code>, <code>respond_to?</code>, <strong><code>define_method</code></strong>,
   <strong><code>instance_eval</code>/<code>instance_exec</code></strong>, <strong><code>class_eval</code>/<code>module_eval</code>/<code>class_exec</code></strong>,
   <code>instance_variable_get</code>/<code>set</code>/<code>defined?</code>, <strong>string <code>eval</code></strong> — the embedded
-  front-end compiling Ruby at runtime (against the caller's <code>self</code>) — the
+  front-end compiling Ruby at runtime (against the caller's <code>self</code>) — <strong><code>Binding</code></strong>
+  (<code>binding</code>, <code>Binding#eval</code>, <code>eval(str, binding)</code>, <code>local_variable_get</code>/<code>set</code>/
+  <code>defined?</code>, <code>local_variables</code>, <code>receiver</code> — capturing a frame's locals so
+  eval'd code reads and writes them), the
   class/module <strong>hooks</strong> <code>inherited</code>/<code>included</code>/<code>method_added</code>/<code>extended</code>,
   <strong><code>define_singleton_method</code>/<code>extend</code></strong>, and <strong><code>$global variables</code></strong>.</li>
 <li><strong>Runtime loading:</strong> <strong><code>require</code>/<code>require_relative</code></strong> load, compile and run a
@@ -781,9 +784,8 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   go-images / go-composites). See
   <a href="scientific-stack/">Scientific stack &amp; WebAssembly</a>.</li>
 </ul>
-<p>Still ahead (see the <a href="roadmap/">roadmap</a>): file streams via <code>File.open</code>, a
-<code>Binding</code> for <code>eval</code> local-variable capture, and the remaining <code>rbgo build</code>
-toolchain work.</p>
+<p>Still ahead (see the <a href="roadmap/">roadmap</a>): the remaining <code>rbgo build</code>
+closed-world toolchain work.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
