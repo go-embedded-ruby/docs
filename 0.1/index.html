@@ -775,7 +775,8 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>Enumerable</code> chaining — and <strong><code>Enumerator::Lazy</code></strong> (<code>lazy</code>) for deferred chains
   over finite or infinite sources.</li>
 <li><strong>Objects:</strong> <code>dup</code>/<code>clone</code>/<code>freeze</code>/<code>frozen?</code>, <code>equal?</code>,
-  <code>instance_variable_get</code>/<code>set</code>.</li>
+  <code>object_id</code>/<code>__id__</code> (MRI's deterministic immediate-value ids, stable per
+  reference object), <code>instance_variable_get</code>/<code>set</code>.</li>
 <li><strong>Numeric &amp; scientific stack:</strong> <code>Complex</code>, <code>Rational</code>, the <code>Math</code> module, and a
   <strong>cgo-free scientific stack</strong> — <code>NDArray</code> (NumPy-style arrays), an <code>FFT</code> module
   (numpy.fft-style transforms), <code>Image</code> (scikit-image-style processing) — plus
