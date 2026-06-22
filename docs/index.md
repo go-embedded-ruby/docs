@@ -96,6 +96,12 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 - **File & Random:** **`File`** — path helpers and `read`/`write`/`exist?`/
   `size`/`delete` (`Errno::ENOENT` on a missing path); **`Random`** — a bit-exact
   reimplementation of MRI's seeded MT19937.
+- **IO & Dir:** **`IO`** with `$stdout`/`$stderr`/`STDOUT`/`STDERR`/`$stdin` as
+  real objects, **`StringIO`** (`require "stringio"`) with the full read/write
+  surface, and `Kernel#warn` — `puts`/`print`/`p` route through the current
+  `$stdout` so reassigning it to a `StringIO` captures output, as in MRI;
+  **`Dir`** — `entries`/`children`/`glob`, `exist?`/`empty?`/`pwd`/`home`,
+  `mkdir`/`rmdir`/`chdir`, raising `Errno::ENOENT`/`Errno::EEXIST`.
 - **Collections:** Array / Hash / Range with `Enumerable` (map/select/reduce/…)
   and `Comparable`, both written once in embedded Ruby; Array **bang methods**
   (`map!`/`sort!`/`select!`/`reject!`/`compact!`/`uniq!`/`reverse!`);
@@ -113,8 +119,9 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   go-images / go-composites). See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
-Still ahead (see the [roadmap](roadmap.md)): fuller `IO`/`File`, a `Binding` for
-`eval` local-variable capture, and the remaining `rbgo build` toolchain work.
+Still ahead (see the [roadmap](roadmap.md)): file streams via `File.open`, a
+`Binding` for `eval` local-variable capture, and the remaining `rbgo build`
+toolchain work.
 
 ## Repositories
 
