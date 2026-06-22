@@ -700,6 +700,11 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>expr rescue fallback</code>), <code>begin</code>/<code>rescue</code>/<code>ensure</code>/<code>else</code>/<code>retry</code>,
   <code>break</code>/<code>next</code>, <code>Kernel#loop</code>, and <strong><code>Fiber</code></strong> (cooperative coroutines on
   goroutines — <code>Fiber.new</code>/<code>resume</code>/<code>Fiber.yield</code>/<code>alive?</code>).</li>
+<li><strong>Concurrency:</strong> <strong><code>Thread</code></strong> (<code>new</code>/<code>join</code>/<code>value</code>/<code>status</code>/<code>current</code>/<code>main</code>/
+  <code>list</code>/<code>pass</code>, thread-locals, exception propagation on join), <strong><code>Mutex</code></strong>
+  (<code>lock</code>/<code>try_lock</code>/<code>synchronize</code>/<code>owned?</code>) and <strong><code>Queue</code></strong> (blocking
+  <code>push</code>/<code>pop</code>/<code>close</code>), on an <strong>emulated GVL</strong> — one Ruby thread runs at a time,
+  matching MRI's memory model (race-free under the Go race detector).</li>
 <li><strong>Pattern matching (<code>case</code>/<code>in</code>):</strong> value, variable-binding, class/constant,
   array (incl. splat and nested), hash (<code>deconstruct_keys</code>, <code>**rest</code>/<code>**nil</code>),
   find (<code>[*pre, x, *post]</code>), pin (<code>^x</code>) and alternative (<code>a | b</code>) patterns;
@@ -770,9 +775,8 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   go-images / go-composites). See
   <a href="scientific-stack/">Scientific stack &amp; WebAssembly</a>.</li>
 </ul>
-<p>Still ahead (see the <a href="roadmap/">roadmap</a>): <code>Thread</code> and fuller <code>IO</code>/<code>File</code>, a
-<code>Binding</code> for <code>eval</code> local-variable capture, and the remaining <code>rbgo build</code>
-toolchain work.</p>
+<p>Still ahead (see the <a href="roadmap/">roadmap</a>): fuller <code>IO</code>/<code>File</code>, a <code>Binding</code> for
+<code>eval</code> local-variable capture, and the remaining <code>rbgo build</code> toolchain work.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
