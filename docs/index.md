@@ -81,7 +81,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 - **Strings:** mutable (reference semantics) with `<<`/concat/replace/prepend/
   insert/`[]=`/slice!/the bang methods and `freeze`/`FrozenError`;
   interpolation, heredocs (`<<`/`<<-`/`<<~`), `%w`/`%i` literals,
-  `%`/`format`/`sprintf`, case/strip/`split`/`each_char`/`lines` and friends.
+  `%`/`format`/`sprintf`, case/strip/`split`/`each_char`/`lines`/`succ`(`next`)
+  and friends.
 - **Regular expressions:** `/re/imx` literals, `Regexp`/`MatchData`, `=~` /
   `match` / `match?` / `scan` / `gsub` / `sub` / `split`, and the match globals
   `$~` / `$1`..`$N` / `$&` / `` $` `` / `$'` — running on the standalone pure-Go
@@ -105,10 +106,12 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `$stdout` so reassigning it to a `StringIO` captures output, as in MRI;
   **`Dir`** — `entries`/`children`/`glob`, `exist?`/`empty?`/`pwd`/`home`,
   `mkdir`/`rmdir`/`chdir`, raising `Errno::ENOENT`/`Errno::EEXIST`.
-- **Collections:** Array / Hash / Range with `Enumerable` (map/select/reduce/…)
-  and `Comparable`, both written once in embedded Ruby; Array **bang methods**
-  (`map!`/`sort!`/`select!`/`reject!`/`compact!`/`uniq!`/`reverse!`);
-  **`Range#step`/`Integer#step`**; an eager **`Enumerator`** — every blockless
+- **Collections:** Array / Hash / Range with `Enumerable` (map/select/reduce/
+  `minmax`/…) and `Comparable`, both written once in embedded Ruby; Array **bang
+  methods** (`map!`/`sort!`/`select!`/`reject!`/`compact!`/`uniq!`/`reverse!`),
+  **structural/combinatorial ops** (`transpose`/`product`/`combination`/`to_h`),
+  the **`Hash[…]`** constructor, **String ranges** (`("a".."e")` via
+  `String#succ`); **`Range#step`/`Integer#step`**; an eager **`Enumerator`** — every blockless
   iterator returns one, with `next`/`peek`/`rewind`/`with_index`/`to_a` and full
   `Enumerable` chaining — and **`Enumerator::Lazy`** (`lazy`) for deferred chains
   over finite or infinite sources.
