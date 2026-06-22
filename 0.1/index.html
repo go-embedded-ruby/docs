@@ -744,6 +744,12 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   <code>parse</code> + <code>Object#to_json</code>, key order preserved), <strong><code>Digest</code></strong> (MD5/SHA1/
   SHA256/SHA512), <strong><code>Base64</code></strong>, and <strong><code>Zlib</code></strong> (crc32/adler32 + Deflate/Inflate)
   — all <code>require</code>-able and pure-Go.</li>
+<li><strong><code>Marshal</code></strong> (<code>dump</code>/<code>load</code>/<code>restore</code> + <code>MAJOR_VERSION</code>/<code>MINOR_VERSION</code>):
+  Ruby's binary serialization, <strong>byte-for-byte identical to MRI</strong> across
+  Integer/Bignum, Float, Symbol, String, Array and Hash (incl. defaults), with
+  the symbol and object-link tables so shared objects and cycles round-trip.
+  Runs on the standalone pure-Go <a href="https://github.com/go-ruby-marshal/marshal">go-ruby-marshal</a> engine, so
+  the build stays <strong>CGO=0</strong>.</li>
 <li><strong>File &amp; Random:</strong> <strong><code>File</code></strong> — path helpers and <code>read</code>/<code>write</code>/<code>exist?</code>/
   <code>size</code>/<code>delete</code> (<code>Errno::ENOENT</code> on a missing path); <strong><code>Random</code></strong> — a bit-exact
   reimplementation of MRI's seeded MT19937.</li>
@@ -764,9 +770,9 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   go-images / go-composites). See
   <a href="scientific-stack/">Scientific stack &amp; WebAssembly</a>.</li>
 </ul>
-<p>Still ahead (see the <a href="roadmap/">roadmap</a>): <code>Thread</code>, <code>Marshal</code> and fuller
-<code>IO</code>/<code>File</code>, a <code>Binding</code> for <code>eval</code> local-variable capture, and the remaining
-<code>rbgo build</code> toolchain work.</p>
+<p>Still ahead (see the <a href="roadmap/">roadmap</a>): <code>Thread</code> and fuller <code>IO</code>/<code>File</code>, a
+<code>Binding</code> for <code>eval</code> local-variable capture, and the remaining <code>rbgo build</code>
+toolchain work.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
