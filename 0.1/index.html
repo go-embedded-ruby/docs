@@ -738,7 +738,7 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
 <li><strong>Regular expressions:</strong> <code>/re/imx</code> literals, <code>Regexp</code>/<code>MatchData</code>, <code>=~</code> /
   <code>match</code> / <code>match?</code> / <code>scan</code> / <code>gsub</code> / <code>sub</code> / <code>split</code>, and the match globals
   <code>$~</code> / <code>$1</code>..<code>$N</code> / <code>$&amp;</code> / <code>$`</code> / <code>$'</code> — running on the standalone pure-Go
-  <a href="https://github.com/go-onigmo">go-onigmo</a> engine, so the build stays <strong>CGO=0</strong>.</li>
+  <a href="https://github.com/go-ruby-regexp">go-ruby-regexp</a> engine, so the build stays <strong>CGO=0</strong>.</li>
 <li><strong>Standard library leaves:</strong> <strong><code>JSON</code></strong> (<code>generate</code>/<code>dump</code>/<code>pretty_generate</code>/
   <code>parse</code> + <code>Object#to_json</code>, key order preserved), <strong><code>Digest</code></strong> (MD5/SHA1/
   SHA256/SHA512), <strong><code>Base64</code></strong>, and <strong><code>Zlib</code></strong> (crc32/adler32 + Deflate/Inflate)
@@ -795,7 +795,7 @@ other Go program) without cgo:</p>
 <li>the <strong>front-end</strong> — lexer, parser and AST — is the pure-Go
   <a href="https://github.com/go-ruby-parser/parser">go-ruby-parser</a> module (repo <code>parser</code>);</li>
 <li>the <strong>regexp engine</strong> is a pure-Go Onigmo reimplementation in
-  <a href="https://github.com/go-onigmo">go-onigmo</a> (repo <code>regexp</code>).</li>
+  <a href="https://github.com/go-ruby-regexp">go-ruby-regexp</a> (repo <code>regexp</code>).</li>
 </ul>
 <h2 id="how-it-differs-from-goruby">How it differs from goruby<a class="headerlink" href="#how-it-differs-from-goruby" title="Permanent link">&para;</a></h2>
 <p>There is an existing Go project also called <a href="https://github.com/goruby/goruby">goruby</a>. go-embedded-ruby
