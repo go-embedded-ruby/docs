@@ -717,7 +717,9 @@ architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x) and thre
   (the <code>&amp;:sym</code> shorthand).</li>
 <li><strong>Classes &amp; modules:</strong> inheritance, <code>@ivars</code>, <strong><code>@@class variables</code></strong> (shared
   down the hierarchy), <code>new</code>/<code>initialize</code>, constants and constant assignment,
-  <strong>class methods</strong> (<code>def self.foo</code>), modules + <code>include</code> (mixins), <code>super</code>,
+  <strong>class methods</strong> (<code>def self.foo</code>), modules + <strong><code>include</code>/<code>prepend</code></strong> (mixins,
+  with ancestor-chain <code>super</code> through included/prepended modules and the
+  singleton chain; <code>Module#ancestors</code>/<code>include?</code>),
   <strong><code>attr_accessor</code>/<code>reader</code>/<code>writer</code></strong>, <strong><code>Struct.new</code></strong>.</li>
 <li><strong>Metaprogramming:</strong> dynamic dispatch via mutable method tables,
   <code>method_missing</code>, <code>send</code>/<code>public_send</code>, <code>respond_to?</code>, <strong><code>define_method</code></strong>,
