@@ -55,7 +55,9 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   (the `&:sym` shorthand).
 - **Classes & modules:** inheritance, `@ivars`, **`@@class variables`** (shared
   down the hierarchy), `new`/`initialize`, constants and constant assignment,
-  **class methods** (`def self.foo`), modules + `include` (mixins), `super`,
+  **class methods** (`def self.foo`), modules + **`include`/`prepend`** (mixins,
+  with ancestor-chain `super` through included/prepended modules and the
+  singleton chain; `Module#ancestors`/`include?`),
   **`attr_accessor`/`reader`/`writer`**, **`Struct.new`**.
 - **Metaprogramming:** dynamic dispatch via mutable method tables,
   `method_missing`, `send`/`public_send`, `respond_to?`, **`define_method`**,
