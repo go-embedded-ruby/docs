@@ -69,7 +69,10 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `method_missing`, `send`/`public_send`, `respond_to?`, **`define_method`**,
   **`instance_eval`/`instance_exec`**, **`class_eval`/`module_eval`/`class_exec`**,
   `instance_variable_get`/`set`/`defined?`, **string `eval`** — the embedded
-  front-end compiling Ruby at runtime (against the caller's `self`) — the
+  front-end compiling Ruby at runtime (against the caller's `self`) — **`Binding`**
+  (`binding`, `Binding#eval`, `eval(str, binding)`, `local_variable_get`/`set`/
+  `defined?`, `local_variables`, `receiver` — capturing a frame's locals so
+  eval'd code reads and writes them), the
   class/module **hooks** `inherited`/`included`/`method_added`/`extended`,
   **`define_singleton_method`/`extend`**, and **`$global variables`**.
 - **Runtime loading:** **`require`/`require_relative`** load, compile and run a
@@ -119,9 +122,8 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   go-images / go-composites). See
   [Scientific stack & WebAssembly](scientific-stack.md).
 
-Still ahead (see the [roadmap](roadmap.md)): file streams via `File.open`, a
-`Binding` for `eval` local-variable capture, and the remaining `rbgo build`
-toolchain work.
+Still ahead (see the [roadmap](roadmap.md)): the remaining `rbgo build`
+closed-world toolchain work.
 
 ## Repositories
 
