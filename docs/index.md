@@ -79,13 +79,18 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   [go-onigmo][go-onigmo] engine, so the build stays **CGO=0**.
 - **Standard library leaves:** **`JSON`** (`generate`/`dump`/`pretty_generate`/
   `parse` + `Object#to_json`, key order preserved), **`Digest`** (MD5/SHA1/
-  SHA256/SHA512), and **`Base64`** — all `require`-able and pure-Go.
+  SHA256/SHA512), **`Base64`**, and **`Zlib`** (crc32/adler32 + Deflate/Inflate)
+  — all `require`-able and pure-Go.
+- **File & Random:** **`File`** — path helpers and `read`/`write`/`exist?`/
+  `size`/`delete` (`Errno::ENOENT` on a missing path); **`Random`** — a bit-exact
+  reimplementation of MRI's seeded MT19937.
 - **Collections:** Array / Hash / Range with `Enumerable` (map/select/reduce/…)
   and `Comparable`, both written once in embedded Ruby; Array **bang methods**
   (`map!`/`sort!`/`select!`/`reject!`/`compact!`/`uniq!`/`reverse!`);
   **`Range#step`/`Integer#step`**; an eager **`Enumerator`** — every blockless
   iterator returns one, with `next`/`peek`/`rewind`/`with_index`/`to_a` and full
-  `Enumerable` chaining.
+  `Enumerable` chaining — and **`Enumerator::Lazy`** (`lazy`) for deferred chains
+  over finite or infinite sources.
 - **Objects:** `dup`/`clone`/`freeze`/`frozen?`, `equal?`,
   `instance_variable_get`/`set`.
 - **Numeric & scientific stack:** `Complex`, `Rational`, the `Math` module, and a
