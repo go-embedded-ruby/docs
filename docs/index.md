@@ -13,9 +13,16 @@ work without a separate toolchain. Ruby objects are ordinary Go heap objects, so
 Being pure Go buys three things at once: trivial cross-compilation, a single
 static binary, and — most importantly — it is the **first Ruby embeddable in a
 Go program with no C toolchain** ([go-mruby][go-mruby] needs cgo). The project
-targets **Ruby 4.0** semantics and is grown test-first against an MRI 4.0.5
-*differential oracle*, with **100% coverage enforced in CI across all six 64-bit
-architectures** (amd64, arm64, riscv64, loong64, ppc64le, s390x) and three OSes.
+targets **Ruby 4.0** semantics and is grown test-first against a *differential
+oracle* — every snippet's output is checked against **two independent reference
+implementations, MRI (CRuby) 4.0.5 and JRuby**
+([`scripts/oracle.sh`](https://github.com/go-embedded-ruby/ruby/blob/main/scripts/oracle.sh)
+runs all three side by side) — with **100% coverage enforced in CI across all six
+64-bit architectures** (amd64, arm64, riscv64, loong64, ppc64le, s390x) and three
+OSes. Beyond synthetic tests, the bar is real-world Ruby: idioms and test suites
+from **reference applications such as Rails** (ActiveSupport's pure-Ruby
+`core_ext`) and **OpenVox**/Puppet drive the remaining work and double as
+performance baselines against MRI and JRuby.
 
 ## Supported today
 
