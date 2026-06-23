@@ -10,28 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://go-embedded-ruby.github.io/docs/0.1/architecture/object-model/">
+        <link rel="canonical" href="https://go-embedded-ruby.github.io/docs/0.1/benchmarks/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../conformance/">
       
       
-        <link rel="next" href="../bytecode-vm/">
+        <link rel="next" href="../phases/phase0/">
       
       
-      <link rel="icon" href="../../assets/logo.svg">
+      <link rel="icon" href="../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
     
     
       
-        <title>Values & object model - go-embedded-ruby docs</title>
+        <title>Benchmarks - go-embedded-ruby docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,7 +50,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#values-object-model" class="md-skip">
+        <a href="#benchmarks" class="md-skip">
           Skip to content
         </a>
       
@@ -96,9 +96,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="go-embedded-ruby docs" class="md-header__button md-logo" aria-label="go-embedded-ruby docs" data-md-component="logo">
+    <a href=".." title="go-embedded-ruby docs" class="md-header__button md-logo" aria-label="go-embedded-ruby docs" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Values & object model
+              Benchmarks
             
           </span>
         </div>
@@ -240,9 +240,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="go-embedded-ruby docs" class="md-nav__button md-logo" aria-label="go-embedded-ruby docs" data-md-component="logo">
+    <a href=".." title="go-embedded-ruby docs" class="md-nav__button md-logo" aria-label="go-embedded-ruby docs" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     go-embedded-ruby docs
@@ -269,7 +269,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -286,8 +286,6 @@
       
   
   
-    
-  
   
   
     
@@ -299,11 +297,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -317,7 +315,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -331,7 +329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -349,30 +347,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Values & object model
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../architecture/object-model/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -381,53 +359,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-value-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      The Value interface
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dynamic-dispatch-the-projects-objc_msgsend" class="md-nav__link">
-    <span class="md-ellipsis">
-      Dynamic dispatch — the project's objc_msgSend
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#numbers-tags-and-a-real-tension-with-gos-gc" class="md-nav__link">
-    <span class="md-ellipsis">
-      Numbers, tags, and a real tension with Go's GC
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -440,7 +371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bytecode-vm/" class="md-nav__link">
+      <a href="../architecture/bytecode-vm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -461,7 +392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../frontend/" class="md-nav__link">
+      <a href="../architecture/frontend/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -482,7 +413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../build/" class="md-nav__link">
+      <a href="../architecture/build/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -510,7 +441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scientific-stack/" class="md-nav__link">
+      <a href="../scientific-stack/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -530,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../roadmap/" class="md-nav__link">
+      <a href="../roadmap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -550,7 +481,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../conformance/" class="md-nav__link">
+      <a href="../conformance/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -567,10 +498,30 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../benchmarks/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Benchmarks
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -579,6 +530,62 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#startup-is-rbgos-superpower" class="md-nav__link">
+    <span class="md-ellipsis">
+      Startup is rbgo's superpower
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interpreted-compute" class="md-nav__link">
+    <span class="md-ellipsis">
+      Interpreted compute
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rbgos-compute-answer-aot-compilation" class="md-nav__link">
+    <span class="md-ellipsis">
+      rbgo's compute answer: AOT compilation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methodology-caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Methodology caveats
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -590,7 +597,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../phases/phase0/" class="md-nav__link">
+      <a href="../phases/phase0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -610,7 +617,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+      <a href="../contributing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -650,27 +657,36 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-value-interface" class="md-nav__link">
+  <a href="#startup-is-rbgos-superpower" class="md-nav__link">
     <span class="md-ellipsis">
-      The Value interface
+      Startup is rbgo's superpower
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#dynamic-dispatch-the-projects-objc_msgsend" class="md-nav__link">
+  <a href="#interpreted-compute" class="md-nav__link">
     <span class="md-ellipsis">
-      Dynamic dispatch — the project's objc_msgSend
+      Interpreted compute
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#numbers-tags-and-a-real-tension-with-gos-gc" class="md-nav__link">
+  <a href="#rbgos-compute-answer-aot-compilation" class="md-nav__link">
     <span class="md-ellipsis">
-      Numbers, tags, and a real tension with Go's GC
+      rbgo's compute answer: AOT compilation
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#methodology-caveats" class="md-nav__link">
+    <span class="md-ellipsis">
+      Methodology caveats
     </span>
   </a>
   
@@ -691,59 +707,107 @@
                   
 
 
-<h1 id="values-object-model">Values &amp; object model<a class="headerlink" href="#values-object-model" title="Permanent link">&para;</a></h1>
-<p>Everything in Ruby is an object, and in go-embedded-ruby every Ruby object is a
-Go value. The <code>object</code> package defines a single <code>Value</code> interface implemented by
-concrete Go types. Because these are ordinary Go heap allocations, <strong>Go's
-garbage collector manages Ruby's heap</strong> — there is no separate collector to
-write.</p>
-<h2 id="the-value-interface">The <code>Value</code> interface<a class="headerlink" href="#the-value-interface" title="Permanent link">&para;</a></h2>
-<p><code>Value</code> is an interface; each Ruby type is a concrete implementation. In Phase 0
-the set is deliberately small:</p>
+<h1 id="benchmarks">Benchmarks<a class="headerlink" href="#benchmarks" title="Permanent link">&para;</a></h1>
+<p>The numbers below are real measurements, reported honestly — including where
+rbgo is slower. They are <strong>wall-clock</strong> (process startup included), taken on
+Apple-silicon <strong>arm64</strong>, single-run. <code>rbgo</code> is the native interpreter build;
+<strong>MRI 4.0.5</strong> is the C interpreter with YJIT; <strong>JRuby 10.1</strong> runs on <strong>JDK 25</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Workload</th>
+<th>rbgo</th>
+<th>MRI 4.0.5</th>
+<th>JRuby 10.1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>startup (empty program)</td>
+<td>0.02 s</td>
+<td>0.05 s</td>
+<td>1.06 s</td>
+</tr>
+<tr>
+<td>fib(30)</td>
+<td>0.61 s</td>
+<td>0.14 s</td>
+<td>1.80 s</td>
+</tr>
+<tr>
+<td>fib(34)</td>
+<td>1.68 s</td>
+<td>0.38 s</td>
+<td>2.72 s</td>
+</tr>
+<tr>
+<td>loop sum 10M</td>
+<td>0.68 s</td>
+<td>0.28 s</td>
+<td>1.31 s</td>
+</tr>
+<tr>
+<td>string build 300k</td>
+<td>0.07 s</td>
+<td>0.07 s</td>
+<td>1.16 s</td>
+</tr>
+<tr>
+<td>array map+sort 300k</td>
+<td>0.33 s</td>
+<td>0.07 s</td>
+<td>1.15 s</td>
+</tr>
+</tbody>
+</table>
+<h2 id="startup-is-rbgos-superpower">Startup is rbgo's superpower<a class="headerlink" href="#startup-is-rbgos-superpower" title="Permanent link">&para;</a></h2>
+<p>rbgo starts in <strong>~0.02 s</strong> — a single static Go binary, no separate runtime, no
+JVM — against MRI's ~0.05 s and JRuby's ~1.06 s. For an embedded interpreter or
+a CLI tool that is invoked often and exits quickly, this is the decisive number:
+the process is up and running before the alternatives have finished initialising.</p>
+<p>It also colours the rest of the table. To read the <strong>compute</strong> cost of a
+workload, subtract this fixed startup from each column.</p>
+<h2 id="interpreted-compute">Interpreted compute<a class="headerlink" href="#interpreted-compute" title="Permanent link">&para;</a></h2>
+<p>On raw interpreted compute, <strong>MRI leads</strong> — its C interpreter with YJIT is the
+reference for fast Ruby, and rbgo, a <strong>pure-Go bytecode VM</strong>, is a few× slower on
+tight numeric and allocation-heavy loops (<code>fib</code>, <code>loop sum</code>, <code>array map+sort</code>).
+String building is already at parity (0.07 s vs 0.07 s).</p>
+<div class="admonition warning">
+<p class="admonition-title">The JRuby numbers here are not a steady-state JIT comparison</p>
+<p>JRuby's JVM JIT pays a <strong>large warm-up cost</strong>, and every workload in this
+table is short and therefore <strong>startup-dominated</strong>. These runs do not let the
+JIT warm up, so they are <strong>not</strong> a fair picture of JRuby's steady-state
+performance — JRuby competes on long-running, warm workloads, which this
+table deliberately does not contain.</p>
+</div>
+<h2 id="rbgos-compute-answer-aot-compilation">rbgo's compute answer: AOT compilation<a class="headerlink" href="#rbgos-compute-answer-aot-compilation" title="Permanent link">&para;</a></h2>
+<p>The interpreter is for embedding, portability and instant startup. When you need
+<strong>raw compute speed</strong>, the answer is the <strong>AOT compiler</strong>, <code>rbgo build</code>: it lowers
+hot methods to native Go — <strong>unboxed <code>int64</code> kernels</strong> with a deopt guard back to
+the interpreter on overflow or <code>÷0</code>. AOT-compiled, <code>fib(30)</code> runs <strong>~4× faster
+than MRI + YJIT</strong> while staying correct for every input. See the
+<a href="../architecture/build/">AOT compiler</a> doc.</p>
+<p>So the positioning is straightforward:</p>
+<blockquote>
+<p><strong>rbgo is embeddable Ruby with instant startup and portability; when you need
+raw compute speed, AOT-compile the hot path.</strong></p>
+</blockquote>
+<p>The scientific stack (<code>NDArray</code> / <code>FFT</code> / <code>Image</code>) gets a further lift from
+<strong>go-asmgen-generated SIMD kernels</strong> across the 64-bit arches, keeping the heavy
+numeric paths fast while staying CGO=0.</p>
+<h2 id="methodology-caveats">Methodology caveats<a class="headerlink" href="#methodology-caveats" title="Permanent link">&para;</a></h2>
+<p>Read these numbers as <strong>indicative, not a rigorous benchmark suite</strong>:</p>
 <ul>
-<li><code>Integer</code> — a 64-bit integer</li>
-<li><code>Float</code> — a 64-bit float</li>
-<li><code>String</code></li>
-<li><code>Bool</code> — <code>true</code> / <code>false</code></li>
-<li><code>Nil</code></li>
+<li>wall-clock <strong>includes process startup</strong> — subtract the startup row to compare
+  compute;</li>
+<li>they are <strong>single-run on one machine</strong> (Apple-silicon arm64), so treat them as
+  a rough order of magnitude;</li>
+<li>a <strong>fair JIT comparison needs warm / long-running workloads</strong>, which these
+  short runs are not;</li>
+<li>performance is <strong>validated and benchmarked across all six 64-bit
+  architectures</strong> (amd64, arm64, riscv64, loong64, ppc64le, s390x), not just the
+  one reported here.</li>
 </ul>
-<p>The user-defined object types arrive later: <code>RObject</code> (instances), <code>RClass</code>
-(classes), and <code>RModule</code> (modules) land as the object model fills out in
-<a href="../../roadmap/">Phase 1</a>.</p>
-<h2 id="dynamic-dispatch-the-projects-objc_msgsend">Dynamic dispatch — the project's <code>objc_msgSend</code><a class="headerlink" href="#dynamic-dispatch-the-projects-objc_msgsend" title="Permanent link">&para;</a></h2>
-<p>Method calls are resolved at runtime through <strong>mutable, per-class method
-tables</strong>. Every class carries a table mapping method names to their compiled
-ISeqs (or built-in implementations). A call:</p>
-<ol>
-<li>starts at the receiver's class,</li>
-<li><strong>walks the ancestor chain</strong> (superclasses and included modules) looking for
-   the method, and</li>
-<li>if nothing matches, <strong>falls back to <code>method_missing</code></strong>.</li>
-</ol>
-<p>This one mechanism is the analogue of Objective-C's <code>objc_msgSend</code>: because the
-tables are <em>mutable</em> and lookup is <em>dynamic</em>, a whole family of Ruby features
-falls out for free —</p>
-<ul>
-<li><strong>monkey-patching</strong> (reopening a class mutates its table),</li>
-<li><strong><code>define_method</code></strong> (insert an entry at runtime),</li>
-<li><strong>singleton classes</strong> (a per-object table inserted into the chain), and</li>
-<li><strong>reflection</strong> (the tables <em>are</em> the metadata).</li>
-</ul>
-<h2 id="numbers-tags-and-a-real-tension-with-gos-gc">Numbers, tags, and a real tension with Go's GC<a class="headerlink" href="#numbers-tags-and-a-real-tension-with-gos-gc" title="Permanent link">&para;</a></h2>
-<p>Ruby's integers are conceptually unbounded. Following the usual MRI-style
-<strong><code>Fixnum</code>/<code>Bignum</code> split</strong>, small integers stay machine-width and promote to a
-big-integer (<code>math/big</code>) representation on overflow; arbitrary-precision
-integer literals are parsed directly to <code>Bignum</code>. (This promotion landed after
-the Phase 0 slice, which used plain <code>int64</code> and did <em>not</em> promote — see
-<a href="../../phases/phase0/">Phase 0</a>.)</p>
-<p>There is a genuine design tension here. The fastest representation for small
-integers is an <strong>immediate / tagged value</strong> — stuffing the integer into the
-pointer-sized slot with a tag bit, as MRI does. But tagged non-pointer values
-<strong>fight Go's garbage collector</strong>, which expects interface slots to hold real
-pointers it can scan. The Phase 0 choice is therefore the safe one: <strong>interface
-boxing</strong> (each value is a real Go object behind the <code>Value</code> interface).
-Performance work on representation — including whether any form of tagging is
-worth the complexity — is deferred to <a href="../../roadmap/">Phase 8</a>.</p>
 
 
 
@@ -796,10 +860,10 @@ worth the complexity — is deferred to <a href="../../roadmap/">Phase 8</a>.</p
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "content.code.copy", "search.suggest"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      <script src="../assets/javascripts/bundle.88dd0f4e.min.js"></script>
       
     
   </body>

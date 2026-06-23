@@ -10,28 +10,28 @@
       
       
       
-        <link rel="canonical" href="https://go-embedded-ruby.github.io/docs/0.1/architecture/object-model/">
+        <link rel="canonical" href="https://go-embedded-ruby.github.io/docs/0.1/conformance/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../roadmap/">
       
       
-        <link rel="next" href="../bytecode-vm/">
+        <link rel="next" href="../benchmarks/">
       
       
-      <link rel="icon" href="../../assets/logo.svg">
+      <link rel="icon" href="../assets/logo.svg">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.49">
     
     
       
-        <title>Values & object model - go-embedded-ruby docs</title>
+        <title>Conformance - go-embedded-ruby docs</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.6f8fc17f.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.6f8fc17f.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -50,7 +50,7 @@
       
     
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#values-object-model" class="md-skip">
+        <a href="#conformance" class="md-skip">
           Skip to content
         </a>
       
@@ -96,9 +96,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="go-embedded-ruby docs" class="md-header__button md-logo" aria-label="go-embedded-ruby docs" data-md-component="logo">
+    <a href=".." title="go-embedded-ruby docs" class="md-header__button md-logo" aria-label="go-embedded-ruby docs" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Values & object model
+              Conformance
             
           </span>
         </div>
@@ -240,9 +240,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="go-embedded-ruby docs" class="md-nav__button md-logo" aria-label="go-embedded-ruby docs" data-md-component="logo">
+    <a href=".." title="go-embedded-ruby docs" class="md-nav__button md-logo" aria-label="go-embedded-ruby docs" data-md-component="logo">
       
-  <img src="../../assets/logo.svg" alt="logo">
+  <img src="../assets/logo.svg" alt="logo">
 
     </a>
     go-embedded-ruby docs
@@ -269,7 +269,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href=".." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -286,8 +286,6 @@
       
   
   
-    
-  
   
   
     
@@ -299,11 +297,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -317,7 +315,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Architecture
@@ -331,7 +329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../" class="md-nav__link">
+      <a href="../architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -349,30 +347,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Values & object model
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../architecture/object-model/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -381,53 +359,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-value-interface" class="md-nav__link">
-    <span class="md-ellipsis">
-      The Value interface
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#dynamic-dispatch-the-projects-objc_msgsend" class="md-nav__link">
-    <span class="md-ellipsis">
-      Dynamic dispatch — the project's objc_msgSend
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#numbers-tags-and-a-real-tension-with-gos-gc" class="md-nav__link">
-    <span class="md-ellipsis">
-      Numbers, tags, and a real tension with Go's GC
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -440,7 +371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../bytecode-vm/" class="md-nav__link">
+      <a href="../architecture/bytecode-vm/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -461,7 +392,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../frontend/" class="md-nav__link">
+      <a href="../architecture/frontend/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -482,7 +413,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../build/" class="md-nav__link">
+      <a href="../architecture/build/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -510,7 +441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../scientific-stack/" class="md-nav__link">
+      <a href="../scientific-stack/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -530,7 +461,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../roadmap/" class="md-nav__link">
+      <a href="../roadmap/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -547,10 +478,30 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../conformance/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Conformance
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -559,6 +510,80 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#two-independent-reference-implementations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Two independent reference implementations
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-three-way-differential-oracle" class="md-nav__link">
+    <span class="md-ellipsis">
+      The three-way differential oracle
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-ci-enforces" class="md-nav__link">
+    <span class="md-ellipsis">
+      What CI enforces
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-corpora" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-world corpora
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-conformance-benchmark-ladder" class="md-nav__link">
+    <span class="md-ellipsis">
+      The conformance &amp; benchmark ladder
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-it-yourself" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run it yourself
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -570,7 +595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../benchmarks/" class="md-nav__link">
+      <a href="../benchmarks/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -590,7 +615,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../phases/phase0/" class="md-nav__link">
+      <a href="../phases/phase0/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -610,7 +635,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../contributing/" class="md-nav__link">
+      <a href="../contributing/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -650,27 +675,54 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-value-interface" class="md-nav__link">
+  <a href="#two-independent-reference-implementations" class="md-nav__link">
     <span class="md-ellipsis">
-      The Value interface
+      Two independent reference implementations
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#dynamic-dispatch-the-projects-objc_msgsend" class="md-nav__link">
+  <a href="#the-three-way-differential-oracle" class="md-nav__link">
     <span class="md-ellipsis">
-      Dynamic dispatch — the project's objc_msgSend
+      The three-way differential oracle
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#numbers-tags-and-a-real-tension-with-gos-gc" class="md-nav__link">
+  <a href="#what-ci-enforces" class="md-nav__link">
     <span class="md-ellipsis">
-      Numbers, tags, and a real tension with Go's GC
+      What CI enforces
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#real-world-corpora" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real-world corpora
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-conformance-benchmark-ladder" class="md-nav__link">
+    <span class="md-ellipsis">
+      The conformance &amp; benchmark ladder
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#run-it-yourself" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run it yourself
     </span>
   </a>
   
@@ -691,59 +743,86 @@
                   
 
 
-<h1 id="values-object-model">Values &amp; object model<a class="headerlink" href="#values-object-model" title="Permanent link">&para;</a></h1>
-<p>Everything in Ruby is an object, and in go-embedded-ruby every Ruby object is a
-Go value. The <code>object</code> package defines a single <code>Value</code> interface implemented by
-concrete Go types. Because these are ordinary Go heap allocations, <strong>Go's
-garbage collector manages Ruby's heap</strong> — there is no separate collector to
-write.</p>
-<h2 id="the-value-interface">The <code>Value</code> interface<a class="headerlink" href="#the-value-interface" title="Permanent link">&para;</a></h2>
-<p><code>Value</code> is an interface; each Ruby type is a concrete implementation. In Phase 0
-the set is deliberately small:</p>
+<h1 id="conformance">Conformance<a class="headerlink" href="#conformance" title="Permanent link">&para;</a></h1>
+<p>go-embedded-ruby targets <strong>Ruby 4.0</strong> semantics. Correctness is not asserted by
+reading the spec and hoping — it is <em>measured</em> against running reference
+implementations, snippet by snippet, with the result checked into CI.</p>
+<h2 id="two-independent-reference-implementations">Two independent reference implementations<a class="headerlink" href="#two-independent-reference-implementations" title="Permanent link">&para;</a></h2>
+<p>Every behaviour is judged against <strong>two independent reference implementations</strong> of
+Ruby 4.0, so an agreement between them is strong evidence the behaviour is the
+language's and not an accident of one VM:</p>
 <ul>
-<li><code>Integer</code> — a 64-bit integer</li>
-<li><code>Float</code> — a 64-bit float</li>
-<li><code>String</code></li>
-<li><code>Bool</code> — <code>true</code> / <code>false</code></li>
-<li><code>Nil</code></li>
+<li><strong>MRI (CRuby) 4.0.5</strong> — the canonical C interpreter;</li>
+<li><strong>JRuby 10.1</strong> — the JVM implementation.</li>
 </ul>
-<p>The user-defined object types arrive later: <code>RObject</code> (instances), <code>RClass</code>
-(classes), and <code>RModule</code> (modules) land as the object model fills out in
-<a href="../../roadmap/">Phase 1</a>.</p>
-<h2 id="dynamic-dispatch-the-projects-objc_msgsend">Dynamic dispatch — the project's <code>objc_msgSend</code><a class="headerlink" href="#dynamic-dispatch-the-projects-objc_msgsend" title="Permanent link">&para;</a></h2>
-<p>Method calls are resolved at runtime through <strong>mutable, per-class method
-tables</strong>. Every class carries a table mapping method names to their compiled
-ISeqs (or built-in implementations). A call:</p>
+<p>A subset of <strong>ruby/spec</strong> is run on top of this to cover behaviours the corpora
+do not yet reach.</p>
+<h2 id="the-three-way-differential-oracle">The three-way differential oracle<a class="headerlink" href="#the-three-way-differential-oracle" title="Permanent link">&para;</a></h2>
+<p>The tool that establishes correctness is a <strong>three-way differential oracle</strong>,
+<a href="https://github.com/go-embedded-ruby/ruby/blob/main/scripts/oracle.sh"><code>scripts/oracle.sh</code></a>
+in the interpreter repo. It runs the same snippet through <strong>rbgo</strong>, <strong>MRI</strong> and
+<strong>JRuby</strong>, compares their output, and flags any divergence. It <strong>exits non-zero on
+a mismatch</strong>, so it drops straight into CI and into a pre-commit loop.</p>
+<p>It has two modes.</p>
+<p>A single expression, evaluated in all three and diffed:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;p (1..10).select(&amp;:even?).map { |x| x**2 }&#39;</span>
+</code></pre></div>
+<p>A batch corpus — a file with one snippet per line, every line run through all
+three implementations, with a summary of how many agree (<code>N/total</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
+</code></pre></div>
+<h2 id="what-ci-enforces">What CI enforces<a class="headerlink" href="#what-ci-enforces" title="Permanent link">&para;</a></h2>
+<p>On top of the oracle, the interpreter holds a hard CI gate:</p>
+<ul>
+<li><strong>100% statement coverage</strong>, enforced as a CI gate;</li>
+<li>across <strong>all six 64-bit architectures</strong> — amd64, arm64, riscv64, loong64,
+  ppc64le, s390x;</li>
+<li>across <strong>three OSes</strong>;</li>
+<li>with <strong>every feature differential-tested against MRI 4.0.5</strong>.</li>
+</ul>
+<p>A feature does not count as landed until it agrees with the reference and the
+lines that implement it are covered.</p>
+<h2 id="real-world-corpora">Real-world corpora<a class="headerlink" href="#real-world-corpora" title="Permanent link">&para;</a></h2>
+<p>Synthetic tests prove a feature works in isolation; they do not prove the idioms
+real Ruby code actually uses are supported. So beyond synthetic tests, <strong>idioms and
+suites from reference applications drive the work by demand</strong>:</p>
+<ul>
+<li><strong>Rails' ActiveSupport <code>core_ext</code></strong> — the pure-Ruby String / Array / Hash /
+  Numeric / Enumerable extensions;</li>
+<li><strong>OpenVox</strong> / Puppet — Ruby-heavy manifest evaluation.</li>
+</ul>
+<p>These surface the gaps that matter. A representative ActiveSupport <code>core_ext</code>
+idiom sweep started at <strong>9/15</strong> agreeing across the three implementations; as the
+gaps it exposed were fixed, it reached <strong>15/15</strong>. The committed corpus
+<code>scripts/conformance/core_ext.txt</code> currently runs <strong>20/20</strong> in agreement across
+rbgo, MRI and JRuby.</p>
+<h2 id="the-conformance-benchmark-ladder">The conformance &amp; benchmark ladder<a class="headerlink" href="#the-conformance-benchmark-ladder" title="Permanent link">&para;</a></h2>
+<p>Conformance is grown in three rungs, each a real corpus rather than a synthetic
+suite:</p>
 <ol>
-<li>starts at the receiver's class,</li>
-<li><strong>walks the ancestor chain</strong> (superclasses and included modules) looking for
-   the method, and</li>
-<li>if nothing matches, <strong>falls back to <code>method_missing</code></strong>.</li>
+<li><strong>The three-way oracle</strong> — rbgo vs MRI vs JRuby (<strong>done</strong>).</li>
+<li><strong>Pure-Ruby gem test suites as corpora</strong> — ActiveSupport <code>core_ext</code>
+   (<strong>in progress</strong>).</li>
+<li><strong>Real-world workloads</strong> — OpenVox / Puppet and ultimately Rails — serving as
+   both conformance corpora and performance baselines.</li>
 </ol>
-<p>This one mechanism is the analogue of Objective-C's <code>objc_msgSend</code>: because the
-tables are <em>mutable</em> and lookup is <em>dynamic</em>, a whole family of Ruby features
-falls out for free —</p>
-<ul>
-<li><strong>monkey-patching</strong> (reopening a class mutates its table),</li>
-<li><strong><code>define_method</code></strong> (insert an entry at runtime),</li>
-<li><strong>singleton classes</strong> (a per-object table inserted into the chain), and</li>
-<li><strong>reflection</strong> (the tables <em>are</em> the metadata).</li>
-</ul>
-<h2 id="numbers-tags-and-a-real-tension-with-gos-gc">Numbers, tags, and a real tension with Go's GC<a class="headerlink" href="#numbers-tags-and-a-real-tension-with-gos-gc" title="Permanent link">&para;</a></h2>
-<p>Ruby's integers are conceptually unbounded. Following the usual MRI-style
-<strong><code>Fixnum</code>/<code>Bignum</code> split</strong>, small integers stay machine-width and promote to a
-big-integer (<code>math/big</code>) representation on overflow; arbitrary-precision
-integer literals are parsed directly to <code>Bignum</code>. (This promotion landed after
-the Phase 0 slice, which used plain <code>int64</code> and did <em>not</em> promote — see
-<a href="../../phases/phase0/">Phase 0</a>.)</p>
-<p>There is a genuine design tension here. The fastest representation for small
-integers is an <strong>immediate / tagged value</strong> — stuffing the integer into the
-pointer-sized slot with a tag bit, as MRI does. But tagged non-pointer values
-<strong>fight Go's garbage collector</strong>, which expects interface slots to hold real
-pointers it can scan. The Phase 0 choice is therefore the safe one: <strong>interface
-boxing</strong> (each value is a real Go object behind the <code>Value</code> interface).
-Performance work on representation — including whether any form of tagging is
-worth the complexity — is deferred to <a href="../../roadmap/">Phase 8</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">On Rails and Puppet</p>
+<p>Full Rails and Puppet execution depends on C-extension and threading depth
+that is <strong>out of scope</strong> for a pure-Go embeddable. The achievable targets are
+their <strong>pure-Ruby subsets and unit suites</strong>, which is what the ladder above
+aims at.</p>
+</div>
+<h2 id="run-it-yourself">Run it yourself<a class="headerlink" href="#run-it-yourself" title="Permanent link">&para;</a></h2>
+<p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on
+<code>PATH</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;p (1..10).select(&amp;:even?).map { |x| x**2 }&#39;</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
+</code></pre></div>
+<p>Either invocation exits non-zero if any implementation disagrees.</p>
 
 
 
@@ -796,10 +875,10 @@ worth the complexity — is deferred to <a href="../../roadmap/">Phase 8</a>.</p
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "content.code.copy", "search.suggest"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "content.code.copy", "search.suggest"], "search": "../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"default": "latest", "provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.88dd0f4e.min.js"></script>
+      <script src="../assets/javascripts/bundle.88dd0f4e.min.js"></script>
       
     
   </body>
