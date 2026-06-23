@@ -622,7 +622,7 @@ building whole subsystems in isolation. There are nine phases, 0 through 8.</p>
 <tr>
 <td>8</td>
 <td>Conformance &amp; performance</td>
-<td>ruby/spec conformance and representation/perf work (tagging, fast paths, allocation). <strong>Started:</strong> allocation cuts — <strong>small-integer interning</strong> (<code>object.IntValue</code> reuses a shared box for ints in [-256, 1024]; a small-int loop drops from ~245k allocs to 1) and <strong>frame-environment recycling</strong> (<code>exec</code> pools per-call <code>*Env</code>s via a capture-tracked free-list — fib's call allocations halve, ~14% faster).</td>
+<td>ruby/spec conformance and representation/perf work (tagging, fast paths, allocation). <strong>Started:</strong> allocation cuts — <strong>small-integer interning</strong> (<code>object.IntValue</code> reuses a shared box for ints in [-256, 1024]; a small-int loop drops from ~245k allocs to 1) and <strong>frame-environment recycling</strong> (<code>exec</code> pools per-call <code>*Env</code>s via a capture-tracked free-list — fib's call allocations halve, ~14% faster). <strong>Conformance &amp; benchmark ladder:</strong> a three-way differential oracle (rbgo / <strong>MRI</strong> / <strong>JRuby</strong>, <code>scripts/oracle.sh</code>), then pure-Ruby gem test suites as corpora (ActiveSupport <code>core_ext</code>), then real-world workloads — <strong>OpenVox</strong>/Puppet and ultimately <strong>Rails</strong> — serving as both conformance corpora and performance baselines.</td>
 <td><strong>In progress</strong></td>
 </tr>
 </tbody>
