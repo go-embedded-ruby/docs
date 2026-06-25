@@ -16,6 +16,13 @@ language's and not an accident of one VM:
 A subset of **ruby/spec** is run on top of this to cover behaviours the corpora
 do not yet reach.
 
+!!! note "TruffleRuby being added"
+    A third reference — **TruffleRuby** (the GraalVM implementation) — is being
+    added to both the conformance oracle and the performance baselines
+    ([interpreter PR #1](https://github.com/go-embedded-ruby/ruby/pull/1)). The
+    oracle and corpora below describe the rbgo / MRI / JRuby comparison that runs
+    on `main` today.
+
 ## The three-way differential oracle
 
 The tool that establishes correctness is a **three-way differential oracle**,
