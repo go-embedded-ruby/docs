@@ -519,7 +519,27 @@
         
   
   <span class="md-ellipsis">
-    Scientific stack & WebAssembly
+    Scientific stack
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="webassembly/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WebAssembly (js/wasm)
   </span>
   
 
@@ -834,10 +854,16 @@ performance baselines against MRI and JRuby.</p>
   container/value types <code>Set</code>, <code>Bag</code> (multiset), <code>Time</code>, <code>Date</code> and
   <code>BigDecimal</code>, each binding a pure-Go sibling library (go-ndarray / go-fft /
   go-images / go-composites). See
-  <a href="scientific-stack/">Scientific stack &amp; WebAssembly</a>.</li>
+  <a href="scientific-stack/">Scientific stack</a>.</li>
+<li><strong>WebAssembly (js/wasm):</strong> a first-class target — the interpreter and the whole
+  stack compile to <code>GOOS=js GOARCH=wasm</code> and run <strong>in the browser</strong>, both as a
+  REPL playground and as closed-world apps (<code>rbgo build --closed --target wasm</code>)
+  that drive the DOM/Canvas via the built-in <code>JS</code> module. See
+  <a href="webassembly/">WebAssembly</a>.</li>
 </ul>
 <p>Closed-world builds have landed (<code>rbgo build --closed</code> bakes the program in as
-bytecode and drops the front-end). Still ahead (see the <a href="roadmap/">roadmap</a>):
+bytecode and drops the front-end; <code>--target wasm</code> cross-compiles it to the
+browser). Still ahead (see the <a href="roadmap/">roadmap</a>):
 conformance and representation/perf tuning (Phase 8).</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>

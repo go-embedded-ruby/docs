@@ -10,13 +10,13 @@
       
       
       
-        <link rel="canonical" href="https://go-embedded-ruby.github.io/docs/0.1/conformance/">
+        <link rel="canonical" href="https://go-embedded-ruby.github.io/docs/0.1/webassembly/">
       
       
-        <link rel="prev" href="../roadmap/">
+        <link rel="prev" href="../scientific-stack/">
       
       
-        <link rel="next" href="../benchmarks/">
+        <link rel="next" href="../roadmap/">
       
       
       <link rel="icon" href="../assets/logo.svg">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Conformance - go-embedded-ruby docs</title>
+        <title>WebAssembly (js/wasm) - go-embedded-ruby docs</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#conformance" class="md-skip">
+        <a href="#webassembly-jswasm" class="md-skip">
           Skip to content
         </a>
       
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Conformance
+              WebAssembly (js/wasm)
             
           </span>
         </div>
@@ -458,10 +458,30 @@
       
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../webassembly/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    WebAssembly (js/wasm)
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -470,6 +490,68 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-the-playground-the-full-interpreter-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      1. The playground — the full interpreter in the browser
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-rbgo-build-target-wasm-a-closed-world-wasm-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      2. rbgo build --target wasm — a closed-world wasm app
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. rbgo build --target wasm — a closed-world wasm app">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-js-module-dom-canvas-and-events-from-ruby" class="md-nav__link">
+    <span class="md-ellipsis">
+      The JS module — DOM, Canvas and events from Ruby
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#verifying-a-wasm-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      Verifying a wasm build
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -498,30 +580,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Conformance
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../conformance/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -530,80 +592,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#two-independent-reference-implementations" class="md-nav__link">
-    <span class="md-ellipsis">
-      Two independent reference implementations
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-three-way-differential-oracle" class="md-nav__link">
-    <span class="md-ellipsis">
-      The three-way differential oracle
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#what-ci-enforces" class="md-nav__link">
-    <span class="md-ellipsis">
-      What CI enforces
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#real-world-corpora" class="md-nav__link">
-    <span class="md-ellipsis">
-      Real-world corpora
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-conformance-benchmark-ladder" class="md-nav__link">
-    <span class="md-ellipsis">
-      The conformance &amp; benchmark ladder
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-it-yourself" class="md-nav__link">
-    <span class="md-ellipsis">
-      Run it yourself
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -695,54 +683,42 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#two-independent-reference-implementations" class="md-nav__link">
+  <a href="#1-the-playground-the-full-interpreter-in-the-browser" class="md-nav__link">
     <span class="md-ellipsis">
-      Two independent reference implementations
+      1. The playground — the full interpreter in the browser
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-three-way-differential-oracle" class="md-nav__link">
+  <a href="#2-rbgo-build-target-wasm-a-closed-world-wasm-app" class="md-nav__link">
     <span class="md-ellipsis">
-      The three-way differential oracle
+      2. rbgo build --target wasm — a closed-world wasm app
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. rbgo build --target wasm — a closed-world wasm app">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-js-module-dom-canvas-and-events-from-ruby" class="md-nav__link">
+    <span class="md-ellipsis">
+      The JS module — DOM, Canvas and events from Ruby
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#what-ci-enforces" class="md-nav__link">
-    <span class="md-ellipsis">
-      What CI enforces
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#real-world-corpora" class="md-nav__link">
+  <a href="#verifying-a-wasm-build" class="md-nav__link">
     <span class="md-ellipsis">
-      Real-world corpora
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-conformance-benchmark-ladder" class="md-nav__link">
-    <span class="md-ellipsis">
-      The conformance &amp; benchmark ladder
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#run-it-yourself" class="md-nav__link">
-    <span class="md-ellipsis">
-      Run it yourself
+      Verifying a wasm build
     </span>
   </a>
   
@@ -763,94 +739,193 @@
                   
 
 
-<h1 id="conformance">Conformance<a class="headerlink" href="#conformance" title="Permanent link">&para;</a></h1>
-<p>go-embedded-ruby targets <strong>Ruby 4.0</strong> semantics. Correctness is not asserted by
-reading the spec and hoping — it is <em>measured</em> against running reference
-implementations, snippet by snippet, with the result checked into CI.</p>
-<h2 id="two-independent-reference-implementations">Two independent reference implementations<a class="headerlink" href="#two-independent-reference-implementations" title="Permanent link">&para;</a></h2>
-<p>Every behaviour is judged against <strong>two independent reference implementations</strong> of
-Ruby 4.0, so an agreement between them is strong evidence the behaviour is the
-language's and not an accident of one VM:</p>
-<ul>
-<li><strong>MRI (CRuby) 4.0.5</strong> — the canonical C interpreter;</li>
-<li><strong>JRuby 10.1</strong> — the JVM implementation.</li>
-</ul>
-<p>A subset of <strong>ruby/spec</strong> is run on top of this to cover behaviours the corpora
-do not yet reach.</p>
-<div class="admonition note">
-<p class="admonition-title">TruffleRuby being added</p>
-<p>A third reference — <strong>TruffleRuby</strong> (the GraalVM implementation) — is being
-added to both the conformance oracle and the performance baselines
-(<a href="https://github.com/go-embedded-ruby/ruby/pull/1">interpreter PR #1</a>). The
-oracle and corpora below describe the rbgo / MRI / JRuby comparison that runs
-on <code>main</code> today.</p>
-</div>
-<h2 id="the-three-way-differential-oracle">The three-way differential oracle<a class="headerlink" href="#the-three-way-differential-oracle" title="Permanent link">&para;</a></h2>
-<p>The tool that establishes correctness is a <strong>three-way differential oracle</strong>,
-<a href="https://github.com/go-embedded-ruby/ruby/blob/main/scripts/oracle.sh"><code>scripts/oracle.sh</code></a>
-in the interpreter repo. It runs the same snippet through <strong>rbgo</strong>, <strong>MRI</strong> and
-<strong>JRuby</strong>, compares their output, and flags any divergence. It <strong>exits non-zero on
-a mismatch</strong>, so it drops straight into CI and into a pre-commit loop.</p>
-<p>It has two modes.</p>
-<p>A single expression, evaluated in all three and diffed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;p (1..10).select(&amp;:even?).map { |x| x**2 }&#39;</span>
+<h1 id="webassembly-jswasm">WebAssembly (js/wasm)<a class="headerlink" href="#webassembly-jswasm" title="Permanent link">&para;</a></h1>
+<p><strong><code>GOOS=js GOARCH=wasm</code> is a first-class target.</strong> go-embedded-ruby is pure Go
+with cgo disabled, so the interpreter, the numeric stack and the cgo-free image
+pipeline compile to a single WebAssembly module and run <strong>entirely in the
+browser</strong> — there is no server-side code.</p>
+<p>There are two distinct ways to ship Ruby to the browser, and they answer
+different needs:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Playground (<code>cmd/wasm</code>)</th>
+<th>Closed-world app (<code>rbgo build --target wasm</code>)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What runs</td>
+<td><strong>arbitrary</strong> Ruby the user types</td>
+<td><strong>one</strong> program you baked in</td>
+</tr>
+<tr>
+<td>Front-end</td>
+<td>linked (lexer/parser/compiler)</td>
+<td><strong>dropped</strong></td>
+</tr>
+<tr>
+<td>Built by</td>
+<td><code>web/build.sh</code></td>
+<td><code>rbgo build --closed --target wasm</code></td>
+</tr>
+<tr>
+<td>Entry</td>
+<td><code>rbgoEval</code> / <code>rbgoImage</code> JS functions</td>
+<td>the embedded program, then <code>select{}</code></td>
+</tr>
+<tr>
+<td>Use it for</td>
+<td>a REPL / live demo page</td>
+<td>a self-contained Ruby browser app</td>
+</tr>
+</tbody>
+</table>
+<p>Both produce a <code>.wasm</code> module that you serve next to Go's <code>wasm_exec.js</code> loader.</p>
+<h2 id="1-the-playground-the-full-interpreter-in-the-browser">1. The playground — the full interpreter in the browser<a class="headerlink" href="#1-the-playground-the-full-interpreter-in-the-browser" title="Permanent link">&para;</a></h2>
+<p>The playground links the <strong>whole</strong> interpreter — front-end (lexer, parser,
+compiler), VM, the numeric stack and the cgo-free image pipeline — so the page
+can evaluate <em>any</em> Ruby the user types. It lives in
+<a href="https://github.com/go-embedded-ruby/ruby/tree/main/web"><code>web/</code></a> and is a Ruby
+REPL plus an image pipeline (load an image → <code>gaussian_blur</code>/<code>sobel</code>/<code>canny</code> →
+render to a <code>&lt;canvas&gt;</code>).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./web/build.sh<span class="w"> </span>serve<span class="w">     </span><span class="c1"># build web/rbgo.wasm and serve http://localhost:8080</span>
 </code></pre></div>
-<p>A batch corpus — a file with one snippet per line, every line run through all
-three implementations, with a summary of how many agree (<code>N/total</code>):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
+<p><code>build.sh</code> cross-compiles <a href="https://github.com/go-embedded-ruby/ruby/tree/main/cmd/wasm"><code>cmd/wasm</code></a>
+with <code>GOOS=js GOARCH=wasm</code> and copies Go's <code>wasm_exec.js</code> loader from the active
+toolchain. Build without <code>serve</code> to produce just the artifacts for static hosting
+(e.g. GitHub Pages):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./web/build.sh<span class="w">           </span><span class="c1"># produces web/rbgo.wasm + web/wasm_exec.js</span>
 </code></pre></div>
-<h2 id="what-ci-enforces">What CI enforces<a class="headerlink" href="#what-ci-enforces" title="Permanent link">&para;</a></h2>
-<p>On top of the oracle, the interpreter holds a hard CI gate:</p>
-<ul>
-<li><strong>100% statement coverage</strong>, enforced as a CI gate;</li>
-<li>across <strong>all six 64-bit architectures</strong> — amd64, arm64, riscv64, loong64,
-  ppc64le, s390x;</li>
-<li>across <strong>three OSes</strong>;</li>
-<li>with <strong>every feature differential-tested against MRI 4.0.5</strong>.</li>
-</ul>
-<p>A feature does not count as landed until it agrees with the reference and the
-lines that implement it are covered.</p>
-<h2 id="real-world-corpora">Real-world corpora<a class="headerlink" href="#real-world-corpora" title="Permanent link">&para;</a></h2>
-<p>Synthetic tests prove a feature works in isolation; they do not prove the idioms
-real Ruby code actually uses are supported. So beyond synthetic tests, <strong>idioms and
-suites from reference applications drive the work by demand</strong>:</p>
-<ul>
-<li><strong>Rails' ActiveSupport <code>core_ext</code></strong> — the pure-Ruby String / Array / Hash /
-  Numeric / Enumerable extensions;</li>
-<li><strong>OpenVox</strong> / Puppet — Ruby-heavy manifest evaluation.</li>
-</ul>
-<p>These surface the gaps that matter. A representative ActiveSupport <code>core_ext</code>
-idiom sweep started at <strong>9/15</strong> agreeing across the three implementations; as the
-gaps it exposed were fixed, it reached <strong>15/15</strong>. The committed corpus
-<code>scripts/conformance/core_ext.txt</code> currently runs <strong>20/20</strong> in agreement across
-rbgo, MRI and JRuby.</p>
-<h2 id="the-conformance-benchmark-ladder">The conformance &amp; benchmark ladder<a class="headerlink" href="#the-conformance-benchmark-ladder" title="Permanent link">&para;</a></h2>
-<p>Conformance is grown in three rungs, each a real corpus rather than a synthetic
-suite:</p>
-<ol>
-<li><strong>The three-way oracle</strong> — rbgo vs MRI vs JRuby (<strong>done</strong>).</li>
-<li><strong>Pure-Ruby gem test suites as corpora</strong> — ActiveSupport <code>core_ext</code>
-   (<strong>in progress</strong>).</li>
-<li><strong>Real-world workloads</strong> — OpenVox / Puppet and ultimately Rails — serving as
-   both conformance corpora and performance baselines.</li>
-</ol>
-<div class="admonition note">
-<p class="admonition-title">On Rails and Puppet</p>
-<p>Full Rails and Puppet execution depends on C-extension and threading depth
-that is <strong>out of scope</strong> for a pure-Go embeddable. The achievable targets are
-their <strong>pure-Ruby subsets and unit suites</strong>, which is what the ladder above
-aims at.</p>
-</div>
-<h2 id="run-it-yourself">Run it yourself<a class="headerlink" href="#run-it-yourself" title="Permanent link">&para;</a></h2>
-<p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on
-<code>PATH</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;p (1..10).select(&amp;:even?).map { |x| x**2 }&#39;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
+<p>The module publishes two functions on the JS global object:</p>
+<table>
+<thead>
+<tr>
+<th>function</th>
+<th>returns</th>
+<th>used by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rbgoEval(src)</code></td>
+<td><code>{output, value, error}</code></td>
+<td>the REPL</td>
+</tr>
+<tr>
+<td><code>rbgoImage(src, bytes)</code></td>
+<td><code>{output, value, error, bytes}</code></td>
+<td>the image demo</td>
+</tr>
+</tbody>
+</table>
+<p><code>rbgoImage</code> binds the input image's raw bytes to the Ruby constant <code>INPUT</code> (a
+<code>String</code>), runs <code>src</code>, and — when the program's result is a <code>String</code> (e.g. the
+output of <code>Image#to_png</code>) — hands those bytes back as a <code>Uint8Array</code> for the page
+to paint. The image demo's pipeline is plain Ruby:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">Image</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="no">INPUT</span><span class="p">)</span><span class="o">.</span><span class="n">gaussian_blur</span><span class="p">(</span><span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sobel_mag</span><span class="o">.</span><span class="n">to_png</span>
 </code></pre></div>
-<p>Either invocation exits non-zero if any implementation disagrees.</p>
+<p>Arbitrary REPL input can never crash the interpreter: a native binding that
+faults on bad arguments is converted to a rescuable Ruby <code>ArgumentError</code>.</p>
+<h2 id="2-rbgo-build-target-wasm-a-closed-world-wasm-app">2. <code>rbgo build --target wasm</code> — a closed-world wasm app<a class="headerlink" href="#2-rbgo-build-target-wasm-a-closed-world-wasm-app" title="Permanent link">&para;</a></h2>
+<p>To ship a <em>single</em> program rather than a REPL, AOT-bake it into a closed-world
+wasm module that <strong>drops the front-end</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>rbgo<span class="w"> </span>build<span class="w"> </span>--closed<span class="w"> </span>--target<span class="w"> </span>wasm<span class="w"> </span>-o<span class="w"> </span>app.wasm<span class="w"> </span>app.rb
+</code></pre></div>
+<ul>
+<li><code>--target wasm</code> <strong>requires <code>--closed</code></strong> — the wasm entry point runs the
+  embedded program; there is no command-line file to read in a browser tab. The
+  program is frozen to bytecode at build time and the lexer/parser/compiler are
+  left out of the link (see <a href="https://github.com/go-embedded-ruby/ruby/blob/main/docs/aot-compiler.md">the AOT compiler</a>
+  for how closed-world builds work).</li>
+<li>The build sets <code>GOOS=js GOARCH=wasm</code> on the nested <code>go build</code>, so it links the
+  wasm closed-world entry. After the embedded program returns it does <strong>not</strong>
+  exit: it parks on <code>select{}</code>, because a Go wasm module that returns from
+  <code>main()</code> is torn down — it must stay alive for any JS event or animation
+  callbacks the program registered.</li>
+</ul>
+<p>Serve the emitted <code>app.wasm</code> next to <code>wasm_exec.js</code> (copy it from
+<code>$(go env GOROOT)/lib/wasm/wasm_exec.js</code>).</p>
+<h3 id="the-js-module-dom-canvas-and-events-from-ruby">The <code>JS</code> module — DOM, Canvas and events from Ruby<a class="headerlink" href="#the-js-module-dom-canvas-and-events-from-ruby" title="Permanent link">&para;</a></h3>
+<p>A closed-world wasm program reaches the page through the built-in <strong><code>JS</code>
+module</strong>, which the VM registers automatically on wasm. So a Ruby browser app can
+render and handle events with <strong>no hand-written JavaScript</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">doc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">JS</span><span class="o">.</span><span class="n">document</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">canvas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;getElementById&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;screen&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canvas</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;getContext&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;2d&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">ctx</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">&quot;fillStyle&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tomato&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;fillRect&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">doc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;getElementById&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;go&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="s2">&quot;click&quot;</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">_event</span><span class="o">|</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="no">JS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">&quot;clicked!&quot;</span><span class="p">)</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="k">end</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="c1"># an animation loop: reschedule from inside the block</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">nil</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;clearRect&quot;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">320</span><span class="p">,</span><span class="w"> </span><span class="mi">240</span><span class="p">)</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">&quot;fillRect&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">300</span><span class="p">),</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span><span class="no">JS</span><span class="o">.</span><span class="n">raf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">draw</span><span class="p">)</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="p">}</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="no">JS</span><span class="o">.</span><span class="n">raf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">draw</span><span class="p">)</span>
+</code></pre></div>
+<p>The surface:</p>
+<table>
+<thead>
+<tr>
+<th>call</th>
+<th>does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>JS.global</code> / <code>JS.window</code> / <code>JS.document</code></td>
+<td>the JS globals, as <code>JS::Ref</code> handles</td>
+</tr>
+<tr>
+<td><code>JS.log(*args)</code></td>
+<td><code>console.log</code></td>
+</tr>
+<tr>
+<td><code>JS.raf { \|t\| … }</code></td>
+<td><code>requestAnimationFrame</code> (reschedule inside for a loop)</td>
+</tr>
+<tr>
+<td><code>ref.get(name)</code> / <code>ref[name]</code></td>
+<td>read a property</td>
+</tr>
+<tr>
+<td><code>ref.set(name, value)</code></td>
+<td>write a property</td>
+</tr>
+<tr>
+<td><code>ref.call(method, *args)</code></td>
+<td>invoke a method</td>
+</tr>
+<tr>
+<td><code>ref.on(event) { \|e\| … }</code></td>
+<td><code>addEventListener</code></td>
+</tr>
+</tbody>
+</table>
+<p>JS values flow both ways: primitives convert directly (numbers, strings,
+booleans, null/undefined → <code>nil</code>), and objects/functions become opaque <code>JS::Ref</code>
+handles.</p>
+<h2 id="verifying-a-wasm-build">Verifying a wasm build<a class="headerlink" href="#verifying-a-wasm-build" title="Permanent link">&para;</a></h2>
+<p>The closed-world wasm path is covered end to end by an integration test
+(<a href="https://github.com/go-embedded-ruby/ruby/blob/main/cmd/rbgo/wasm_build_test.go"><code>cmd/rbgo/wasm_build_test.go</code></a>,
+gated behind <code>RBGO_BUILD_IT=1</code> because it shells out to the Go toolchain). It
+bakes a <code>JS</code>-using program, then asserts the output carries the WebAssembly magic
+(<code>\0asm</code>) and that the linker dropped the front-end (no <code>go-ruby-parser/parser</code>
+or <code>internal/compiler</code> symbols in the module):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">RBGO_BUILD_IT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>go<span class="w"> </span><span class="nb">test</span><span class="w"> </span>./cmd/rbgo<span class="w"> </span>-run<span class="w"> </span>TestClosedWasmBuildIntegration
+</code></pre></div>
+<p>Both targets also build directly:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/wasm<span class="w">    </span><span class="c1"># the playground</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/rbgo<span class="w">    </span><span class="c1"># the rbgo CLI / closed-world entry</span>
+</code></pre></div>
 
 
 

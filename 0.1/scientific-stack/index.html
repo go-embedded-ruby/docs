@@ -16,7 +16,7 @@
         <link rel="prev" href="../architecture/build/">
       
       
-        <link rel="next" href="../roadmap/">
+        <link rel="next" href="../webassembly/">
       
       
       <link rel="icon" href="../assets/logo.svg">
@@ -24,7 +24,7 @@
     
     
       
-        <title>Scientific stack & WebAssembly - go-embedded-ruby docs</title>
+        <title>Scientific stack - go-embedded-ruby docs</title>
       
     
     
@@ -115,7 +115,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Scientific stack & WebAssembly
+              Scientific stack
             
           </span>
         </div>
@@ -454,7 +454,7 @@
           
   
   <span class="md-ellipsis">
-    Scientific stack & WebAssembly
+    Scientific stack
   </span>
   
 
@@ -465,7 +465,7 @@
         
   
   <span class="md-ellipsis">
-    Scientific stack & WebAssembly
+    Scientific stack
   </span>
   
 
@@ -571,6 +571,26 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../webassembly/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    WebAssembly (js/wasm)
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -899,39 +919,14 @@ comparisons — exact decimals without the float rounding of <code>Float</code>.
 <p>The interpreter and the whole stack above compile to <code>GOOS=js GOARCH=wasm</code> and
 run <strong>entirely in the browser</strong> — there is no server-side code. The
 <a href="https://github.com/go-embedded-ruby/ruby/tree/main/web"><code>web/</code></a> directory holds
-a self-contained playground: a Ruby REPL and an image pipeline that loads an
-image, runs <code>gaussian_blur</code>/<code>sobel</code>/<code>canny</code>, and renders the result to a
-<code>&lt;canvas&gt;</code>.</p>
+a self-contained playground (a Ruby REPL and an image pipeline that loads an
+image, runs <code>gaussian_blur</code>/<code>sobel</code>/<code>canny</code>, and renders it to a <code>&lt;canvas&gt;</code>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./web/build.sh<span class="w"> </span>serve<span class="w">     </span><span class="c1"># build web/rbgo.wasm and serve http://localhost:8080</span>
 </code></pre></div>
-<p>The wasm module (<a href="https://github.com/go-embedded-ruby/ruby/tree/main/cmd/wasm"><code>cmd/wasm</code></a>)
-publishes two JS functions:</p>
-<table>
-<thead>
-<tr>
-<th>function</th>
-<th>returns</th>
-<th>used by</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>rbgoEval(src)</code></td>
-<td><code>{output, value, error}</code></td>
-<td>the REPL</td>
-</tr>
-<tr>
-<td><code>rbgoImage(src, bytes)</code></td>
-<td><code>{output, value, error, bytes}</code></td>
-<td>the image demo</td>
-</tr>
-</tbody>
-</table>
-<p><code>rbgoImage</code> binds the input image's raw bytes to the Ruby constant <code>INPUT</code>, runs
-<code>src</code>, and returns the result <code>String</code>'s bytes (e.g. from <code>Image#to_png</code>) as a
-<code>Uint8Array</code>. Arbitrary REPL input can never crash the interpreter: a native
-binding that faults on bad arguments is converted to a rescuable Ruby
-<code>ArgumentError</code>.</p>
+<p>WebAssembly is a first-class target with two flavours — the playground above and
+<code>rbgo build --closed --target wasm</code> for closed-world browser apps that drive the
+DOM/Canvas via the built-in <code>JS</code> module. See <strong><a href="../webassembly/">WebAssembly</a></strong>
+for the full story.</p>
 
 
 
