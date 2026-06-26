@@ -119,24 +119,14 @@ p (BigDecimal("0.1") + BigDecimal("0.2")).to_s   # exact, no 0.30000000000000004
 The interpreter and the whole stack above compile to `GOOS=js GOARCH=wasm` and
 run **entirely in the browser** — there is no server-side code. The
 [`web/`](https://github.com/go-embedded-ruby/ruby/tree/main/web) directory holds
-a self-contained playground: a Ruby REPL and an image pipeline that loads an
-image, runs `gaussian_blur`/`sobel`/`canny`, and renders the result to a
-`<canvas>`.
+a self-contained playground (a Ruby REPL and an image pipeline that loads an
+image, runs `gaussian_blur`/`sobel`/`canny`, and renders it to a `<canvas>`):
 
 ```sh
 ./web/build.sh serve     # build web/rbgo.wasm and serve http://localhost:8080
 ```
 
-The wasm module ([`cmd/wasm`](https://github.com/go-embedded-ruby/ruby/tree/main/cmd/wasm))
-publishes two JS functions:
-
-| function | returns | used by |
-| --- | --- | --- |
-| `rbgoEval(src)` | `{output, value, error}` | the REPL |
-| `rbgoImage(src, bytes)` | `{output, value, error, bytes}` | the image demo |
-
-`rbgoImage` binds the input image's raw bytes to the Ruby constant `INPUT`, runs
-`src`, and returns the result `String`'s bytes (e.g. from `Image#to_png`) as a
-`Uint8Array`. Arbitrary REPL input can never crash the interpreter: a native
-binding that faults on bad arguments is converted to a rescuable Ruby
-`ArgumentError`.
+WebAssembly is a first-class target with two flavours — the playground above and
+`rbgo build --closed --target wasm` for closed-world browser apps that drive the
+DOM/Canvas via the built-in `JS` module. See **[WebAssembly](webassembly.md)**
+for the full story.
