@@ -583,6 +583,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#heavyweight-front-end-conformance-rails-puppet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Heavyweight front-end conformance — Rails &amp; Puppet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-conformance-benchmark-ladder" class="md-nav__link">
     <span class="md-ellipsis">
       The conformance &amp; benchmark ladder
@@ -731,6 +740,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#heavyweight-front-end-conformance-rails-puppet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Heavyweight front-end conformance — Rails &amp; Puppet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-conformance-benchmark-ladder" class="md-nav__link">
     <span class="md-ellipsis">
       The conformance &amp; benchmark ladder
@@ -824,22 +842,91 @@ idiom sweep started at <strong>9/15</strong> agreeing across the three implement
 gaps it exposed were fixed, it reached <strong>15/15</strong>. The committed corpus
 <code>scripts/conformance/core_ext.txt</code> currently runs <strong>20/20</strong> in agreement across
 rbgo, MRI and JRuby.</p>
+<h2 id="heavyweight-front-end-conformance-rails-puppet">Heavyweight front-end conformance — Rails &amp; Puppet<a class="headerlink" href="#heavyweight-front-end-conformance-rails-puppet" title="Permanent link">&para;</a></h2>
+<p>The two largest reference Ruby codebases double as a front-end stress test. The
+metric is <strong>front-end (parse + compile) acceptance</strong>: for every <code>.rb</code> file, does
+rbgo's <code>parser.Parse</code> (and then <code>compiler.Compile</code>) accept the same source MRI
+considers valid? A released gem / framework file is valid Ruby (<code>ruby -c</code> clean),
+so a rejection is a genuine front-end gap.</p>
+<p>After the 2026-06 conformance campaign (5 go-ruby-parser rounds interleaved with
+5 rbgo activation rounds), the final figures against the MRI 4.0.5 oracle:</p>
+<table>
+<thead>
+<tr>
+<th>Repo</th>
+<th style="text-align: right;"><code>.rb</code> files</th>
+<th style="text-align: right;">rbgo <strong>parses</strong></th>
+<th style="text-align: right;">rbgo <strong>parses + compiles</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rails</td>
+<td style="text-align: right;">3 423</td>
+<td style="text-align: right;"><strong>100.00 %</strong></td>
+<td style="text-align: right;"><strong>99.82 %</strong></td>
+</tr>
+<tr>
+<td>Puppet</td>
+<td style="text-align: right;">2 156</td>
+<td style="text-align: right;"><strong>100.00 %</strong> (of valid)</td>
+<td style="text-align: right;"><strong>100.00 %</strong></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: right;">5 579</td>
+<td style="text-align: right;"><strong>99.96 %</strong></td>
+<td style="text-align: right;"><strong>99.89 %</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Parse: 99.96 %</strong> of the combined corpus (5577 / 5579). The only 2 misses are
+  intentional syntax-error fixtures <strong>MRI itself rejects</strong> — so rbgo parses
+  <strong>100 % of all valid Ruby</strong> in the corpus.</li>
+<li><strong>Parse + compile: Rails 99.82 %</strong> (3417 / 3423), <strong>Puppet 100.00 %</strong>
+  (2154 / 2154).</li>
+<li><strong>0 over-permissive</strong> — rbgo never accepted Ruby that MRI rejects.</li>
+</ul>
+<p>The journey for Rails end-to-end (parse + compile): <strong>20.7 % → 46.3 % → 68.7 % →
+81.2 % → 86.7 % → 93.8 % → 98.4 % → 99.82 %</strong>. The biggest levers were <code>::</code>
+constant-path parsing, paren-less command calls with args/kwargs, <code>class &lt;&lt; self</code>,
+and argument forwarding.</p>
+<p>Popular libraries parse just as well — <strong>RuboCop 99.7 %</strong>; <strong>Sinatra, Jekyll,
+Thor, Kramdown, dry-struct 100 %</strong>; Homebrew 98.7 %; Chef 99.1 %; concurrent-ruby
+98.3 %; Asciidoctor 93.8 % — and <strong>RSpec DSL usage is 10/10</strong> byte-identical to
+MRI.</p>
+<div class="admonition warning">
+<p class="admonition-title">Front-end acceptance is not whole-application execution</p>
+<p>"Rails 99.82 %" means rbgo's front-end <strong>parses and compiles</strong> that fraction
+of Rails's <code>.rb</code> files — <strong>not</strong> that rbgo <strong>runs</strong> Rails. Running a full Rails
+or Puppet application additionally needs the runtime stdlib surface and
+C-extension equivalents, which is <strong>ongoing and unproven</strong>. What these numbers
+establish is that the <strong>Ruby language / front-end is essentially complete</strong> on
+real-world code; whether any <em>given application boots</em> end-to-end is separate,
+future work. Full reports:
+<a href="https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-RAILS-PUPPET.md"><code>CONFORMANCE-RAILS-PUPPET.md</code></a>
+and
+<a href="https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-LIBRARIES.md"><code>CONFORMANCE-LIBRARIES.md</code></a>.</p>
+</div>
 <h2 id="the-conformance-benchmark-ladder">The conformance &amp; benchmark ladder<a class="headerlink" href="#the-conformance-benchmark-ladder" title="Permanent link">&para;</a></h2>
 <p>Conformance is grown in three rungs, each a real corpus rather than a synthetic
 suite:</p>
 <ol>
 <li><strong>The three-way oracle</strong> — rbgo vs MRI vs JRuby (<strong>done</strong>).</li>
 <li><strong>Pure-Ruby gem test suites as corpora</strong> — ActiveSupport <code>core_ext</code>
-   (<strong>in progress</strong>).</li>
-<li><strong>Real-world workloads</strong> — OpenVox / Puppet and ultimately Rails — serving as
-   both conformance corpora and performance baselines.</li>
+   (<strong>done</strong>, 20/20).</li>
+<li><strong>Real-world workloads</strong> — front-end (parse + compile) acceptance on Rails,
+   Puppet and popular libraries (<strong>done</strong>: ~100 % of valid Ruby parses); running
+   whole applications on the runtime stdlib + C-extension surface is the next,
+   ongoing rung.</li>
 </ol>
 <div class="admonition note">
-<p class="admonition-title">On Rails and Puppet</p>
-<p>Full Rails and Puppet execution depends on C-extension and threading depth
-that is <strong>out of scope</strong> for a pure-Go embeddable. The achievable targets are
-their <strong>pure-Ruby subsets and unit suites</strong>, which is what the ladder above
-aims at.</p>
+<p class="admonition-title">On running Rails and Puppet</p>
+<p>Full Rails and Puppet <strong>execution</strong> depends on a runtime stdlib surface and
+C-extension / threading depth beyond what is built today. The achieved target
+is <strong>front-end (parse + compile) acceptance</strong> of their real-world Ruby (above);
+<em>running</em> whole applications is the road ahead, not a present claim.</p>
 </div>
 <h2 id="run-it-yourself">Run it yourself<a class="headerlink" href="#run-it-yourself" title="Permanent link">&para;</a></h2>
 <p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on

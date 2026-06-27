@@ -567,6 +567,24 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#six-runtime-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Six-runtime comparison
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#earlier-startup-focused-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Earlier startup-focused snapshot
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#startup-is-rbgos-superpower" class="md-nav__link">
     <span class="md-ellipsis">
       Startup is rbgo's superpower
@@ -677,6 +695,24 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#six-runtime-comparison" class="md-nav__link">
+    <span class="md-ellipsis">
+      Six-runtime comparison
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#earlier-startup-focused-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      Earlier startup-focused snapshot
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#startup-is-rbgos-superpower" class="md-nav__link">
     <span class="md-ellipsis">
       Startup is rbgo's superpower
@@ -729,9 +765,147 @@
 
 <h1 id="benchmarks">Benchmarks<a class="headerlink" href="#benchmarks" title="Permanent link">&para;</a></h1>
 <p>The numbers below are real measurements, reported honestly — including where
-rbgo is slower. They are <strong>wall-clock</strong> (process startup included), taken on
-Apple-silicon <strong>arm64</strong>, single-run. <code>rbgo</code> is the native interpreter build;
-<strong>MRI 4.0.5</strong> is the C interpreter with YJIT; <strong>JRuby 10.1</strong> runs on <strong>JDK 25</strong>.</p>
+rbgo is slower. They are <strong>wall-clock</strong> (process startup included), <strong>best-of-8</strong>
+on an Apple <strong>M4 Max</strong> (darwin/arm64). The same <code>bench/*.rb</code> is run through every
+runtime and each program's stdout is checked <strong>byte-identical against MRI</strong> before
+it is timed.</p>
+<h2 id="six-runtime-comparison">Six-runtime comparison<a class="headerlink" href="#six-runtime-comparison" title="Permanent link">&para;</a></h2>
+<p><code>rbgo</code> is the pure-Go bytecode interpreter; <strong>rbgo+AOT</strong> is the native binary from
+<code>rbgo build</code> (the program's integer-bound methods lowered to Go). References:
+<strong>MRI 4.0.5</strong>, <strong>MRI+YJIT</strong>, <strong>JRuby 10.1</strong> (OpenJDK 25), <strong>TruffleRuby 34.0.1</strong>
+(GraalVM CE Native). Times in <strong>ms</strong>, best of 8.</p>
+<table>
+<thead>
+<tr>
+<th>program</th>
+<th style="text-align: right;">rbgo</th>
+<th style="text-align: right;">rbgo+AOT</th>
+<th style="text-align: right;">MRI</th>
+<th style="text-align: right;">MRI+YJIT</th>
+<th style="text-align: right;">JRuby</th>
+<th style="text-align: right;">TruffleRuby</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>strings</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">40</td>
+<td style="text-align: right;">1040</td>
+<td style="text-align: right;">120</td>
+</tr>
+<tr>
+<td>wordcount</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;">120</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">1090</td>
+<td style="text-align: right;">200</td>
+</tr>
+<tr>
+<td>hash</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">260</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">80</td>
+<td style="text-align: right;">1120</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td>array</td>
+<td style="text-align: right;">440</td>
+<td style="text-align: right;">440</td>
+<td style="text-align: right;">90</td>
+<td style="text-align: right;">60</td>
+<td style="text-align: right;">1160</td>
+<td style="text-align: right;">60</td>
+</tr>
+<tr>
+<td>blocks</td>
+<td style="text-align: right;">560</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">250</td>
+<td style="text-align: right;">220</td>
+<td style="text-align: right;">1200</td>
+<td style="text-align: right;">80</td>
+</tr>
+<tr>
+<td>proc</td>
+<td style="text-align: right;">690</td>
+<td style="text-align: right;">680</td>
+<td style="text-align: right;">160</td>
+<td style="text-align: right;">140</td>
+<td style="text-align: right;">1160</td>
+<td style="text-align: right;">70</td>
+</tr>
+<tr>
+<td>dispatch</td>
+<td style="text-align: right;">1180</td>
+<td style="text-align: right;">1150</td>
+<td style="text-align: right;">220</td>
+<td style="text-align: right;">170</td>
+<td style="text-align: right;">1190</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td>alloc</td>
+<td style="text-align: right;">1250</td>
+<td style="text-align: right;">1280</td>
+<td style="text-align: right;">230</td>
+<td style="text-align: right;">190</td>
+<td style="text-align: right;">1190</td>
+<td style="text-align: right;">90</td>
+</tr>
+<tr>
+<td>loop</td>
+<td style="text-align: right;">1490</td>
+<td style="text-align: right;"><strong>10</strong></td>
+<td style="text-align: right;">360</td>
+<td style="text-align: right;">360</td>
+<td style="text-align: right;">1240</td>
+<td style="text-align: right;">90</td>
+</tr>
+<tr>
+<td>fib</td>
+<td style="text-align: right;">2470</td>
+<td style="text-align: right;"><strong>20</strong></td>
+<td style="text-align: right;">480</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">2770</td>
+<td style="text-align: right;">150</td>
+</tr>
+<tr>
+<td>mandelbrot</td>
+<td style="text-align: right;">2930</td>
+<td style="text-align: right;">2920</td>
+<td style="text-align: right;">780</td>
+<td style="text-align: right;">760</td>
+<td style="text-align: right;">1270</td>
+<td style="text-align: right;">90</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>rbgo+AOT is the standout:</strong> <code>loop</code> 10 ms and <code>fib</code> 20 ms — <strong>18–24× faster
+  than MRI+YJIT</strong>, the only runtime here that beats YJIT, via closed-world native
+  lowering of integer-bound methods. (<code>mandelbrot</code>'s float kernel is not yet
+  AOT-lowered, so its AOT column matches the interpreter.)</li>
+<li><strong>rbgo interpreter</strong> runs ~3–6× MRI on compute-bound code and at <strong>parity</strong>
+  where startup / I-O dominates (<code>strings</code>, <code>wordcount</code>).</li>
+<li><strong>TruffleRuby</strong> (GraalVM JIT) is the <strong>compute ceiling</strong> — e.g. <code>mandelbrot</code>
+  90 ms vs MRI 780 ms.</li>
+<li><strong>JRuby</strong> is dominated by ~1.0–1.2 s JVM startup; for these single-shot
+  micro-benchmarks the startup is the story.</li>
+</ul>
+<p>Reproduce: <code>AOT=1 RUNS=8 JRUBY=jruby TRUFFLE=&lt;path&gt; bash bench/run.sh 8</code>. The full
+write-up (methodology, profiling, where the time goes) is in
+<a href="https://github.com/go-embedded-ruby/ruby/blob/main/BENCHMARKS.md"><code>BENCHMARKS.md</code></a>.</p>
+<h2 id="earlier-startup-focused-snapshot">Earlier startup-focused snapshot<a class="headerlink" href="#earlier-startup-focused-snapshot" title="Permanent link">&para;</a></h2>
+<p>An earlier, single-run snapshot (rbgo vs MRI+YJIT vs JRuby) — kept for the startup
+story:</p>
 <table>
 <thead>
 <tr>
