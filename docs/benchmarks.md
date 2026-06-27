@@ -1,9 +1,51 @@
 # Benchmarks
 
 The numbers below are real measurements, reported honestly — including where
-rbgo is slower. They are **wall-clock** (process startup included), taken on
-Apple-silicon **arm64**, single-run. `rbgo` is the native interpreter build;
-**MRI 4.0.5** is the C interpreter with YJIT; **JRuby 10.1** runs on **JDK 25**.
+rbgo is slower. They are **wall-clock** (process startup included), **best-of-8**
+on an Apple **M4 Max** (darwin/arm64). The same `bench/*.rb` is run through every
+runtime and each program's stdout is checked **byte-identical against MRI** before
+it is timed.
+
+## Six-runtime comparison
+
+`rbgo` is the pure-Go bytecode interpreter; **rbgo+AOT** is the native binary from
+`rbgo build` (the program's integer-bound methods lowered to Go). References:
+**MRI 4.0.5**, **MRI+YJIT**, **JRuby 10.1** (OpenJDK 25), **TruffleRuby 34.0.1**
+(GraalVM CE Native). Times in **ms**, best of 8.
+
+| program | rbgo | rbgo+AOT | MRI | MRI+YJIT | JRuby | TruffleRuby |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| strings | 40 | 40 | 40 | 40 | 1040 | 120 |
+| wordcount | 120 | 120 | 80 | 80 | 1090 | 200 |
+| hash | 250 | 260 | 80 | 80 | 1120 | 100 |
+| array | 440 | 440 | 90 | 60 | 1160 | 60 |
+| blocks | 560 | 600 | 250 | 220 | 1200 | 80 |
+| proc | 690 | 680 | 160 | 140 | 1160 | 70 |
+| dispatch | 1180 | 1150 | 220 | 170 | 1190 | 50 |
+| alloc | 1250 | 1280 | 230 | 190 | 1190 | 90 |
+| loop | 1490 | **10** | 360 | 360 | 1240 | 90 |
+| fib | 2470 | **20** | 480 | 100 | 2770 | 150 |
+| mandelbrot | 2930 | 2920 | 780 | 760 | 1270 | 90 |
+
+- **rbgo+AOT is the standout:** `loop` 10 ms and `fib` 20 ms — **18–24× faster
+  than MRI+YJIT**, the only runtime here that beats YJIT, via closed-world native
+  lowering of integer-bound methods. (`mandelbrot`'s float kernel is not yet
+  AOT-lowered, so its AOT column matches the interpreter.)
+- **rbgo interpreter** runs ~3–6× MRI on compute-bound code and at **parity**
+  where startup / I-O dominates (`strings`, `wordcount`).
+- **TruffleRuby** (GraalVM JIT) is the **compute ceiling** — e.g. `mandelbrot`
+  90 ms vs MRI 780 ms.
+- **JRuby** is dominated by ~1.0–1.2 s JVM startup; for these single-shot
+  micro-benchmarks the startup is the story.
+
+Reproduce: `AOT=1 RUNS=8 JRUBY=jruby TRUFFLE=<path> bash bench/run.sh 8`. The full
+write-up (methodology, profiling, where the time goes) is in
+[`BENCHMARKS.md`](https://github.com/go-embedded-ruby/ruby/blob/main/BENCHMARKS.md).
+
+## Earlier startup-focused snapshot
+
+An earlier, single-run snapshot (rbgo vs MRI+YJIT vs JRuby) — kept for the startup
+story:
 
 | Workload | rbgo | MRI 4.0.5 | JRuby 10.1 |
 | --- | --- | --- | --- |
