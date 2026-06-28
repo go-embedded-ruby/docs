@@ -79,11 +79,59 @@ suite:
 3. **Real-world workloads** — OpenVox / Puppet and ultimately Rails — serving as
    both conformance corpora and performance baselines.
 
-!!! note "On Rails and Puppet"
-    Full Rails and Puppet execution depends on C-extension and threading depth
-    that is **out of scope** for a pure-Go embeddable. The achievable targets are
-    their **pure-Ruby subsets and unit suites**, which is what the ladder above
-    aims at.
+## Heavyweight front-end sweep: Rails & Puppet
+
+The two largest reference Ruby codebases — **Rails** and **Puppet** — are run
+through the pure-Go front-end (`parser.Parse` → `compiler.Compile`, no execution)
+as a conformance stress test, with **MRI `ruby -c`** as the oracle for "is this
+valid Ruby?".
+
+| Repo   | Parse | Parse + compile |
+| ------ | ----: | --------------: |
+| Rails  | 100.00 % (3 423 / 3 423) | **99.82 %** (3 417 / 3 423) |
+| Puppet | 100.00 % (2 154 / 2 154) | **100.00 %** (2 154 / 2 154) |
+
+Across the corpus rbgo parses **100 % of all valid Ruby** (the only 2 misses are
+intentional syntax-error fixtures MRI itself rejects), with **0 over-permissive**
+(rbgo never accepts Ruby MRI rejects). See
+[`CONFORMANCE-RAILS-PUPPET.md`](https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-RAILS-PUPPET.md)
+in the interpreter repo for the full report and the reproducible sweep.
+
+These are **front-end (parse + compile) acceptance** figures, not whole-app
+execution. Running a real application additionally needs the runtime stdlib
+surface and C-extension equivalents — which is now real enough to boot one.
+
+## Running Puppet — boots, compiles, and evaluates manifests
+
+Beyond parsing real-world Ruby, **rbgo runs Puppet**.
+`require "puppet"` **fully boots** the framework (Puppet 8.11.0) on a pure-Go
+CGO=0 `rbgo` — Puppet's pure-Ruby gem dependencies (`semantic_puppet`,
+`concurrent-ruby`, `facter`, `fast_gettext`, `racc`, …) load on the
+`$LOAD_PATH` — and a manifest then travels the real Puppet pipeline: it **parses
+to the Pops AST, compiles to a catalog, and evaluates**. A trivial manifest emits
+genuine Puppet log output:
+
+```ruby
+notice("hi from puppet")
+# => Notice: Scope(Class[main]): hi from puppet
+```
+
+Reaching this implemented a wide runtime surface — Ruby-conformance fixes
+(`autoload`, `ERB`, frame-based `Exception#backtrace`, interpolated regexp
+literals, non-local block `return`, `Module.new` / `extend` transitivity, …) plus
+pure-Go stdlib modules (`openssl` with real crypto, `net/http`, `resolv`,
+`StringScanner`, `fileutils`, …) — and validates the **C-extension → pure-Go
+shim** strategy: a real Ruby application ships as one static CGO=0 binary because
+its C-backed gem APIs are backed by pure Go. Puppet's dependency tree is pure
+Ruby, so it loads as-is.
+
+!!! note "The honest frontier"
+    What works today is **boot → parse → compile → evaluate** a manifest (the Pops
+    evaluator emits `Notice:` and friends). Full **`puppet apply`** — the
+    transaction / RAL / resource-provider layer that mutates real host state — is
+    the **active next milestone**, not done. The `notice(...)` example above is a
+    real evaluation; an `apply` that converges resources against a host is in
+    progress.
 
 ## Run it yourself
 
