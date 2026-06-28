@@ -601,6 +601,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#heavyweight-front-end-sweep-rails-puppet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Heavyweight front-end sweep: Rails &amp; Puppet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-puppet-boots-compiles-and-evaluates-manifests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Puppet — boots, compiles, and evaluates manifests
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#run-it-yourself" class="md-nav__link">
     <span class="md-ellipsis">
       Run it yourself
@@ -752,6 +770,24 @@
   <a href="#the-conformance-benchmark-ladder" class="md-nav__link">
     <span class="md-ellipsis">
       The conformance &amp; benchmark ladder
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heavyweight-front-end-sweep-rails-puppet" class="md-nav__link">
+    <span class="md-ellipsis">
+      Heavyweight front-end sweep: Rails &amp; Puppet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-puppet-boots-compiles-and-evaluates-manifests" class="md-nav__link">
+    <span class="md-ellipsis">
+      Running Puppet — boots, compiles, and evaluates manifests
     </span>
   </a>
   
@@ -921,21 +957,76 @@ suite:</p>
    whole applications on the runtime stdlib + C-extension surface is the next,
    ongoing rung.</li>
 </ol>
+<h2 id="heavyweight-front-end-sweep-rails-puppet">Heavyweight front-end sweep: Rails &amp; Puppet<a class="headerlink" href="#heavyweight-front-end-sweep-rails-puppet" title="Permanent link">&para;</a></h2>
+<p>The two largest reference Ruby codebases — <strong>Rails</strong> and <strong>Puppet</strong> — are run
+through the pure-Go front-end (<code>parser.Parse</code> → <code>compiler.Compile</code>, no execution)
+as a conformance stress test, with <strong>MRI <code>ruby -c</code></strong> as the oracle for "is this
+valid Ruby?".</p>
+<table>
+<thead>
+<tr>
+<th>Repo</th>
+<th style="text-align: right;">Parse</th>
+<th style="text-align: right;">Parse + compile</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rails</td>
+<td style="text-align: right;">100.00 % (3 423 / 3 423)</td>
+<td style="text-align: right;"><strong>99.82 %</strong> (3 417 / 3 423)</td>
+</tr>
+<tr>
+<td>Puppet</td>
+<td style="text-align: right;">100.00 % (2 154 / 2 154)</td>
+<td style="text-align: right;"><strong>100.00 %</strong> (2 154 / 2 154)</td>
+</tr>
+</tbody>
+</table>
+<p>Across the corpus rbgo parses <strong>100 % of all valid Ruby</strong> (the only 2 misses are
+intentional syntax-error fixtures MRI itself rejects), with <strong>0 over-permissive</strong>
+(rbgo never accepts Ruby MRI rejects). See
+<a href="https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-RAILS-PUPPET.md"><code>CONFORMANCE-RAILS-PUPPET.md</code></a>
+in the interpreter repo for the full report and the reproducible sweep.</p>
+<p>These are <strong>front-end (parse + compile) acceptance</strong> figures, not whole-app
+execution. Running a real application additionally needs the runtime stdlib
+surface and C-extension equivalents — which is now real enough to boot one.</p>
+<h2 id="running-puppet-boots-compiles-and-evaluates-manifests">Running Puppet — boots, compiles, and evaluates manifests<a class="headerlink" href="#running-puppet-boots-compiles-and-evaluates-manifests" title="Permanent link">&para;</a></h2>
+<p>Beyond parsing real-world Ruby, <strong>rbgo runs Puppet</strong>.
+<code>require "puppet"</code> <strong>fully boots</strong> the framework (Puppet 8.11.0) on a pure-Go
+CGO=0 <code>rbgo</code> — Puppet's pure-Ruby gem dependencies (<code>semantic_puppet</code>,
+<code>concurrent-ruby</code>, <code>facter</code>, <code>fast_gettext</code>, <code>racc</code>, …) load on the
+<code>$LOAD_PATH</code> — and a manifest then travels the real Puppet pipeline: it <strong>parses
+to the Pops AST, compiles to a catalog, and evaluates</strong>. A trivial manifest emits
+genuine Puppet log output:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">notice</span><span class="p">(</span><span class="s2">&quot;hi from puppet&quot;</span><span class="p">)</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># =&gt; Notice: Scope(Class[main]): hi from puppet</span>
+</code></pre></div>
+<p>Reaching this implemented a wide runtime surface — Ruby-conformance fixes
+(<code>autoload</code>, <code>ERB</code>, frame-based <code>Exception#backtrace</code>, interpolated regexp
+literals, non-local block <code>return</code>, <code>Module.new</code> / <code>extend</code> transitivity, …) plus
+pure-Go stdlib modules (<code>openssl</code> with real crypto, <code>net/http</code>, <code>resolv</code>,
+<code>StringScanner</code>, <code>fileutils</code>, …) — and validates the <strong>C-extension → pure-Go
+shim</strong> strategy: a real Ruby application ships as one static CGO=0 binary because
+its C-backed gem APIs are backed by pure Go. Puppet's dependency tree is pure
+Ruby, so it loads as-is.</p>
 <div class="admonition note">
-<p class="admonition-title">On running Rails and Puppet</p>
-<p>Full Rails and Puppet <strong>execution</strong> depends on a runtime stdlib surface and
-C-extension / threading depth beyond what is built today. The achieved target
-is <strong>front-end (parse + compile) acceptance</strong> of their real-world Ruby (above);
-<em>running</em> whole applications is the road ahead, not a present claim.</p>
+<p class="admonition-title">The honest frontier</p>
+<p>What works today is <strong>boot → parse → compile → evaluate</strong> a manifest (the Pops
+evaluator emits <code>Notice:</code> and friends). Full <strong><code>puppet apply</code></strong> — the
+transaction / RAL / resource-provider layer that mutates real host state — is
+the <strong>active next milestone</strong>, not done. The <code>notice(...)</code> example above is a
+real evaluation; an <code>apply</code> that converges resources against a host is in
+progress.</p>
 </div>
 <h2 id="run-it-yourself">Run it yourself<a class="headerlink" href="#run-it-yourself" title="Permanent link">&para;</a></h2>
 <p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on
 <code>PATH</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;p (1..10).select(&amp;:even?).map { |x| x**2 }&#39;</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;p (1..10).select(&amp;:even?).map { |x| x**2 }&#39;</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
 </code></pre></div>
 <p>Either invocation exits non-zero if any implementation disagrees.</p>
 
