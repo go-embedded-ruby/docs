@@ -144,6 +144,27 @@ bytecode and drops the front-end; `--target wasm` cross-compiles it to the
 browser). Still ahead (see the [roadmap](roadmap.md)):
 conformance and representation/perf tuning (Phase 8).
 
+## Running real-world Ruby: Puppet
+
+Beyond parsing real-world Ruby, **rbgo runs [Puppet](https://github.com/puppetlabs/puppet)**.
+`require "puppet"` **fully boots** the framework (Puppet 8.11.0) on a pure-Go
+CGO=0 `rbgo` — its pure-Ruby gem dependencies (`semantic_puppet`,
+`concurrent-ruby`, `facter`, …) load on the `$LOAD_PATH` — and a manifest then
+travels the real Puppet path: it **parses to the Pops AST, compiles to a catalog,
+and evaluates**, so `notice("hi")` emits the genuine
+`Notice: Scope(Class[main]): hi`.
+
+This is the **C-extension → pure-Go shim** strategy validated end to end: a real
+Ruby app ships as one static CGO=0 binary because its C-backed gem APIs are backed
+by pure Go (Puppet's deps are pure Ruby, so they load as-is). Getting here added a
+broad runtime surface — `autoload`, `ERB`, frame-based `Exception#backtrace`,
+non-local block `return`, `Module.new`/`extend` transitivity, plus pure-Go
+`openssl` (real crypto), `net/http`, `resolv`, `StringScanner`, `fileutils` and
+more. What works today is **boot → parse → compile → evaluate**; full
+`puppet apply` (the transaction / resource-provider layer that mutates host state)
+is the **active next milestone**, not done. See
+[Conformance](conformance.md#running-puppet-boots-compiles-and-evaluates-manifests).
+
 ## Repositories
 
 | Repo | What it is |
