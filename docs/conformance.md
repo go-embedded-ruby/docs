@@ -16,6 +16,13 @@ language's and not an accident of one VM:
 A subset of **ruby/spec** is run on top of this to cover behaviours the corpora
 do not yet reach.
 
+!!! note "TruffleRuby being added"
+    A third reference — **TruffleRuby** (the GraalVM implementation) — is being
+    added to both the conformance oracle and the performance baselines
+    ([interpreter PR #1](https://github.com/go-embedded-ruby/ruby/pull/1)). The
+    oracle and corpora below describe the rbgo / MRI / JRuby comparison that runs
+    on `main` today.
+
 ## The three-way differential oracle
 
 The tool that establishes correctness is a **three-way differential oracle**,
@@ -68,6 +75,52 @@ gaps it exposed were fixed, it reached **15/15**. The committed corpus
 `scripts/conformance/core_ext.txt` currently runs **20/20** in agreement across
 rbgo, MRI and JRuby.
 
+## Heavyweight front-end conformance — Rails & Puppet
+
+The two largest reference Ruby codebases double as a front-end stress test. The
+metric is **front-end (parse + compile) acceptance**: for every `.rb` file, does
+rbgo's `parser.Parse` (and then `compiler.Compile`) accept the same source MRI
+considers valid? A released gem / framework file is valid Ruby (`ruby -c` clean),
+so a rejection is a genuine front-end gap.
+
+After the 2026-06 conformance campaign (5 go-ruby-parser rounds interleaved with
+5 rbgo activation rounds), the final figures against the MRI 4.0.5 oracle:
+
+| Repo   | `.rb` files | rbgo **parses** | rbgo **parses + compiles** |
+|--------|------------:|----------------:|---------------------------:|
+| Rails  |       3 423 |     **100.00 %** |                **99.82 %** |
+| Puppet |       2 156 |     **100.00 %** (of valid) | **100.00 %** |
+| **Total** |    5 579 |  **99.96 %** |                **99.89 %** |
+
+- **Parse: 99.96 %** of the combined corpus (5577 / 5579). The only 2 misses are
+  intentional syntax-error fixtures **MRI itself rejects** — so rbgo parses
+  **100 % of all valid Ruby** in the corpus.
+- **Parse + compile: Rails 99.82 %** (3417 / 3423), **Puppet 100.00 %**
+  (2154 / 2154).
+- **0 over-permissive** — rbgo never accepted Ruby that MRI rejects.
+
+The journey for Rails end-to-end (parse + compile): **20.7 % → 46.3 % → 68.7 % →
+81.2 % → 86.7 % → 93.8 % → 98.4 % → 99.82 %**. The biggest levers were `::`
+constant-path parsing, paren-less command calls with args/kwargs, `class << self`,
+and argument forwarding.
+
+Popular libraries parse just as well — **RuboCop 99.7 %**; **Sinatra, Jekyll,
+Thor, Kramdown, dry-struct 100 %**; Homebrew 98.7 %; Chef 99.1 %; concurrent-ruby
+98.3 %; Asciidoctor 93.8 % — and **RSpec DSL usage is 10/10** byte-identical to
+MRI.
+
+!!! warning "Front-end acceptance is not whole-application execution"
+    "Rails 99.82 %" means rbgo's front-end **parses and compiles** that fraction
+    of Rails's `.rb` files — **not** that rbgo **runs** Rails. Running a full Rails
+    or Puppet application additionally needs the runtime stdlib surface and
+    C-extension equivalents, which is **ongoing and unproven**. What these numbers
+    establish is that the **Ruby language / front-end is essentially complete** on
+    real-world code; whether any *given application boots* end-to-end is separate,
+    future work. Full reports:
+    [`CONFORMANCE-RAILS-PUPPET.md`](https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-RAILS-PUPPET.md)
+    and
+    [`CONFORMANCE-LIBRARIES.md`](https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-LIBRARIES.md).
+
 ## The conformance & benchmark ladder
 
 Conformance is grown in three rungs, each a real corpus rather than a synthetic
@@ -75,9 +128,11 @@ suite:
 
 1. **The three-way oracle** — rbgo vs MRI vs JRuby (**done**).
 2. **Pure-Ruby gem test suites as corpora** — ActiveSupport `core_ext`
-   (**in progress**).
-3. **Real-world workloads** — OpenVox / Puppet and ultimately Rails — serving as
-   both conformance corpora and performance baselines.
+   (**done**, 20/20).
+3. **Real-world workloads** — front-end (parse + compile) acceptance on Rails,
+   Puppet and popular libraries (**done**: ~100 % of valid Ruby parses); running
+   whole applications on the runtime stdlib + C-extension surface is the next,
+   ongoing rung.
 
 ## Heavyweight front-end sweep: Rails & Puppet
 

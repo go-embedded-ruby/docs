@@ -132,10 +132,16 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   container/value types `Set`, `Bag` (multiset), `Time`, `Date` and
   `BigDecimal`, each binding a pure-Go sibling library (go-ndarray / go-fft /
   go-images / go-composites). See
-  [Scientific stack & WebAssembly](scientific-stack.md).
+  [Scientific stack](scientific-stack.md).
+- **WebAssembly (js/wasm):** a first-class target — the interpreter and the whole
+  stack compile to `GOOS=js GOARCH=wasm` and run **in the browser**, both as a
+  REPL playground and as closed-world apps (`rbgo build --closed --target wasm`)
+  that drive the DOM/Canvas via the built-in `JS` module. See
+  [WebAssembly](webassembly.md).
 
 Closed-world builds have landed (`rbgo build --closed` bakes the program in as
-bytecode and drops the front-end). Still ahead (see the [roadmap](roadmap.md)):
+bytecode and drops the front-end; `--target wasm` cross-compiles it to the
+browser). Still ahead (see the [roadmap](roadmap.md)):
 conformance and representation/perf tuning (Phase 8).
 
 ## Running real-world Ruby: Puppet
