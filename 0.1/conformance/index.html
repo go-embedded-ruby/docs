@@ -610,9 +610,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-puppet-boots-compiles-and-evaluates-manifests" class="md-nav__link">
+  <a href="#running-puppet-puppet-apply-runs-end-to-end" class="md-nav__link">
     <span class="md-ellipsis">
-      Running Puppet — boots, compiles, and evaluates manifests
+      Running Puppet — puppet apply runs end-to-end
     </span>
   </a>
   
@@ -785,9 +785,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-puppet-boots-compiles-and-evaluates-manifests" class="md-nav__link">
+  <a href="#running-puppet-puppet-apply-runs-end-to-end" class="md-nav__link">
     <span class="md-ellipsis">
-      Running Puppet — boots, compiles, and evaluates manifests
+      Running Puppet — puppet apply runs end-to-end
     </span>
   </a>
   
@@ -991,33 +991,41 @@ in the interpreter repo for the full report and the reproducible sweep.</p>
 <p>These are <strong>front-end (parse + compile) acceptance</strong> figures, not whole-app
 execution. Running a real application additionally needs the runtime stdlib
 surface and C-extension equivalents — which is now real enough to boot one.</p>
-<h2 id="running-puppet-boots-compiles-and-evaluates-manifests">Running Puppet — boots, compiles, and evaluates manifests<a class="headerlink" href="#running-puppet-boots-compiles-and-evaluates-manifests" title="Permanent link">&para;</a></h2>
-<p>Beyond parsing real-world Ruby, <strong>rbgo runs Puppet</strong>.
-<code>require "puppet"</code> <strong>fully boots</strong> the framework (Puppet 8.11.0) on a pure-Go
-CGO=0 <code>rbgo</code> — Puppet's pure-Ruby gem dependencies (<code>semantic_puppet</code>,
+<h2 id="running-puppet-puppet-apply-runs-end-to-end">Running Puppet — <code>puppet apply</code> runs end-to-end<a class="headerlink" href="#running-puppet-puppet-apply-runs-end-to-end" title="Permanent link">&para;</a></h2>
+<p>Beyond parsing real-world Ruby, <strong>rbgo runs the real <code>puppet apply</code> CLI
+end-to-end</strong>. <code>require "puppet"</code> <strong>fully boots</strong> the framework (Puppet 8.11.0) on
+a pure-Go CGO=0 <code>rbgo</code> — Puppet's pure-Ruby gem dependencies (<code>semantic_puppet</code>,
 <code>concurrent-ruby</code>, <code>facter</code>, <code>fast_gettext</code>, <code>racc</code>, …) load on the
-<code>$LOAD_PATH</code> — and a manifest then travels the real Puppet pipeline: it <strong>parses
-to the Pops AST, compiles to a catalog, and evaluates</strong>. A trivial manifest emits
-genuine Puppet log output:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">notice</span><span class="p">(</span><span class="s2">&quot;hi from puppet&quot;</span><span class="p">)</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># =&gt; Notice: Scope(Class[main]): hi from puppet</span>
+<code>$LOAD_PATH</code> — and a manifest then travels the <strong>complete</strong> Puppet path: the
+genuine <code>Puppet::Util::CommandLine</code> → <code>Puppet::Application::Apply</code> entry point
+(real <code>OptionParser</code>), all Puppet types + providers loaded, the settings catalog
+applied (creating Puppet's config dirs on disk), then the user catalog applied
+through the transaction / RAL. The real CLI emits genuine Puppet output and exits
+<code>0</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ rbgo run puppet_apply.rb   # ARGV = apply -e &#39;notify { &quot;hello&quot;: message =&gt; &quot;hi from rbgo cli&quot; }&#39;
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Notice: Compiled catalog for  in environment production in 0.00 seconds
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Notice: hi from rbgo cli
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Notice: /Stage[main]/Main/Notify[hello]/message: defined &#39;message&#39; as &#39;hi from rbgo cli&#39;
 </code></pre></div>
-<p>Reaching this implemented a wide runtime surface — Ruby-conformance fixes
-(<code>autoload</code>, <code>ERB</code>, frame-based <code>Exception#backtrace</code>, interpolated regexp
-literals, non-local block <code>return</code>, <code>Module.new</code> / <code>extend</code> transitivity, …) plus
-pure-Go stdlib modules (<code>openssl</code> with real crypto, <code>net/http</code>, <code>resolv</code>,
-<code>StringScanner</code>, <code>fileutils</code>, …) — and validates the <strong>C-extension → pure-Go
-shim</strong> strategy: a real Ruby application ships as one static CGO=0 binary because
-its C-backed gem APIs are backed by pure Go. Puppet's dependency tree is pure
-Ruby, so it loads as-is.</p>
+<p>That is the actual <code>notify</code> resource type applying through the transaction and the
+Resource Abstraction Layer — not a <code>notice(...)</code> evaluator print. Reaching the CLI
+implemented a wide runtime surface — a real <code>OptionParser</code> (<code>optparse</code>),
+<code>File::Stat</code> / <code>FileTest</code> + on-disk filesystem operations, plus a batch of deep
+Ruby fixes (<code>class_eval</code> lexical scope, <code>return</code> inside <code>define_method</code>,
+class-method <code>super</code>, <code>String#chomp(sep)</code>, …) on top of the earlier boot work
+(<code>autoload</code>, <code>ERB</code>, <code>openssl</code> with real crypto, <code>net/http</code>, <code>StringScanner</code>,
+<code>fileutils</code>, …). It validates the <strong>C-extension → pure-Go shim</strong> strategy: a real
+Ruby application ships as one static CGO=0 binary because its C-backed gem APIs are
+backed by pure Go; Puppet's dependency tree is pure Ruby, so it loads as-is.</p>
 <div class="admonition note">
 <p class="admonition-title">The honest frontier</p>
-<p>What works today is <strong>boot → parse → compile → evaluate</strong> a manifest (the Pops
-evaluator emits <code>Notice:</code> and friends). Full <strong><code>puppet apply</code></strong> — the
-transaction / RAL / resource-provider layer that mutates real host state — is
-the <strong>active next milestone</strong>, not done. The <code>notice(...)</code> example above is a
-real evaluation; an <code>apply</code> that converges resources against a host is in
-progress.</p>
+<p>What runs end-to-end is the <code>puppet apply</code> CLI applying a <strong><code>notify</code></strong> resource
+through the full pipeline (boot → parse → compile → transaction / RAL →
+output). The next frontier is <strong>real resource <em>providers</em></strong> —
+<code>file</code> / <code>package</code> / <code>service</code> convergence against an arbitrary host — and
+<strong>run-report persistence</strong>; <code>notify</code> exercises the whole transaction path
+without needing either, so the pipeline is proven while converging arbitrary
+system state remains the active next milestone, not done.</p>
 </div>
 <h2 id="run-it-yourself">Run it yourself<a class="headerlink" href="#run-it-yourself" title="Permanent link">&para;</a></h2>
 <p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on

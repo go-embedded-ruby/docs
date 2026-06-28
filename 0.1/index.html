@@ -884,23 +884,29 @@ bytecode and drops the front-end; <code>--target wasm</code> cross-compiles it t
 browser). Still ahead (see the <a href="roadmap/">roadmap</a>):
 conformance and representation/perf tuning (Phase 8).</p>
 <h2 id="running-real-world-ruby-puppet">Running real-world Ruby: Puppet<a class="headerlink" href="#running-real-world-ruby-puppet" title="Permanent link">&para;</a></h2>
-<p>Beyond parsing real-world Ruby, <strong>rbgo runs <a href="https://github.com/puppetlabs/puppet">Puppet</a></strong>.
-<code>require "puppet"</code> <strong>fully boots</strong> the framework (Puppet 8.11.0) on a pure-Go
-CGO=0 <code>rbgo</code> — its pure-Ruby gem dependencies (<code>semantic_puppet</code>,
-<code>concurrent-ruby</code>, <code>facter</code>, …) load on the <code>$LOAD_PATH</code> — and a manifest then
-travels the real Puppet path: it <strong>parses to the Pops AST, compiles to a catalog,
-and evaluates</strong>, so <code>notice("hi")</code> emits the genuine
-<code>Notice: Scope(Class[main]): hi</code>.</p>
+<p>Beyond parsing real-world Ruby, <strong>rbgo runs the real <a href="https://github.com/puppetlabs/puppet">Puppet</a>
+<code>puppet apply</code> CLI end-to-end</strong>. <code>require "puppet"</code> <strong>fully boots</strong> the framework
+(Puppet 8.11.0) on a pure-Go CGO=0 <code>rbgo</code> — its pure-Ruby gem dependencies
+(<code>semantic_puppet</code>, <code>concurrent-ruby</code>, <code>facter</code>, …) load on the <code>$LOAD_PATH</code> — and
+a manifest then travels the <strong>complete</strong> Puppet path: the genuine
+<code>Puppet::Util::CommandLine</code> → <code>Puppet::Application::Apply</code> entry point (real
+<code>OptionParser</code>), all types + providers loaded, the settings catalog applied to
+disk, then the user catalog applied through the transaction / RAL. The real CLI
+emits genuine Puppet output and exits <code>0</code> — <code>apply -e 'notify { "hello": message
+=&gt; "hi from rbgo cli" }'</code> prints <code>Notice: hi from rbgo cli</code> and <code>Notice:
+…/Notify[hello]/message: defined 'message' as 'hi from rbgo cli'</code>.</p>
 <p>This is the <strong>C-extension → pure-Go shim</strong> strategy validated end to end: a real
 Ruby app ships as one static CGO=0 binary because its C-backed gem APIs are backed
-by pure Go (Puppet's deps are pure Ruby, so they load as-is). Getting here added a
-broad runtime surface — <code>autoload</code>, <code>ERB</code>, frame-based <code>Exception#backtrace</code>,
-non-local block <code>return</code>, <code>Module.new</code>/<code>extend</code> transitivity, plus pure-Go
-<code>openssl</code> (real crypto), <code>net/http</code>, <code>resolv</code>, <code>StringScanner</code>, <code>fileutils</code> and
-more. What works today is <strong>boot → parse → compile → evaluate</strong>; full
-<code>puppet apply</code> (the transaction / resource-provider layer that mutates host state)
-is the <strong>active next milestone</strong>, not done. See
-<a href="conformance/#running-puppet-boots-compiles-and-evaluates-manifests">Conformance</a>.</p>
+by pure Go (Puppet's deps are pure Ruby, so they load as-is). Reaching the CLI
+added a real <code>OptionParser</code>, <code>File::Stat</code>/<code>FileTest</code> + on-disk filesystem
+operations, and deep Ruby fixes (<code>class_eval</code> lexical scope, <code>return</code> in
+<code>define_method</code>, class-method <code>super</code>, …) on top of the earlier boot surface
+(<code>autoload</code>, <code>ERB</code>, <code>openssl</code> with real crypto, <code>net/http</code>, <code>StringScanner</code>,
+<code>fileutils</code>, …). What runs end-to-end is the <code>notify</code> resource applying through
+the transaction; real file/package/service resource <strong>providers</strong> (host
+convergence) and run-report persistence are the <strong>active next milestone</strong>, not
+done. See
+<a href="conformance/#running-puppet-puppet-apply-runs-end-to-end">Conformance</a>.</p>
 <h2 id="repositories">Repositories<a class="headerlink" href="#repositories" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
