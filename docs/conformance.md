@@ -156,37 +156,45 @@ These are **front-end (parse + compile) acceptance** figures, not whole-app
 execution. Running a real application additionally needs the runtime stdlib
 surface and C-extension equivalents — which is now real enough to boot one.
 
-## Running Puppet — boots, compiles, and evaluates manifests
+## Running Puppet — `puppet apply` runs end-to-end
 
-Beyond parsing real-world Ruby, **rbgo runs Puppet**.
-`require "puppet"` **fully boots** the framework (Puppet 8.11.0) on a pure-Go
-CGO=0 `rbgo` — Puppet's pure-Ruby gem dependencies (`semantic_puppet`,
+Beyond parsing real-world Ruby, **rbgo runs the real `puppet apply` CLI
+end-to-end**. `require "puppet"` **fully boots** the framework (Puppet 8.11.0) on
+a pure-Go CGO=0 `rbgo` — Puppet's pure-Ruby gem dependencies (`semantic_puppet`,
 `concurrent-ruby`, `facter`, `fast_gettext`, `racc`, …) load on the
-`$LOAD_PATH` — and a manifest then travels the real Puppet pipeline: it **parses
-to the Pops AST, compiles to a catalog, and evaluates**. A trivial manifest emits
-genuine Puppet log output:
+`$LOAD_PATH` — and a manifest then travels the **complete** Puppet path: the
+genuine `Puppet::Util::CommandLine` → `Puppet::Application::Apply` entry point
+(real `OptionParser`), all Puppet types + providers loaded, the settings catalog
+applied (creating Puppet's config dirs on disk), then the user catalog applied
+through the transaction / RAL. The real CLI emits genuine Puppet output and exits
+`0`:
 
-```ruby
-notice("hi from puppet")
-# => Notice: Scope(Class[main]): hi from puppet
+```
+$ rbgo run puppet_apply.rb   # ARGV = apply -e 'notify { "hello": message => "hi from rbgo cli" }'
+Notice: Compiled catalog for  in environment production in 0.00 seconds
+Notice: hi from rbgo cli
+Notice: /Stage[main]/Main/Notify[hello]/message: defined 'message' as 'hi from rbgo cli'
 ```
 
-Reaching this implemented a wide runtime surface — Ruby-conformance fixes
-(`autoload`, `ERB`, frame-based `Exception#backtrace`, interpolated regexp
-literals, non-local block `return`, `Module.new` / `extend` transitivity, …) plus
-pure-Go stdlib modules (`openssl` with real crypto, `net/http`, `resolv`,
-`StringScanner`, `fileutils`, …) — and validates the **C-extension → pure-Go
-shim** strategy: a real Ruby application ships as one static CGO=0 binary because
-its C-backed gem APIs are backed by pure Go. Puppet's dependency tree is pure
-Ruby, so it loads as-is.
+That is the actual `notify` resource type applying through the transaction and the
+Resource Abstraction Layer — not a `notice(...)` evaluator print. Reaching the CLI
+implemented a wide runtime surface — a real `OptionParser` (`optparse`),
+`File::Stat` / `FileTest` + on-disk filesystem operations, plus a batch of deep
+Ruby fixes (`class_eval` lexical scope, `return` inside `define_method`,
+class-method `super`, `String#chomp(sep)`, …) on top of the earlier boot work
+(`autoload`, `ERB`, `openssl` with real crypto, `net/http`, `StringScanner`,
+`fileutils`, …). It validates the **C-extension → pure-Go shim** strategy: a real
+Ruby application ships as one static CGO=0 binary because its C-backed gem APIs are
+backed by pure Go; Puppet's dependency tree is pure Ruby, so it loads as-is.
 
 !!! note "The honest frontier"
-    What works today is **boot → parse → compile → evaluate** a manifest (the Pops
-    evaluator emits `Notice:` and friends). Full **`puppet apply`** — the
-    transaction / RAL / resource-provider layer that mutates real host state — is
-    the **active next milestone**, not done. The `notice(...)` example above is a
-    real evaluation; an `apply` that converges resources against a host is in
-    progress.
+    What runs end-to-end is the `puppet apply` CLI applying a **`notify`** resource
+    through the full pipeline (boot → parse → compile → transaction / RAL →
+    output). The next frontier is **real resource *providers*** —
+    `file` / `package` / `service` convergence against an arbitrary host — and
+    **run-report persistence**; `notify` exercises the whole transaction path
+    without needing either, so the pipeline is proven while converging arbitrary
+    system state remains the active next milestone, not done.
 
 ## Run it yourself
 
