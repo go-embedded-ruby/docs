@@ -1017,15 +1017,21 @@ class-method <code>super</code>, <code>String#chomp(sep)</code>, …) on top of 
 <code>fileutils</code>, …). It validates the <strong>C-extension → pure-Go shim</strong> strategy: a real
 Ruby application ships as one static CGO=0 binary because its C-backed gem APIs are
 backed by pure Go; Puppet's dependency tree is pure Ruby, so it loads as-is.</p>
+<p>Three resource types now converge end-to-end through the transaction / RAL:
+<strong><code>notify</code></strong>, <strong><code>file</code></strong> (the catalog manages a real file on disk), and
+<strong><code>exec</code></strong> — which runs its command via pure-Go process execution, honouring the
+<code>onlyif</code> / <code>unless</code> / <code>creates</code> / <code>path</code> guards, so an already-converged <code>exec</code>
+is correctly skipped. <code>puppet apply</code> exits cleanly, the YAML run report / state
+round-tripping through the pure-Go Psych emitter / loader.</p>
 <div class="admonition note">
 <p class="admonition-title">The honest frontier</p>
-<p>What runs end-to-end is the <code>puppet apply</code> CLI applying a <strong><code>notify</code></strong> resource
-through the full pipeline (boot → parse → compile → transaction / RAL →
-output). The next frontier is <strong>real resource <em>providers</em></strong> —
-<code>file</code> / <code>package</code> / <code>service</code> convergence against an arbitrary host — and
-<strong>run-report persistence</strong>; <code>notify</code> exercises the whole transaction path
-without needing either, so the pipeline is proven while converging arbitrary
-system state remains the active next milestone, not done.</p>
+<p>What converges end-to-end is the <code>puppet apply</code> CLI applying <strong><code>notify</code></strong>,
+<strong><code>file</code></strong> and <strong><code>exec</code></strong> resources through the full pipeline (boot → parse →
+compile → transaction / RAL → output → clean exit). The next frontier is the
+<strong>broader resource providers</strong>: <code>user</code> / <code>group</code> are provider-ready, while
+<code>package</code> / <code>service</code> need a host package manager / systemd and root. The
+pipeline and the first convergent providers are proven; the remaining
+system-state providers are the active next milestone, not done.</p>
 </div>
 <h2 id="run-it-yourself">Run it yourself<a class="headerlink" href="#run-it-yourself" title="Permanent link">&para;</a></h2>
 <p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on
