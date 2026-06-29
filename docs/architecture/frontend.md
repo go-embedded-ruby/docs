@@ -9,11 +9,13 @@ binary so that `eval` and runtime `require` can re-run it.
     The lexer, parser and AST have been **extracted** into the pure-Go
     [go-ruby-parser](https://github.com/go-ruby-parser/parser) module
     (`github.com/go-ruby-parser/parser`), which this interpreter imports — the
-    same dogfooding model as the [go-ruby-regexp](https://github.com/go-ruby-regexp)
-    regexp engine. They are still compiled *into* the binary, so `eval`/`require`
-    keep working; they are simply maintained, tested and reusable on their own
-    (any Go program can now parse Ruby to an AST without cgo). The **compiler**
-    (AST → bytecode) remains in this repository.
+    same dogfooding model as the rest of the
+    [`go-ruby-*` family](../index.md#ecosystem-the-go-ruby-family) (regexp, ERB,
+    Marshal, YAML, …). They are still compiled *into* the binary, so
+    `eval`/`require` keep working; they are simply maintained, tested and reusable
+    on their own (any Go program can now parse Ruby to an AST without cgo). The
+    **compiler** (AST → bytecode) remains in this repository, because lowering to
+    rbgo's ISeq is interpreter-dependent glue.
 
 ## Lexer
 

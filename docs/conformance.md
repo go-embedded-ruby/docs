@@ -187,14 +187,21 @@ class-method `super`, `String#chomp(sep)`, …) on top of the earlier boot work
 Ruby application ships as one static CGO=0 binary because its C-backed gem APIs are
 backed by pure Go; Puppet's dependency tree is pure Ruby, so it loads as-is.
 
+Three resource types now converge end-to-end through the transaction / RAL:
+**`notify`**, **`file`** (the catalog manages a real file on disk), and
+**`exec`** — which runs its command via pure-Go process execution, honouring the
+`onlyif` / `unless` / `creates` / `path` guards, so an already-converged `exec`
+is correctly skipped. `puppet apply` exits cleanly, the YAML run report / state
+round-tripping through the pure-Go Psych emitter / loader.
+
 !!! note "The honest frontier"
-    What runs end-to-end is the `puppet apply` CLI applying a **`notify`** resource
-    through the full pipeline (boot → parse → compile → transaction / RAL →
-    output). The next frontier is **real resource *providers*** —
-    `file` / `package` / `service` convergence against an arbitrary host — and
-    **run-report persistence**; `notify` exercises the whole transaction path
-    without needing either, so the pipeline is proven while converging arbitrary
-    system state remains the active next milestone, not done.
+    What converges end-to-end is the `puppet apply` CLI applying **`notify`**,
+    **`file`** and **`exec`** resources through the full pipeline (boot → parse →
+    compile → transaction / RAL → output → clean exit). The next frontier is the
+    **broader resource providers**: `user` / `group` are provider-ready, while
+    `package` / `service` need a host package manager / systemd and root. The
+    pipeline and the first convergent providers are proven; the remaining
+    system-state providers are the active next milestone, not done.
 
 ## Run it yourself
 

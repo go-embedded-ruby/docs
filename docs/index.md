@@ -165,10 +165,14 @@ added a real `OptionParser`, `File::Stat`/`FileTest` + on-disk filesystem
 operations, and deep Ruby fixes (`class_eval` lexical scope, `return` in
 `define_method`, class-method `super`, …) on top of the earlier boot surface
 (`autoload`, `ERB`, `openssl` with real crypto, `net/http`, `StringScanner`,
-`fileutils`, …). What runs end-to-end is the `notify` resource applying through
-the transaction; real file/package/service resource **providers** (host
-convergence) and run-report persistence are the **active next milestone**, not
-done. See
+`fileutils`, …). Three resource types now converge end-to-end through the
+transaction / RAL: **`notify`**, **`file`** (managing a real file on disk), and
+**`exec`** — which runs its command via pure-Go process execution, honouring the
+`onlyif` / `unless` / `creates` / `path` guards — and `puppet apply` exits
+cleanly, the YAML run report / state round-tripping through the pure-Go Psych
+emitter / loader. The honest frontier is the **broader resource providers**:
+`user` / `group` are provider-ready, while `package` / `service` need a host
+package manager / systemd and root. See
 [Conformance](conformance.md#running-puppet-puppet-apply-runs-end-to-end).
 
 ## Repositories
@@ -179,13 +183,40 @@ done. See
 | [`docs`](https://github.com/go-embedded-ruby/docs) | this documentation site (MkDocs Material, versioned with mike) |
 | [`go-embedded-ruby.github.io`](https://github.com/go-embedded-ruby/go-embedded-ruby.github.io) | the organization landing page (Hugo) |
 
-Two core pieces live in **sibling orgs**, reused by the interpreter (and by any
-other Go program) without cgo:
+## Ecosystem — the `go-ruby-*` family
 
-- the **front-end** — lexer, parser and AST — is the pure-Go
-  [go-ruby-parser][go-ruby-parser] module (repo `parser`);
-- the **regexp engine** is a pure-Go Onigmo reimplementation in
-  [go-ruby-regexp][go-ruby-regexp] (repo `regexp`).
+rbgo is increasingly assembled from a family of **standalone pure-Go (CGO=0),
+MRI-compatible libraries** living in **sibling orgs**, each with **100% coverage
+and 6-arch CI**, that the interpreter composes and binds as native modules. The
+design principle is a clean seam: a stdlib piece whose work is **pure compute and
+needs no interpreter** — a regexp matcher, an ERB compiler, a YAML emitter, a
+Marshal codec, an OptionParser argv engine — becomes a reusable standalone
+library, while only the thin **interpreter-dependent glue** stays in rbgo. rbgo
+still ships as a **single CGO=0 static binary**; every extracted piece is
+independently reusable, tested and 6-arch by any Go program.
+
+`go.mod` currently **binds** these five satellites as native modules:
+
+| Library | Role |
+| --- | --- |
+| [go-ruby-parser](https://github.com/go-ruby-parser) ([site](https://go-ruby-parser.github.io/)) | Ruby lexer / parser / AST front-end (embedded, so `eval`/`require` keep working) |
+| [go-ruby-regexp](https://github.com/go-ruby-regexp) ([site](https://go-ruby-regexp.github.io/)) | Onigmo-compatible regexp engine (incl. `\b`/`\B`, char-class literals) |
+| [go-ruby-erb](https://github.com/go-ruby-erb) ([site](https://go-ruby-erb.github.io/)) | ERB template compiler |
+| [go-ruby-marshal](https://github.com/go-ruby-marshal) ([site](https://go-ruby-marshal.github.io/)) | Marshal (`dump`/`load`), byte-exact with MRI |
+| [go-ruby-yaml](https://github.com/go-ruby-yaml) ([site](https://go-ruby-yaml.github.io/)) | Psych-compatible YAML emitter + loader |
+
+Three more have just been **extracted and are being integrated** (standalone
+today, binding into rbgo in progress):
+
+| Library | Role |
+| --- | --- |
+| [go-ruby-format](https://github.com/go-ruby-format) ([site](https://go-ruby-format.github.io/)) | `sprintf` / `%` / `format` engine |
+| [go-ruby-optparse](https://github.com/go-ruby-optparse) ([site](https://go-ruby-optparse.github.io/)) | `OptionParser` argv engine |
+| [go-ruby-strscan](https://github.com/go-ruby-strscan) ([site](https://go-ruby-strscan.github.io/)) | `StringScanner` (`strscan`) |
+
+The scientific / container stack ([go-ndarray](https://github.com/go-ndarray/ndarray),
+[go-fft](https://github.com/go-fft/fft), [go-images](https://github.com/go-images/images),
+[go-composites](https://github.com/go-composites)) binds in the same way.
 
 ## How it differs from goruby
 
