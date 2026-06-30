@@ -962,61 +962,18 @@ Marshal codec, an OptionParser argv engine — becomes a reusable standalone
 library, while only the thin <strong>interpreter-dependent glue</strong> stays in rbgo. rbgo
 still ships as a <strong>single CGO=0 static binary</strong>; every extracted piece is
 independently reusable, tested and 6-arch by any Go program.</p>
-<p><code>go.mod</code> currently <strong>binds</strong> these five satellites as native modules:</p>
-<table>
-<thead>
-<tr>
-<th>Library</th>
-<th>Role</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="https://github.com/go-ruby-parser">go-ruby-parser</a> (<a href="https://go-ruby-parser.github.io/">site</a>)</td>
-<td>Ruby lexer / parser / AST front-end (embedded, so <code>eval</code>/<code>require</code> keep working)</td>
-</tr>
-<tr>
-<td><a href="https://github.com/go-ruby-regexp">go-ruby-regexp</a> (<a href="https://go-ruby-regexp.github.io/">site</a>)</td>
-<td>Onigmo-compatible regexp engine (incl. <code>\b</code>/<code>\B</code>, char-class literals)</td>
-</tr>
-<tr>
-<td><a href="https://github.com/go-ruby-erb">go-ruby-erb</a> (<a href="https://go-ruby-erb.github.io/">site</a>)</td>
-<td>ERB template compiler</td>
-</tr>
-<tr>
-<td><a href="https://github.com/go-ruby-marshal">go-ruby-marshal</a> (<a href="https://go-ruby-marshal.github.io/">site</a>)</td>
-<td>Marshal (<code>dump</code>/<code>load</code>), byte-exact with MRI</td>
-</tr>
-<tr>
-<td><a href="https://github.com/go-ruby-yaml">go-ruby-yaml</a> (<a href="https://go-ruby-yaml.github.io/">site</a>)</td>
-<td>Psych-compatible YAML emitter + loader</td>
-</tr>
-</tbody>
-</table>
-<p>Three more have just been <strong>extracted and are being integrated</strong> (standalone
-today, binding into rbgo in progress):</p>
-<table>
-<thead>
-<tr>
-<th>Library</th>
-<th>Role</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><a href="https://github.com/go-ruby-format">go-ruby-format</a> (<a href="https://go-ruby-format.github.io/">site</a>)</td>
-<td><code>sprintf</code> / <code>%</code> / <code>format</code> engine</td>
-</tr>
-<tr>
-<td><a href="https://github.com/go-ruby-optparse">go-ruby-optparse</a> (<a href="https://go-ruby-optparse.github.io/">site</a>)</td>
-<td><code>OptionParser</code> argv engine</td>
-</tr>
-<tr>
-<td><a href="https://github.com/go-ruby-strscan">go-ruby-strscan</a> (<a href="https://go-ruby-strscan.github.io/">site</a>)</td>
-<td><code>StringScanner</code> (<code>strscan</code>)</td>
-</tr>
-</tbody>
-</table>
+<p>The family is <strong>66 standalone pure-Go libraries</strong>, every one <strong>non-empty,
+CI-green, 100% coverage and 6-arch</strong>. The <code>go.mod</code> currently <strong>binds 40 of them</strong>
+as native modules — including the front-end (<a href="https://github.com/go-ruby-parser">go-ruby-parser</a>),
+the regexp engine (<a href="https://github.com/go-ruby-regexp">go-ruby-regexp</a>), and
+<a href="https://github.com/go-ruby-erb">go-ruby-erb</a>,
+<a href="https://github.com/go-ruby-marshal">go-ruby-marshal</a>,
+<a href="https://github.com/go-ruby-yaml">go-ruby-yaml</a>,
+<a href="https://github.com/go-ruby-format">go-ruby-format</a>,
+<a href="https://github.com/go-ruby-optparse">go-ruby-optparse</a>,
+<a href="https://github.com/go-ruby-strscan">go-ruby-strscan</a>.</p>
+<p>The full 66-library family (alphabetical):</p>
+<p><a href="https://github.com/go-ruby-abbrev/abbrev"><code>abbrev</code></a>, <a href="https://github.com/go-ruby-base64/base64"><code>base64</code></a>, <a href="https://github.com/go-ruby-benchmark/benchmark"><code>benchmark</code></a>, <a href="https://github.com/go-ruby-bigdecimal/bigdecimal"><code>bigdecimal</code></a>, <a href="https://github.com/go-ruby-cgi/cgi"><code>cgi</code></a>, <a href="https://github.com/go-ruby-cmath/cmath"><code>cmath</code></a>, <a href="https://github.com/go-ruby-complex/complex"><code>complex</code></a>, <a href="https://github.com/go-ruby-csv/csv"><code>csv</code></a>, <a href="https://github.com/go-ruby-date/date"><code>date</code></a>, <a href="https://github.com/go-ruby-did-you-mean/did-you-mean"><code>did-you-mean</code></a>, <a href="https://github.com/go-ruby-digest/digest"><code>digest</code></a>, <a href="https://github.com/go-ruby-erb/erb"><code>erb</code></a>, <a href="https://github.com/go-ruby-find/find"><code>find</code></a>, <a href="https://github.com/go-ruby-format/format"><code>format</code></a>, <a href="https://github.com/go-ruby-getoptlong/getoptlong"><code>getoptlong</code></a>, <a href="https://github.com/go-ruby-i18n/i18n"><code>i18n</code></a>, <a href="https://github.com/go-ruby-ipaddr/ipaddr"><code>ipaddr</code></a>, <a href="https://github.com/go-ruby-json/json"><code>json</code></a>, <a href="https://github.com/go-ruby-logger/logger"><code>logger</code></a>, <a href="https://github.com/go-ruby-marshal/marshal"><code>marshal</code></a>, <a href="https://github.com/go-ruby-matrix/matrix"><code>matrix</code></a>, <a href="https://github.com/go-ruby-mime-types/mime-types"><code>mime-types</code></a>, <a href="https://github.com/go-ruby-minitest/minitest"><code>minitest</code></a>, <a href="https://github.com/go-ruby-msgpack/msgpack"><code>msgpack</code></a>, <a href="https://github.com/go-ruby-net-ftp/net-ftp"><code>net-ftp</code></a>, <a href="https://github.com/go-ruby-net-http/net-http"><code>net-http</code></a>, <a href="https://github.com/go-ruby-net-pop/net-pop"><code>net-pop</code></a>, <a href="https://github.com/go-ruby-net-s3/net-s3"><code>net-s3</code></a>, <a href="https://github.com/go-ruby-net-sftp/net-sftp"><code>net-sftp</code></a>, <a href="https://github.com/go-ruby-net-smtp/net-smtp"><code>net-smtp</code></a>, <a href="https://github.com/go-ruby-observer/observer"><code>observer</code></a>, <a href="https://github.com/go-ruby-openssl/openssl"><code>openssl</code></a>, <a href="https://github.com/go-ruby-optparse/optparse"><code>optparse</code></a>, <a href="https://github.com/go-ruby-ostruct/ostruct"><code>ostruct</code></a>, <a href="https://github.com/go-ruby-parser/parser"><code>parser</code></a>, <a href="https://github.com/go-ruby-pathname/pathname"><code>pathname</code></a>, <a href="https://github.com/go-ruby-prettyprint/prettyprint"><code>prettyprint</code></a>, <a href="https://github.com/go-ruby-prime/prime"><code>prime</code></a>, <a href="https://github.com/go-ruby-pstore/pstore"><code>pstore</code></a>, <a href="https://github.com/go-ruby-public-suffix/public-suffix"><code>public-suffix</code></a>, <a href="https://github.com/go-ruby-racc/racc"><code>racc</code></a>, <a href="https://github.com/go-ruby-rack/rack"><code>rack</code></a>, <a href="https://github.com/go-ruby-rake/rake"><code>rake</code></a>, <a href="https://github.com/go-ruby-rational/rational"><code>rational</code></a>, <a href="https://github.com/go-ruby-regexp/regexp"><code>regexp</code></a>, <a href="https://github.com/go-ruby-reline/reline"><code>reline</code></a>, <a href="https://github.com/go-ruby-resolv/resolv"><code>resolv</code></a>, <a href="https://github.com/go-ruby-rexml/rexml"><code>rexml</code></a>, <a href="https://github.com/go-ruby-rss/rss"><code>rss</code></a>, <a href="https://github.com/go-ruby-rubygems/rubygems"><code>rubygems</code></a>, <a href="https://github.com/go-ruby-scanf/scanf"><code>scanf</code></a>, <a href="https://github.com/go-ruby-securerandom/securerandom"><code>securerandom</code></a>, <a href="https://github.com/go-ruby-set/set"><code>set</code></a>, <a href="https://github.com/go-ruby-shellwords/shellwords"><code>shellwords</code></a>, <a href="https://github.com/go-ruby-sinatra/sinatra"><code>sinatra</code></a>, <a href="https://github.com/go-ruby-stringio/stringio"><code>stringio</code></a>, <a href="https://github.com/go-ruby-strscan/strscan"><code>strscan</code></a>, <a href="https://github.com/go-ruby-syslog/syslog"><code>syslog</code></a>, <a href="https://github.com/go-ruby-time/time"><code>time</code></a>, <a href="https://github.com/go-ruby-toml/toml"><code>toml</code></a>, <a href="https://github.com/go-ruby-tsort/tsort"><code>tsort</code></a>, <a href="https://github.com/go-ruby-unicode-normalize/unicode-normalize"><code>unicode-normalize</code></a>, <a href="https://github.com/go-ruby-uri/uri"><code>uri</code></a>, <a href="https://github.com/go-ruby-webrick/webrick"><code>webrick</code></a>, <a href="https://github.com/go-ruby-yaml/yaml"><code>yaml</code></a>, <a href="https://github.com/go-ruby-zlib/zlib"><code>zlib</code></a> — each at <code>github.com/go-ruby-&lt;name&gt;/&lt;name&gt;</code>.</p>
 <p>The scientific / container stack (<a href="https://github.com/go-ndarray/ndarray">go-ndarray</a>,
 <a href="https://github.com/go-fft/fft">go-fft</a>, <a href="https://github.com/go-images/images">go-images</a>,
 <a href="https://github.com/go-composites">go-composites</a>) binds in the same way.</p>
