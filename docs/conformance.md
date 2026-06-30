@@ -59,6 +59,25 @@ On top of the oracle, the interpreter holds a hard CI gate:
 A feature does not count as landed until it agrees with the reference and the
 lines that implement it are covered.
 
+### Real hardware, not just qemu
+
+qemu is the CI gate; **real silicon is the correctness-and-performance oracle**,
+so every one of the six arches is validated on real hardware:
+
+- **amd64 / arm64** — natively (an x86_64 VM with AVX2; Apple-Silicon arm64);
+- **riscv64 (RVV)** — the GCC Compile Farm node cfarm95 (a SiFive-class RVV host),
+  for vector / SIMD validation;
+- **ppc64le** — cfarm112 (POWER8E) and cfarm433 (POWER9); POWER8 is the ISA floor
+  the VSX paths are gated on;
+- **loong64** — cfarm401 (LoongArch; air-gapped, artifacts staged in);
+- **s390x** — the **IBM LinuxONE Community Cloud (L1CC)** (big-endian, vector
+  facility), since no cfarm node exists for it.
+
+This real-hardware access is what turns the **SIMD-accelerated modules**
+(`base64` / `securerandom` / `hex`, via go-simd) and the
+[performance benchmarks](benchmarks.md) into measured numbers rather than
+llvm-mca estimates.
+
 ## Real-world corpora
 
 Synthetic tests prove a feature works in isolation; they do not prove the idioms

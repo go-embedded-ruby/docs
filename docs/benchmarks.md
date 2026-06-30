@@ -110,4 +110,9 @@ Read these numbers as **indicative, not a rigorous benchmark suite**:
   short runs are not;
 - performance is **validated and benchmarked across all six 64-bit
   architectures** (amd64, arm64, riscv64, loong64, ppc64le, s390x), not just the
-  one reported here.
+  one reported here — and on **real hardware**, not only qemu: amd64/arm64
+  natively, riscv64/ppc64le/loong64 on the GCC Compile Farm (cfarm95 RVV,
+  cfarm112/cfarm433 POWER8E/POWER9, cfarm401 LoongArch), and s390x on the IBM
+  LinuxONE Community Cloud. qemu is the CI gate; real silicon is the perf oracle,
+  so the SIMD-accelerated paths (go-simd `base64`/`securerandom`/`hex`) report
+  measured numbers, not llvm-mca estimates.
