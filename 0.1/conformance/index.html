@@ -571,6 +571,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="What CI enforces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#real-hardware-not-just-qemu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real hardware, not just qemu
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -746,6 +761,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="What CI enforces">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#real-hardware-not-just-qemu" class="md-nav__link">
+    <span class="md-ellipsis">
+      Real hardware, not just qemu
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -864,6 +894,23 @@ three implementations, with a summary of how many agree (<code>N/total</code>):<
 </ul>
 <p>A feature does not count as landed until it agrees with the reference and the
 lines that implement it are covered.</p>
+<h3 id="real-hardware-not-just-qemu">Real hardware, not just qemu<a class="headerlink" href="#real-hardware-not-just-qemu" title="Permanent link">&para;</a></h3>
+<p>qemu is the CI gate; <strong>real silicon is the correctness-and-performance oracle</strong>,
+so every one of the six arches is validated on real hardware:</p>
+<ul>
+<li><strong>amd64 / arm64</strong> — natively (an x86_64 VM with AVX2; Apple-Silicon arm64);</li>
+<li><strong>riscv64 (RVV)</strong> — the GCC Compile Farm node cfarm95 (a SiFive-class RVV host),
+  for vector / SIMD validation;</li>
+<li><strong>ppc64le</strong> — cfarm112 (POWER8E) and cfarm433 (POWER9); POWER8 is the ISA floor
+  the VSX paths are gated on;</li>
+<li><strong>loong64</strong> — cfarm401 (LoongArch; air-gapped, artifacts staged in);</li>
+<li><strong>s390x</strong> — the <strong>IBM LinuxONE Community Cloud (L1CC)</strong> (big-endian, vector
+  facility), since no cfarm node exists for it.</li>
+</ul>
+<p>This real-hardware access is what turns the <strong>SIMD-accelerated modules</strong>
+(<code>base64</code> / <code>securerandom</code> / <code>hex</code>, via go-simd) and the
+<a href="../benchmarks/">performance benchmarks</a> into measured numbers rather than
+llvm-mca estimates.</p>
 <h2 id="real-world-corpora">Real-world corpora<a class="headerlink" href="#real-world-corpora" title="Permanent link">&para;</a></h2>
 <p>Synthetic tests prove a feature works in isolation; they do not prove the idioms
 real Ruby code actually uses are supported. So beyond synthetic tests, <strong>idioms and
