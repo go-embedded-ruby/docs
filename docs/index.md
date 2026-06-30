@@ -195,24 +195,20 @@ library, while only the thin **interpreter-dependent glue** stays in rbgo. rbgo
 still ships as a **single CGO=0 static binary**; every extracted piece is
 independently reusable, tested and 6-arch by any Go program.
 
-`go.mod` currently **binds** these five satellites as native modules:
+The family is **66 standalone pure-Go libraries**, every one **non-empty,
+CI-green, 100% coverage and 6-arch**. The `go.mod` currently **binds 40 of them**
+as native modules — including the front-end ([go-ruby-parser](https://github.com/go-ruby-parser)),
+the regexp engine ([go-ruby-regexp](https://github.com/go-ruby-regexp)), and
+[go-ruby-erb](https://github.com/go-ruby-erb),
+[go-ruby-marshal](https://github.com/go-ruby-marshal),
+[go-ruby-yaml](https://github.com/go-ruby-yaml),
+[go-ruby-format](https://github.com/go-ruby-format),
+[go-ruby-optparse](https://github.com/go-ruby-optparse),
+[go-ruby-strscan](https://github.com/go-ruby-strscan).
 
-| Library | Role |
-| --- | --- |
-| [go-ruby-parser](https://github.com/go-ruby-parser) ([site](https://go-ruby-parser.github.io/)) | Ruby lexer / parser / AST front-end (embedded, so `eval`/`require` keep working) |
-| [go-ruby-regexp](https://github.com/go-ruby-regexp) ([site](https://go-ruby-regexp.github.io/)) | Onigmo-compatible regexp engine (incl. `\b`/`\B`, char-class literals) |
-| [go-ruby-erb](https://github.com/go-ruby-erb) ([site](https://go-ruby-erb.github.io/)) | ERB template compiler |
-| [go-ruby-marshal](https://github.com/go-ruby-marshal) ([site](https://go-ruby-marshal.github.io/)) | Marshal (`dump`/`load`), byte-exact with MRI |
-| [go-ruby-yaml](https://github.com/go-ruby-yaml) ([site](https://go-ruby-yaml.github.io/)) | Psych-compatible YAML emitter + loader |
+The full 66-library family (alphabetical):
 
-Three more have just been **extracted and are being integrated** (standalone
-today, binding into rbgo in progress):
-
-| Library | Role |
-| --- | --- |
-| [go-ruby-format](https://github.com/go-ruby-format) ([site](https://go-ruby-format.github.io/)) | `sprintf` / `%` / `format` engine |
-| [go-ruby-optparse](https://github.com/go-ruby-optparse) ([site](https://go-ruby-optparse.github.io/)) | `OptionParser` argv engine |
-| [go-ruby-strscan](https://github.com/go-ruby-strscan) ([site](https://go-ruby-strscan.github.io/)) | `StringScanner` (`strscan`) |
+[`abbrev`](https://github.com/go-ruby-abbrev/abbrev), [`base64`](https://github.com/go-ruby-base64/base64), [`benchmark`](https://github.com/go-ruby-benchmark/benchmark), [`bigdecimal`](https://github.com/go-ruby-bigdecimal/bigdecimal), [`cgi`](https://github.com/go-ruby-cgi/cgi), [`cmath`](https://github.com/go-ruby-cmath/cmath), [`complex`](https://github.com/go-ruby-complex/complex), [`csv`](https://github.com/go-ruby-csv/csv), [`date`](https://github.com/go-ruby-date/date), [`did-you-mean`](https://github.com/go-ruby-did-you-mean/did-you-mean), [`digest`](https://github.com/go-ruby-digest/digest), [`erb`](https://github.com/go-ruby-erb/erb), [`find`](https://github.com/go-ruby-find/find), [`format`](https://github.com/go-ruby-format/format), [`getoptlong`](https://github.com/go-ruby-getoptlong/getoptlong), [`i18n`](https://github.com/go-ruby-i18n/i18n), [`ipaddr`](https://github.com/go-ruby-ipaddr/ipaddr), [`json`](https://github.com/go-ruby-json/json), [`logger`](https://github.com/go-ruby-logger/logger), [`marshal`](https://github.com/go-ruby-marshal/marshal), [`matrix`](https://github.com/go-ruby-matrix/matrix), [`mime-types`](https://github.com/go-ruby-mime-types/mime-types), [`minitest`](https://github.com/go-ruby-minitest/minitest), [`msgpack`](https://github.com/go-ruby-msgpack/msgpack), [`net-ftp`](https://github.com/go-ruby-net-ftp/net-ftp), [`net-http`](https://github.com/go-ruby-net-http/net-http), [`net-pop`](https://github.com/go-ruby-net-pop/net-pop), [`net-s3`](https://github.com/go-ruby-net-s3/net-s3), [`net-sftp`](https://github.com/go-ruby-net-sftp/net-sftp), [`net-smtp`](https://github.com/go-ruby-net-smtp/net-smtp), [`observer`](https://github.com/go-ruby-observer/observer), [`openssl`](https://github.com/go-ruby-openssl/openssl), [`optparse`](https://github.com/go-ruby-optparse/optparse), [`ostruct`](https://github.com/go-ruby-ostruct/ostruct), [`parser`](https://github.com/go-ruby-parser/parser), [`pathname`](https://github.com/go-ruby-pathname/pathname), [`prettyprint`](https://github.com/go-ruby-prettyprint/prettyprint), [`prime`](https://github.com/go-ruby-prime/prime), [`pstore`](https://github.com/go-ruby-pstore/pstore), [`public-suffix`](https://github.com/go-ruby-public-suffix/public-suffix), [`racc`](https://github.com/go-ruby-racc/racc), [`rack`](https://github.com/go-ruby-rack/rack), [`rake`](https://github.com/go-ruby-rake/rake), [`rational`](https://github.com/go-ruby-rational/rational), [`regexp`](https://github.com/go-ruby-regexp/regexp), [`reline`](https://github.com/go-ruby-reline/reline), [`resolv`](https://github.com/go-ruby-resolv/resolv), [`rexml`](https://github.com/go-ruby-rexml/rexml), [`rss`](https://github.com/go-ruby-rss/rss), [`rubygems`](https://github.com/go-ruby-rubygems/rubygems), [`scanf`](https://github.com/go-ruby-scanf/scanf), [`securerandom`](https://github.com/go-ruby-securerandom/securerandom), [`set`](https://github.com/go-ruby-set/set), [`shellwords`](https://github.com/go-ruby-shellwords/shellwords), [`sinatra`](https://github.com/go-ruby-sinatra/sinatra), [`stringio`](https://github.com/go-ruby-stringio/stringio), [`strscan`](https://github.com/go-ruby-strscan/strscan), [`syslog`](https://github.com/go-ruby-syslog/syslog), [`time`](https://github.com/go-ruby-time/time), [`toml`](https://github.com/go-ruby-toml/toml), [`tsort`](https://github.com/go-ruby-tsort/tsort), [`unicode-normalize`](https://github.com/go-ruby-unicode-normalize/unicode-normalize), [`uri`](https://github.com/go-ruby-uri/uri), [`webrick`](https://github.com/go-ruby-webrick/webrick), [`yaml`](https://github.com/go-ruby-yaml/yaml), [`zlib`](https://github.com/go-ruby-zlib/zlib) — each at `github.com/go-ruby-<name>/<name>`.
 
 The scientific / container stack ([go-ndarray](https://github.com/go-ndarray/ndarray),
 [go-fft](https://github.com/go-fft/fft), [go-images](https://github.com/go-images/images),
