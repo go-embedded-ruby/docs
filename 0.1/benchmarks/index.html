@@ -576,6 +576,48 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#per-module-steady-state-comparison-measured-2026-07-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      Per-module steady-state comparison (measured 2026-07-03)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-module steady-state comparison (measured 2026-07-03)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#where-rbgo-already-wins-or-is-at-parity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Where rbgo already wins or is at parity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gap-triage-status-after-the-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gap triage — status after the fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#earlier-startup-focused-snapshot" class="md-nav__link">
     <span class="md-ellipsis">
       Earlier startup-focused snapshot
@@ -700,6 +742,48 @@
       Six-runtime comparison
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-module-steady-state-comparison-measured-2026-07-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      Per-module steady-state comparison (measured 2026-07-03)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-module steady-state comparison (measured 2026-07-03)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#where-rbgo-already-wins-or-is-at-parity" class="md-nav__link">
+    <span class="md-ellipsis">
+      Where rbgo already wins or is at parity
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gap-triage-status-after-the-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Gap triage — status after the fixes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variance" class="md-nav__link">
+    <span class="md-ellipsis">
+      Variance
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -903,6 +987,305 @@ it is timed.</p>
 <p>Reproduce: <code>AOT=1 RUNS=8 JRUBY=jruby TRUFFLE=&lt;path&gt; bash bench/run.sh 8</code>. The full
 write-up (methodology, profiling, where the time goes) is in
 <a href="https://github.com/go-embedded-ruby/ruby/blob/main/BENCHMARKS.md"><code>BENCHMARKS.md</code></a>.</p>
+<h2 id="per-module-steady-state-comparison-measured-2026-07-03">Per-module steady-state comparison (measured 2026-07-03)<a class="headerlink" href="#per-module-steady-state-comparison-measured-2026-07-03" title="Permanent link">&para;</a></h2>
+<p>The whole-program table above is wall-clock and startup-dominated, which — as the
+<a href="#methodology-caveats">caveats</a> note — is <strong>not</strong> a fair JIT comparison. This
+section is the fair one: a <strong>steady-state, startup-excluded, warmed</strong> micro-benchmark
+of the stdlib modules that rbgo binds to standalone pure-Go <code>go-ruby-&lt;mod&gt;</code>
+libraries. <strong>Measured 2026-07-03 on an Apple M-series arm64.</strong></p>
+<p><strong>Methodology (identical <code>.rb</code> across all five runtimes):</strong></p>
+<ul>
+<li>The <strong>same</strong> workload source drives rbgo, MRI, MRI+YJIT, JRuby and TruffleRuby.
+  Only the inner op-loop is timed, with each runtime's own
+  <code>Process.clock_gettime(CLOCK_MONOTONIC, :nanosecond)</code> — <strong>startup, <code>require</code> and
+  warmup are excluded</strong>.</li>
+<li><strong>JITs are warmed</strong> for a fixed 5 s wall-clock budget before any timing, so
+  YJIT, JRuby (C2) and TruffleRuby (Graal) reach steady state.</li>
+<li>Reported number = <strong>median ns/op</strong> of 11 timed rounds, then <strong>median of 3
+  processes</strong>. Regexp literals are hoisted to constants.</li>
+<li><strong>Every workload is checksum-gated:</strong> the <code>.rb</code> returns a deterministic integer
+  checksum that was asserted <strong>byte-identical across all five runtimes</strong> before any
+  timing was trusted — guaranteeing every runtime does the <em>same</em> work.</li>
+</ul>
+<p>Times are <strong>ns/op</strong> (lower is better); the last column is rbgo ÷ MRI (&lt; 1 means
+rbgo is faster than MRI). <strong>rbgo 1bef36f</strong> (pure-Go bytecode interpreter, no AOT); the <code>†</code>-marked
+rows additionally include the go-ruby-prime / go-ruby-zlib / go-ruby-format
+dependency fixes (rbgo #113/#114).</p>
+<table>
+<thead>
+<tr>
+<th>module.op</th>
+<th style="text-align: right;">rbgo</th>
+<th style="text-align: right;">MRI 4.0.5</th>
+<th style="text-align: right;">MRI+YJIT</th>
+<th style="text-align: right;">JRuby 10.1</th>
+<th style="text-align: right;">TruffleRuby 34.0.1</th>
+<th style="text-align: right;">rbgo/MRI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>rexml.parse_write</td>
+<td style="text-align: right;"><strong>10 568</strong></td>
+<td style="text-align: right;">299 840</td>
+<td style="text-align: right;">147 190</td>
+<td style="text-align: right;">580 631</td>
+<td style="text-align: right;">97 250</td>
+<td style="text-align: right;"><strong>0.04×</strong></td>
+</tr>
+<tr>
+<td>uri.parse</td>
+<td style="text-align: right;"><strong>1 171</strong></td>
+<td style="text-align: right;">4 066</td>
+<td style="text-align: right;">3 254</td>
+<td style="text-align: right;">2 836</td>
+<td style="text-align: right;">22 905</td>
+<td style="text-align: right;"><strong>0.29×</strong></td>
+</tr>
+<tr>
+<td>csv.parse_generate</td>
+<td style="text-align: right;"><strong>35 165</strong></td>
+<td style="text-align: right;">88 290</td>
+<td style="text-align: right;">54 990</td>
+<td style="text-align: right;">342 766</td>
+<td style="text-align: right;">223 037</td>
+<td style="text-align: right;"><strong>0.40×</strong></td>
+</tr>
+<tr>
+<td>pathname.lexical</td>
+<td style="text-align: right;"><strong>12 116</strong></td>
+<td style="text-align: right;">20 462</td>
+<td style="text-align: right;">19 286</td>
+<td style="text-align: right;">14 408</td>
+<td style="text-align: right;">8 282</td>
+<td style="text-align: right;"><strong>0.59×</strong></td>
+</tr>
+<tr>
+<td>date.parse_strftime</td>
+<td style="text-align: right;"><strong>2 551</strong></td>
+<td style="text-align: right;">4 216</td>
+<td style="text-align: right;">4 162</td>
+<td style="text-align: right;">1 713</td>
+<td style="text-align: right;">79 648</td>
+<td style="text-align: right;"><strong>0.60×</strong></td>
+</tr>
+<tr>
+<td>zlib.deflate_inflate †</td>
+<td style="text-align: right;"><strong>6 560</strong></td>
+<td style="text-align: right;">7 430</td>
+<td style="text-align: right;">7 400</td>
+<td style="text-align: right;">20 972</td>
+<td style="text-align: right;">26 825</td>
+<td style="text-align: right;"><strong>0.88×</strong></td>
+</tr>
+<tr>
+<td>matrix.mul_det</td>
+<td style="text-align: right;">5 291</td>
+<td style="text-align: right;">4 915</td>
+<td style="text-align: right;">2 058</td>
+<td style="text-align: right;">2 572</td>
+<td style="text-align: right;">48</td>
+<td style="text-align: right;">1.08×</td>
+</tr>
+<tr>
+<td>prettyprint.format</td>
+<td style="text-align: right;">12 344</td>
+<td style="text-align: right;">11 154</td>
+<td style="text-align: right;">6 046</td>
+<td style="text-align: right;">4 670</td>
+<td style="text-align: right;">1 949</td>
+<td style="text-align: right;">1.11×</td>
+</tr>
+<tr>
+<td>cmath.transcendental</td>
+<td style="text-align: right;">1 390</td>
+<td style="text-align: right;">1 082</td>
+<td style="text-align: right;">628</td>
+<td style="text-align: right;">n/a</td>
+<td style="text-align: right;">n/a</td>
+<td style="text-align: right;">1.28×</td>
+</tr>
+<tr>
+<td>abbrev.table</td>
+<td style="text-align: right;">42 237</td>
+<td style="text-align: right;">30 794</td>
+<td style="text-align: right;">24 170</td>
+<td style="text-align: right;">19 167</td>
+<td style="text-align: right;">3 811</td>
+<td style="text-align: right;">1.37×</td>
+</tr>
+<tr>
+<td>digest.md5_sha1_sha256</td>
+<td style="text-align: right;">3 373</td>
+<td style="text-align: right;">2 425</td>
+<td style="text-align: right;">2 135</td>
+<td style="text-align: right;">1 728</td>
+<td style="text-align: right;">3 460</td>
+<td style="text-align: right;">1.39×</td>
+</tr>
+<tr>
+<td>prime.enum_factor †</td>
+<td style="text-align: right;"><strong>~15 300</strong></td>
+<td style="text-align: right;">10 715</td>
+<td style="text-align: right;">2 700</td>
+<td style="text-align: right;">5 527</td>
+<td style="text-align: right;">350</td>
+<td style="text-align: right;"><strong>1.43×</strong></td>
+</tr>
+<tr>
+<td>regexp.scan</td>
+<td style="text-align: right;">69 188</td>
+<td style="text-align: right;">39 645</td>
+<td style="text-align: right;">40 180</td>
+<td style="text-align: right;">20 854</td>
+<td style="text-align: right;">8 567</td>
+<td style="text-align: right;">1.75×</td>
+</tr>
+<tr>
+<td>json.roundtrip</td>
+<td style="text-align: right;">31 565</td>
+<td style="text-align: right;">15 065</td>
+<td style="text-align: right;">15 390</td>
+<td style="text-align: right;">36 640</td>
+<td style="text-align: right;">88 697</td>
+<td style="text-align: right;">2.10×</td>
+</tr>
+<tr>
+<td>set.algebra</td>
+<td style="text-align: right;">102 378</td>
+<td style="text-align: right;">46 593</td>
+<td style="text-align: right;">44 883</td>
+<td style="text-align: right;">31 069</td>
+<td style="text-align: right;">44 898</td>
+<td style="text-align: right;">2.20×</td>
+</tr>
+<tr>
+<td>ipaddr.membership</td>
+<td style="text-align: right;">22 154</td>
+<td style="text-align: right;">9 732</td>
+<td style="text-align: right;">6 682</td>
+<td style="text-align: right;">3 721</td>
+<td style="text-align: right;">2 132</td>
+<td style="text-align: right;">2.28×</td>
+</tr>
+<tr>
+<td>complex.arith</td>
+<td style="text-align: right;">778</td>
+<td style="text-align: right;">278</td>
+<td style="text-align: right;">206</td>
+<td style="text-align: right;">76</td>
+<td style="text-align: right;">0.6</td>
+<td style="text-align: right;">2.80×</td>
+</tr>
+<tr>
+<td>base64.roundtrip</td>
+<td style="text-align: right;">19 591</td>
+<td style="text-align: right;">6 635</td>
+<td style="text-align: right;">6 425</td>
+<td style="text-align: right;">22 569</td>
+<td style="text-align: right;">44 951</td>
+<td style="text-align: right;">2.95×</td>
+</tr>
+<tr>
+<td>rational.arith</td>
+<td style="text-align: right;">1 463</td>
+<td style="text-align: right;">378</td>
+<td style="text-align: right;">304</td>
+<td style="text-align: right;">283</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">3.87×</td>
+</tr>
+<tr>
+<td>strscan.tokenize</td>
+<td style="text-align: right;">62 558</td>
+<td style="text-align: right;">13 363</td>
+<td style="text-align: right;">11 003</td>
+<td style="text-align: right;">5 352</td>
+<td style="text-align: right;">2 318</td>
+<td style="text-align: right;">4.68×</td>
+</tr>
+<tr>
+<td>format.sprintf ‡</td>
+<td style="text-align: right;">22 079</td>
+<td style="text-align: right;">2 381</td>
+<td style="text-align: right;">2 161</td>
+<td style="text-align: right;">1 835</td>
+<td style="text-align: right;">861</td>
+<td style="text-align: right;"><strong>9.27×</strong></td>
+</tr>
+</tbody>
+</table>
+<p><code>cmath</code> is <strong>n/a</strong> on JRuby and TruffleRuby: the <code>cmath</code> library was removed from
+their stdlib distributions (JRuby 10.1 / TruffleRuby 3.4.9), so they cannot run
+that workload; rbgo, MRI and YJIT all agree on the checksum.</p>
+<p><strong>† Re-measured 2026-07-03 after the gap fixes below landed.</strong> The original sweep
+measured <code>zlib</code> at <strong>7.40×</strong> and <code>prime</code> at <strong>12.68×</strong> MRI. <code>zlib</code> was fixed by
+pooling the DEFLATE engine (go-ruby-zlib#3) — it now <em>beats</em> MRI's C zlib — and
+<code>prime</code> by a memoized segmented sieve (go-ruby-prime#1, consumed via rbgo #113).</p>
+<p><strong>‡ The formatter engine was fixed</strong> (go-ruby-format#1 removed all <code>math/big</code>
+allocation, ~1.65× on the engine in isolation), <strong>but the <code>sprintf</code> <em>workload</em>
+ratio is unchanged</strong> on purpose: profiling shows the format directive is only
+~3.6 % of this op — the remaining ~9× is the bytecode interpreter's <strong>general
+per-op allocation</strong> in the surrounding checksum/interpolation, a VM-wide concern,
+not a module gap (see triage below).</p>
+<h3 id="where-rbgo-already-wins-or-is-at-parity">Where rbgo already wins or is at parity<a class="headerlink" href="#where-rbgo-already-wins-or-is-at-parity" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>rbgo <em>beats</em> MRI outright on six modules</strong> — <code>rexml</code> (<strong>28× faster</strong> than
+  MRI: the pure-Go go-ruby-rexml parser vs REXML's notoriously slow Ruby
+  implementation), <code>uri</code> (<strong>3.5×</strong>), <code>csv</code> (<strong>2.5×</strong>), <code>pathname</code> and <code>date</code>
+  (<strong>~1.7×</strong>), and <code>zlib</code> (<strong>1.14×</strong>, i.e. 0.88× MRI, after the engine-pooling
+  fix — rbgo's pooled pure-Go DEFLATE now edges out MRI's C zlib on this
+  round-trip). These are the string/parsing-heavy modules where a native Go
+  library outclasses an MRI stdlib written in Ruby.</li>
+<li><strong>Parity (≤ 1.4× MRI)</strong> on <code>matrix</code>, <code>prettyprint</code>, <code>cmath</code>, <code>abbrev</code>,
+  <code>digest</code> (the last riding go-simd kernels), and — after the sieve fix —
+  <code>prime</code> (<strong>1.43×</strong>, down from 12.68×).</li>
+<li><strong>TruffleRuby is the compute ceiling</strong> on the tight numeric kernels
+  (<code>complex</code>, <code>rational</code>, <code>matrix</code>), as expected of a Graal JIT.</li>
+</ul>
+<h3 id="gap-triage-status-after-the-fixes">Gap triage — status after the fixes<a class="headerlink" href="#gap-triage-status-after-the-fixes" title="Permanent link">&para;</a></h3>
+<p>The original sweep flagged three modules &gt; 5× MRI. All three were investigated
+with pprof; two were real module gaps and are now <strong>fixed</strong>, the third turned out
+to be a VM-wide concern, not a module gap.</p>
+<ol>
+<li><strong><code>prime.enum_factor</code> — 12.7× → 1.43× MRI (FIXED).</strong> Root cause: <code>Prime.each</code>
+   drove a <strong><code>big.Int</code> generator</strong>, yielding every prime through a full VM
+   block-call and allocating a fresh <code>big.NewInt(bound)</code> per candidate, with
+   <strong>nothing memoized across enumerations</strong>. Fixed by a process-wide, incrementally
+   grown <strong>segmented <code>int64</code> sieve</strong> (the analogue of MRI's memoized <code>Prime</code>
+   singleton): go-ruby-prime#1, consumed by rbgo #113. ~67× on the library bench;
+   ~1.07× MRI for enumeration alone end-to-end.</li>
+<li><strong><code>zlib.deflate_inflate</code> — 7.4× → 0.88× MRI (FIXED, now beats MRI).</strong> Root
+   cause: a fresh DEFLATE engine (window + hash tables, ~1 MB) was allocated <strong>per
+   call</strong> — 95 % of allocations, ~60 % of CPU in GC. Fixed by pooling the
+   engines and reusing them via <code>Reset</code> (<strong>byte-identical output</strong>, MRI interop
+   preserved): go-ruby-zlib#3, consumed by rbgo #114. Pure-Go <code>flate</code> at level 6
+   now edges out MRI's C zlib on this round-trip.</li>
+<li><strong><code>format.sprintf</code> — 9.3× MRI (NOT a module gap).</strong> pprof disproved the
+   re-parse/boxing hypothesis: parsing the format string is &lt; 1 % of CPU. The
+   formatter's real cost was <code>math/big</code> allocation on every integer directive —
+   <strong>fixed</strong> (go-ruby-format#1 adds an <code>int64</code> fast path, ~1.65× on the engine in
+   isolation, byte-exact output). But the format <em>directive</em> is only ~3.6 % of the
+   benchmarked op; the remaining ~9× is the <strong>bytecode interpreter's general
+   per-op allocation</strong> (the surrounding checksum reduce + <code>"row#{…}"</code>
+   interpolation), which a zero-cost formatter would not touch. This is the true
+   remaining lever — a VM-wide interpreter-dispatch/allocation floor (AOT
+   lowering, unboxing, inline caches), not a per-module fix.</li>
+</ol>
+<p><strong>Methodology caveat exposed by (3):</strong> for <strong>small-op</strong> modules (<code>format</code>,
+<code>rational</code>, <code>complex</code>, <code>cmath</code>), the microbenchmark's fixed per-iteration harness
+overhead (checksum + interpolation) is a large fraction of the measured op, so
+their rbgo/MRI ratios are <strong>inflated by VM per-op cost, not module cost</strong>. The
+parsing/collection modules (top of the table) have op bodies large enough that
+this overhead is negligible, so their ratios are faithful. <code>strscan</code> (4.68×) and
+<code>rational</code> (3.87×) sit just under the old 5× line; the <code>1bef36f</code> inline
+regexp-literal cache already pulled <code>strscan</code> in from an earlier ~25× regression,
+and <code>rational</code>'s residual is largely the same small-op VM overhead as <code>format</code>.</p>
+<h3 id="variance">Variance<a class="headerlink" href="#variance" title="Permanent link">&para;</a></h3>
+<p>Median-of-3 spreads were &lt; 5 % for all rbgo and MRI/YJIT cells. The larger relative
+spreads were confined to the <strong>sub-microsecond</strong> TruffleRuby/JRuby cells (e.g.
+Truffle <code>prime</code> 350 ns ± 33 %, <code>complex</code> 0.6 ns) where absolute noise dominates,
+and to <code>zlib</code> on Truffle (± 28 %); none affect the rbgo-vs-MRI ratios reported here.</p>
 <h2 id="earlier-startup-focused-snapshot">Earlier startup-focused snapshot<a class="headerlink" href="#earlier-startup-focused-snapshot" title="Permanent link">&para;</a></h2>
 <p>An earlier, single-run snapshot (rbgo vs MRI+YJIT vs JRuby) — kept for the startup
 story:</p>
