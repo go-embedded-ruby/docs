@@ -65,7 +65,9 @@ libraries. **Measured 2026-07-03 on an Apple M-series arm64.**
   timing was trusted — guaranteeing every runtime does the *same* work.
 
 Times are **ns/op** (lower is better); the last column is rbgo ÷ MRI (< 1 means
-rbgo is faster than MRI). **rbgo 1bef36f** (pure-Go bytecode interpreter, no AOT).
+rbgo is faster than MRI). **rbgo 1bef36f** (pure-Go bytecode interpreter, no AOT); the `†`-marked
+rows additionally include the go-ruby-prime / go-ruby-zlib / go-ruby-format
+dependency fixes (rbgo #113/#114).
 
 | module.op | rbgo | MRI 4.0.5 | MRI+YJIT | JRuby 10.1 | TruffleRuby 34.0.1 | rbgo/MRI |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -74,11 +76,13 @@ rbgo is faster than MRI). **rbgo 1bef36f** (pure-Go bytecode interpreter, no AOT
 | csv.parse_generate | **35 165** | 88 290 | 54 990 | 342 766 | 223 037 | **0.40×** |
 | pathname.lexical | **12 116** | 20 462 | 19 286 | 14 408 | 8 282 | **0.59×** |
 | date.parse_strftime | **2 551** | 4 216 | 4 162 | 1 713 | 79 648 | **0.60×** |
+| zlib.deflate_inflate † | **6 560** | 7 430 | 7 400 | 20 972 | 26 825 | **0.88×** |
 | matrix.mul_det | 5 291 | 4 915 | 2 058 | 2 572 | 48 | 1.08× |
 | prettyprint.format | 12 344 | 11 154 | 6 046 | 4 670 | 1 949 | 1.11× |
 | cmath.transcendental | 1 390 | 1 082 | 628 | n/a | n/a | 1.28× |
 | abbrev.table | 42 237 | 30 794 | 24 170 | 19 167 | 3 811 | 1.37× |
 | digest.md5_sha1_sha256 | 3 373 | 2 425 | 2 135 | 1 728 | 3 460 | 1.39× |
+| prime.enum_factor † | **~15 300** | 10 715 | 2 700 | 5 527 | 350 | **1.43×** |
 | regexp.scan | 69 188 | 39 645 | 40 180 | 20 854 | 8 567 | 1.75× |
 | json.roundtrip | 31 565 | 15 065 | 15 390 | 36 640 | 88 697 | 2.10× |
 | set.algebra | 102 378 | 46 593 | 44 883 | 31 069 | 44 898 | 2.20× |
@@ -87,46 +91,78 @@ rbgo is faster than MRI). **rbgo 1bef36f** (pure-Go bytecode interpreter, no AOT
 | base64.roundtrip | 19 591 | 6 635 | 6 425 | 22 569 | 44 951 | 2.95× |
 | rational.arith | 1 463 | 378 | 304 | 283 | 11 | 3.87× |
 | strscan.tokenize | 62 558 | 13 363 | 11 003 | 5 352 | 2 318 | 4.68× |
-| zlib.deflate_inflate | 54 955 | 7 430 | 7 400 | 20 972 | 26 825 | **7.40×** |
-| format.sprintf | 22 079 | 2 381 | 2 161 | 1 835 | 861 | **9.27×** |
-| prime.enum_factor | 135 876 | 10 715 | 2 700 | 5 527 | 350 | **12.68×** |
+| format.sprintf ‡ | 22 079 | 2 381 | 2 161 | 1 835 | 861 | **9.27×** |
 
 `cmath` is **n/a** on JRuby and TruffleRuby: the `cmath` library was removed from
 their stdlib distributions (JRuby 10.1 / TruffleRuby 3.4.9), so they cannot run
 that workload; rbgo, MRI and YJIT all agree on the checksum.
 
+**† Re-measured 2026-07-03 after the gap fixes below landed.** The original sweep
+measured `zlib` at **7.40×** and `prime` at **12.68×** MRI. `zlib` was fixed by
+pooling the DEFLATE engine (go-ruby-zlib#3) — it now *beats* MRI's C zlib — and
+`prime` by a memoized segmented sieve (go-ruby-prime#1, consumed via rbgo #113).
+
+**‡ The formatter engine was fixed** (go-ruby-format#1 removed all `math/big`
+allocation, ~1.65× on the engine in isolation), **but the `sprintf` *workload*
+ratio is unchanged** on purpose: profiling shows the format directive is only
+~3.6 % of this op — the remaining ~9× is the bytecode interpreter's **general
+per-op allocation** in the surrounding checksum/interpolation, a VM-wide concern,
+not a module gap (see triage below).
+
 ### Where rbgo already wins or is at parity
 
-- **rbgo *beats* MRI outright on five modules** — `rexml` (**28× faster** than
+- **rbgo *beats* MRI outright on six modules** — `rexml` (**28× faster** than
   MRI: the pure-Go go-ruby-rexml parser vs REXML's notoriously slow Ruby
   implementation), `uri` (**3.5×**), `csv` (**2.5×**), `pathname` and `date`
-  (**~1.7×**). These are the string/parsing-heavy modules where a native Go library
-  outclasses an MRI stdlib written in Ruby.
-- **Parity (≤ 1.4× MRI)** on `matrix`, `prettyprint`, `cmath`, `abbrev` and
-  `digest` — the last riding go-simd kernels.
+  (**~1.7×**), and `zlib` (**1.14×**, i.e. 0.88× MRI, after the engine-pooling
+  fix — rbgo's pooled pure-Go DEFLATE now edges out MRI's C zlib on this
+  round-trip). These are the string/parsing-heavy modules where a native Go
+  library outclasses an MRI stdlib written in Ruby.
+- **Parity (≤ 1.4× MRI)** on `matrix`, `prettyprint`, `cmath`, `abbrev`,
+  `digest` (the last riding go-simd kernels), and — after the sieve fix —
+  `prime` (**1.43×**, down from 12.68×).
 - **TruffleRuby is the compute ceiling** on the tight numeric kernels
   (`complex`, `rational`, `matrix`), as expected of a Graal JIT.
 
-### Gap triage (rbgo > 5× MRI), ranked by slowdown × fixability
+### Gap triage — status after the fixes
 
-1. **`prime.enum_factor` — 12.7× MRI.** `Prime.each` drives a **`big.Int`
-   generator** and yields **every prime through a full VM block-call**, allocating
-   a fresh `big.NewInt(bound)` for the bound compare on each iteration. Fix (high
-   value, high fixability): an `int64` sieve up to the bound with the compare
-   hoisted out of `big.Int`, batching yields — the single biggest, most tractable
-   win here.
-2. **`format.sprintf` — 9.3× MRI.** `sprintf`/`%` re-parses the format string and
-   **boxes every argument** into the go-ruby-format `Value` wrapper on each call,
-   with the `%e`/`%f` float path on top. Fix (high fixability): cache the parsed
-   format spec and cut the per-arg boxing / float-conversion allocations.
-3. **`zlib.deflate_inflate` — 7.4× MRI.** Each call appears to allocate a fresh
-   deflate writer + inflate reader and intermediate buffers rather than reusing a
-   pooled compressor. Fix (medium fixability): pool the `flate` writer/reader,
-   confirm the default compression level matches MRI, and avoid intermediate copies.
+The original sweep flagged three modules > 5× MRI. All three were investigated
+with pprof; two were real module gaps and are now **fixed**, the third turned out
+to be a VM-wide concern, not a module gap.
 
-`strscan` (4.68×) and `rational` (3.87×) sit just under the 5× gap line and are the
-next tier down; the 1bef36f inline-regexp-literal cache already pulled `strscan`
-in from the earlier ~25× regression.
+1. **`prime.enum_factor` — 12.7× → 1.43× MRI (FIXED).** Root cause: `Prime.each`
+   drove a **`big.Int` generator**, yielding every prime through a full VM
+   block-call and allocating a fresh `big.NewInt(bound)` per candidate, with
+   **nothing memoized across enumerations**. Fixed by a process-wide, incrementally
+   grown **segmented `int64` sieve** (the analogue of MRI's memoized `Prime`
+   singleton): go-ruby-prime#1, consumed by rbgo #113. ~67× on the library bench;
+   ~1.07× MRI for enumeration alone end-to-end.
+2. **`zlib.deflate_inflate` — 7.4× → 0.88× MRI (FIXED, now beats MRI).** Root
+   cause: a fresh DEFLATE engine (window + hash tables, ~1 MB) was allocated **per
+   call** — 95 % of allocations, ~60 % of CPU in GC. Fixed by pooling the
+   engines and reusing them via `Reset` (**byte-identical output**, MRI interop
+   preserved): go-ruby-zlib#3, consumed by rbgo #114. Pure-Go `flate` at level 6
+   now edges out MRI's C zlib on this round-trip.
+3. **`format.sprintf` — 9.3× MRI (NOT a module gap).** pprof disproved the
+   re-parse/boxing hypothesis: parsing the format string is < 1 % of CPU. The
+   formatter's real cost was `math/big` allocation on every integer directive —
+   **fixed** (go-ruby-format#1 adds an `int64` fast path, ~1.65× on the engine in
+   isolation, byte-exact output). But the format *directive* is only ~3.6 % of the
+   benchmarked op; the remaining ~9× is the **bytecode interpreter's general
+   per-op allocation** (the surrounding checksum reduce + `"row#{…}"`
+   interpolation), which a zero-cost formatter would not touch. This is the true
+   remaining lever — a VM-wide interpreter-dispatch/allocation floor (AOT
+   lowering, unboxing, inline caches), not a per-module fix.
+
+**Methodology caveat exposed by (3):** for **small-op** modules (`format`,
+`rational`, `complex`, `cmath`), the microbenchmark's fixed per-iteration harness
+overhead (checksum + interpolation) is a large fraction of the measured op, so
+their rbgo/MRI ratios are **inflated by VM per-op cost, not module cost**. The
+parsing/collection modules (top of the table) have op bodies large enough that
+this overhead is negligible, so their ratios are faithful. `strscan` (4.68×) and
+`rational` (3.87×) sit just under the old 5× line; the `1bef36f` inline
+regexp-literal cache already pulled `strscan` in from an earlier ~25× regression,
+and `rational`'s residual is largely the same small-op VM overhead as `format`.
 
 ### Variance
 
