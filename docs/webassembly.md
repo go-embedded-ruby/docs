@@ -18,6 +18,27 @@ different needs:
 
 Both produce a `.wasm` module that you serve next to Go's `wasm_exec.js` loader.
 
+## What is *not* available in the browser
+
+A browser tab has **no TCP sockets and no cgo**, so the gem backends that open
+real network connections or use OS facilities cannot function there. They are
+**compiled out of the `GOOS=js GOARCH=wasm` build** — their Go files carry a
+`//go:build !(js && wasm)` tag — which also keeps roughly **90 MB** of driver
+code (Arrow, go-redis, franz-go, the MongoDB / MySQL / gRPC clients, …) out of
+the module. The **native build is entirely unchanged**: every gem is present,
+loads and conforms exactly as before.
+
+Two tiers degrade on wasm:
+
+| tier | `require` | behaviour on wasm | features |
+| --- | --- | --- | --- |
+| **compiled out** | raises `LoadError` | `require "kafka"` → `cannot load such file -- kafka (not available in the wasm build)` | `grpc`, `nats`, `kafka`, `mysql2` / `mysql`, `mongo` / `bson`, `arrow`, `parquet`, `openstack`, and the `redis`-backed `sidekiq` / `resque` |
+| **graceful stub** | **succeeds** | the module loads, but constructing a connection / handle raises (e.g. `SQLite3::Database.new`) | `sqlite3`, `sequel`, `activerecord`, `bolt`, `bleve`, `etcd` |
+
+Everything else — plain Ruby, the numeric / image stack, and the `JS` DOM/Canvas
+bridge below — is fully available in the browser. A REPL that sticks to language
+features and the numeric/image APIs behaves identically to the native build.
+
 ## 1. The playground — the full interpreter in the browser
 
 The playground links the **whole** interpreter — front-end (lexer, parser,

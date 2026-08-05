@@ -78,6 +78,26 @@ This real-hardware access is what turns the **SIMD-accelerated modules**
 [performance benchmarks](benchmarks.md) into measured numbers rather than
 llvm-mca estimates.
 
+## The ruby/spec ratchet
+
+On top of the oracle, rbgo runs the `language/` and `core/` suites of
+[ruby/spec](https://github.com/ruby/spec) — the **executable specification** of
+the language and core library — through `rbgo` under a minimal MSpec-compatible
+shim
+([`scripts/conformance/rubyspec/`](https://github.com/go-embedded-ruby/ruby/tree/main/scripts/conformance/rubyspec)).
+Each spec file runs in its own `rbgo` process; the runner sums the passing
+examples and compares the total against a **frozen floor** (`FLOOR`):
+
+- a total **below** the floor fails the run (a conformance regression);
+- an improvement raises the floor **in the same PR** (`UPDATE_FLOOR=1`).
+
+Because the floor can only be raised, measured language conformance moves in one
+direction only. The shim stubs a few MSpec matchers (`complain`, `output`,
+`ruby_exe`, …), so their examples count as *skipped* rather than passing — the
+floor is a deliberately **conservative lower bound**. The
+[`rubyspec-ratchet`](https://github.com/go-embedded-ruby/ruby/blob/main/.github/workflows/rubyspec-ratchet.yml)
+workflow enforces it on every push and pull request.
+
 ## Real-world corpora
 
 Synthetic tests prove a feature works in isolation; they do not prove the idioms
