@@ -507,6 +507,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#what-is-not-available-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is not available in the browser
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-the-playground-the-full-interpreter-in-the-browser" class="md-nav__link">
     <span class="md-ellipsis">
       1. The playground — the full interpreter in the browser
@@ -683,6 +692,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#what-is-not-available-in-the-browser" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is not available in the browser
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#1-the-playground-the-full-interpreter-in-the-browser" class="md-nav__link">
     <span class="md-ellipsis">
       1. The playground — the full interpreter in the browser
@@ -783,6 +801,42 @@ different needs:</p>
 </tbody>
 </table>
 <p>Both produce a <code>.wasm</code> module that you serve next to Go's <code>wasm_exec.js</code> loader.</p>
+<h2 id="what-is-not-available-in-the-browser">What is <em>not</em> available in the browser<a class="headerlink" href="#what-is-not-available-in-the-browser" title="Permanent link">&para;</a></h2>
+<p>A browser tab has <strong>no TCP sockets and no cgo</strong>, so the gem backends that open
+real network connections or use OS facilities cannot function there. They are
+<strong>compiled out of the <code>GOOS=js GOARCH=wasm</code> build</strong> — their Go files carry a
+<code>//go:build !(js &amp;&amp; wasm)</code> tag — which also keeps roughly <strong>90 MB</strong> of driver
+code (Arrow, go-redis, franz-go, the MongoDB / MySQL / gRPC clients, …) out of
+the module. The <strong>native build is entirely unchanged</strong>: every gem is present,
+loads and conforms exactly as before.</p>
+<p>Two tiers degrade on wasm:</p>
+<table>
+<thead>
+<tr>
+<th>tier</th>
+<th><code>require</code></th>
+<th>behaviour on wasm</th>
+<th>features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>compiled out</strong></td>
+<td>raises <code>LoadError</code></td>
+<td><code>require "kafka"</code> → <code>cannot load such file -- kafka (not available in the wasm build)</code></td>
+<td><code>grpc</code>, <code>nats</code>, <code>kafka</code>, <code>mysql2</code> / <code>mysql</code>, <code>mongo</code> / <code>bson</code>, <code>arrow</code>, <code>parquet</code>, <code>openstack</code>, and the <code>redis</code>-backed <code>sidekiq</code> / <code>resque</code></td>
+</tr>
+<tr>
+<td><strong>graceful stub</strong></td>
+<td><strong>succeeds</strong></td>
+<td>the module loads, but constructing a connection / handle raises (e.g. <code>SQLite3::Database.new</code>)</td>
+<td><code>sqlite3</code>, <code>sequel</code>, <code>activerecord</code>, <code>bolt</code>, <code>bleve</code>, <code>etcd</code></td>
+</tr>
+</tbody>
+</table>
+<p>Everything else — plain Ruby, the numeric / image stack, and the <code>JS</code> DOM/Canvas
+bridge below — is fully available in the browser. A REPL that sticks to language
+features and the numeric/image APIs behaves identically to the native build.</p>
 <h2 id="1-the-playground-the-full-interpreter-in-the-browser">1. The playground — the full interpreter in the browser<a class="headerlink" href="#1-the-playground-the-full-interpreter-in-the-browser" title="Permanent link">&para;</a></h2>
 <p>The playground links the <strong>whole</strong> interpreter — front-end (lexer, parser,
 compiler), VM, the numeric stack and the cgo-free image pipeline — so the page

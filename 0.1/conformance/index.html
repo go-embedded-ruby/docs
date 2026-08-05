@@ -589,6 +589,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-rubyspec-ratchet" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ruby/spec ratchet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#real-world-corpora" class="md-nav__link">
     <span class="md-ellipsis">
       Real-world corpora
@@ -779,6 +788,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-rubyspec-ratchet" class="md-nav__link">
+    <span class="md-ellipsis">
+      The ruby/spec ratchet
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#real-world-corpora" class="md-nav__link">
     <span class="md-ellipsis">
       Real-world corpora
@@ -911,6 +929,24 @@ so every one of the six arches is validated on real hardware:</p>
 (<code>base64</code> / <code>securerandom</code> / <code>hex</code>, via go-simd) and the
 <a href="../benchmarks/">performance benchmarks</a> into measured numbers rather than
 llvm-mca estimates.</p>
+<h2 id="the-rubyspec-ratchet">The ruby/spec ratchet<a class="headerlink" href="#the-rubyspec-ratchet" title="Permanent link">&para;</a></h2>
+<p>On top of the oracle, rbgo runs the <code>language/</code> and <code>core/</code> suites of
+<a href="https://github.com/ruby/spec">ruby/spec</a> — the <strong>executable specification</strong> of
+the language and core library — through <code>rbgo</code> under a minimal MSpec-compatible
+shim
+(<a href="https://github.com/go-embedded-ruby/ruby/tree/main/scripts/conformance/rubyspec"><code>scripts/conformance/rubyspec/</code></a>).
+Each spec file runs in its own <code>rbgo</code> process; the runner sums the passing
+examples and compares the total against a <strong>frozen floor</strong> (<code>FLOOR</code>):</p>
+<ul>
+<li>a total <strong>below</strong> the floor fails the run (a conformance regression);</li>
+<li>an improvement raises the floor <strong>in the same PR</strong> (<code>UPDATE_FLOOR=1</code>).</li>
+</ul>
+<p>Because the floor can only be raised, measured language conformance moves in one
+direction only. The shim stubs a few MSpec matchers (<code>complain</code>, <code>output</code>,
+<code>ruby_exe</code>, …), so their examples count as <em>skipped</em> rather than passing — the
+floor is a deliberately <strong>conservative lower bound</strong>. The
+<a href="https://github.com/go-embedded-ruby/ruby/blob/main/.github/workflows/rubyspec-ratchet.yml"><code>rubyspec-ratchet</code></a>
+workflow enforces it on every push and pull request.</p>
 <h2 id="real-world-corpora">Real-world corpora<a class="headerlink" href="#real-world-corpora" title="Permanent link">&para;</a></h2>
 <p>Synthetic tests prove a feature works in isolation; they do not prove the idioms
 real Ruby code actually uses are supported. So beyond synthetic tests, <strong>idioms and
