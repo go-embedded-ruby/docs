@@ -895,7 +895,7 @@ in the interpreter repo. It runs the same snippet through <strong>rbgo</strong>,
 a mismatch</strong>, so it drops straight into CI and into a pre-commit loop.</p>
 <p>It has two modes.</p>
 <p>A single expression, evaluated in all three and diffed:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;p (1..10).select(&amp;:even?).map { |x| x**2 }&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">'p (1..10).select(&amp;:even?).map { |x| x**2 }'</span>
 </code></pre></div>
 <p>A batch corpus — a file with one snippet per line, every line run through all
 three implementations, with a summary of how many agree (<code>N/total</code>):</p>
@@ -1085,10 +1085,10 @@ genuine <code>Puppet::Util::CommandLine</code> → <code>Puppet::Application::Ap
 applied (creating Puppet's config dirs on disk), then the user catalog applied
 through the transaction / RAL. The real CLI emits genuine Puppet output and exits
 <code>0</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ rbgo run puppet_apply.rb   # ARGV = apply -e &#39;notify { &quot;hello&quot;: message =&gt; &quot;hi from rbgo cli&quot; }&#39;
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ rbgo run puppet_apply.rb   # ARGV = apply -e 'notify { "hello": message =&gt; "hi from rbgo cli" }'
 <a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Notice: Compiled catalog for  in environment production in 0.00 seconds
 <a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Notice: hi from rbgo cli
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Notice: /Stage[main]/Main/Notify[hello]/message: defined &#39;message&#39; as &#39;hi from rbgo cli&#39;
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Notice: /Stage[main]/Main/Notify[hello]/message: defined 'message' as 'hi from rbgo cli'
 </code></pre></div>
 <p>That is the actual <code>notify</code> resource type applying through the transaction and the
 Resource Abstraction Layer — not a <code>notice(...)</code> evaluator print. Reaching the CLI
@@ -1120,7 +1120,7 @@ system-state providers are the active next milestone, not done.</p>
 <p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on
 <code>PATH</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">&#39;p (1..10).select(&amp;:even?).map { |x| x**2 }&#39;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">'p (1..10).select(&amp;:even?).map { |x| x**2 }'</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
