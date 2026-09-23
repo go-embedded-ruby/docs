@@ -909,7 +909,10 @@ arithmetic, and a comparison — runs end to end:</p>
 <ul>
 <li><code>puts 1 + 2</code> prints <code>3</code> end to end.</li>
 <li><code>fib(20)</code> evaluates to <code>6765</code> end to end.</li>
-<li><strong>~92% test coverage</strong>, with the <code>object</code> package at <strong>100%</strong>.</li>
+<li><strong>~92% test coverage</strong>, with the <code>object</code> package at <strong>100%</strong> — the bar
+  <em>at the time this phase closed</em>. The interpreter has since been held to a
+  <strong>100% gate</strong> on the POSIX CI lanes; see
+  <a href="../../conformance/#what-ci-enforces">Conformance</a>.</li>
 <li>Behaviour is <strong>differential-tested against MRI</strong>: the same programs are run on
   reference Ruby and the outputs compared.</li>
 </ul>
@@ -919,7 +922,7 @@ Phase 0 and arrive in later <a href="../../roadmap/">phases</a>:</p>
 <ul>
 <li><strong>No receiver method calls yet</strong> — only top-level/<code>self</code> calls and the
   built-ins above (the object model and dispatch are Phase 1).</li>
-<li><strong>No blocks</strong> (Phase 3).</li>
+<li><strong>No blocks</strong> (Phase 1).</li>
 <li><strong>No bignum promotion</strong> — in the Phase 0 slice integers are plain <code>int64</code> and
   do not promote on overflow. (Automatic <strong>Bignum</strong> promotion and
   arbitrary-precision literals have since landed — see the
