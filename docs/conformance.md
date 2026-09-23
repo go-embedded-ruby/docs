@@ -109,8 +109,11 @@ workflow enforces it on every push and pull request.
 
 ### Where it stands — measured 2026-09-23
 
-On `main` (`d498ddc`), darwin/arm64, against the pinned corpus
-(`SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191`):
+On darwin/arm64 against the pinned corpus
+(`SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191`), on `d498ddc` — the tip of
+`main` at the time. `main` has since advanced to `2200e17`, whose only change is
+the `FLOOR` file ([#638](https://github.com/go-embedded-ruby/ruby/pull/638)); the
+interpreter built from it is byte-identical, so these figures stand unchanged.
 
 | | |
 | --- | --- |
@@ -119,20 +122,28 @@ On `main` (`d498ddc`), darwin/arm64, against the pinned corpus
 | skipped | 473 |
 | pass rate of the examples that ran | **91.4 %** (21 983 of 24 044) |
 | spec files | 2 191 of 2 206 produce a result; 15 produce none |
-| **`FLOOR`** | **21 740** on `main` as of this writing |
+| **`FLOOR`** | **21 970** |
 
 The ratchet reports 21 982; a separate sweep that also captures
 `fail`/`error`/`skip` read 21 983. The one-example difference is the `#615` noise
 described below.
 
-!!! warning "The floor is a gate, not a score"
-    `FLOOR` says *"no run may come in below this"*. It is raised deliberately, in
-    its own PR, after a wave lands — so the measured total normally sits **above**
-    it. Today the gap is ~240 examples, and
-    [#638](https://github.com/go-embedded-ruby/ruby/pull/638) is open to raise the
-    floor to 21 970. Quoting the floor as the conformance figure understates rbgo;
-    quoting the measured total as a guarantee overstates it. The floor is what CI
-    enforces; the measured total is what rbgo does.
+!!! warning "The floor is a gate, not a score — and they are close on purpose"
+    `FLOOR` says *"no run may come in below this"*. It is raised in its own PR
+    after a wave lands. The measured total sits **above** it, but only just:
+    21 982 against 21 970 is a margin of **12**, and that is deliberate.
+
+    The floor is set a handful of examples below the **lowest observed run** —
+    enough to absorb the run-to-run jitter of
+    [#615](https://github.com/go-embedded-ruby/ruby/issues/615), and no more,
+    because a floor slack enough to hide the loss of a whole spec file would
+    defeat the thing the ratchet exists to catch. A small gap is therefore the
+    ratchet working; a large one would mean it had gone slack.
+
+    They remain different claims. The floor is the **guarantee CI enforces**; the
+    measured total is **what rbgo does** on a given run. Quoting the floor as the
+    conformance figure understates rbgo by the margin; quoting the measured total
+    as a guarantee overstates it by the same amount.
 
 Run-to-run spread is possible, and it is a **known bug rather than noise in the
 method**. `core/module/autoload_spec.rb` crashes intermittently while popping a
@@ -168,7 +179,7 @@ interpreter, and blurring the two would be misleading:
 Both are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
-([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **21 740** today,
+([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **21 970** today,
 across 27 conformance waves.
 
 ### Known limitations
