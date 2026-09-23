@@ -109,32 +109,40 @@ workflow enforces it on every push and pull request.
 
 ### Where it stands — measured 2026-09-23
 
-On `main` (68cb53a), darwin/arm64, against the pinned corpus
+On `main` (`d498ddc`), darwin/arm64, against the pinned corpus
 (`SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191`):
 
 | | |
 | --- | --- |
-| **passing examples** | **21 901** — four consecutive runs: 21 845 · 21 903 · 21 901 · 21 902 |
-| fail / error | 1 349 / 794 |
+| **passing examples** | **21 982** — four consecutive runs, all four identical |
+| fail / error | 1 321 / 740 |
 | skipped | 473 |
-| pass rate of the examples that ran | **91.1 %** (21 901 of 24 044) |
+| pass rate of the examples that ran | **91.4 %** (21 983 of 24 044) |
 | spec files | 2 191 of 2 206 produce a result; 15 produce none |
-| **`FLOOR`** | **21 740** |
+| **`FLOOR`** | **21 740** on `main` as of this writing |
+
+The ratchet reports 21 982; a separate sweep that also captures
+`fail`/`error`/`skip` read 21 983. The one-example difference is the `#615` noise
+described below.
 
 !!! warning "The floor is a gate, not a score"
     `FLOOR` says *"no run may come in below this"*. It is raised deliberately, in
     its own PR, after a wave lands — so the measured total normally sits **above**
-    it. Today the gap is ~160 examples. Quoting the floor as the conformance
-    figure understates rbgo; quoting the measured total as a guarantee overstates
-    it. The floor is what CI enforces; the measured total is what rbgo does.
+    it. Today the gap is ~240 examples, and
+    [#638](https://github.com/go-embedded-ruby/ruby/pull/638) is open to raise the
+    floor to 21 970. Quoting the floor as the conformance figure understates rbgo;
+    quoting the measured total as a guarantee overstates it. The floor is what CI
+    enforces; the measured total is what rbgo does.
 
-The 58-example spread across those four runs is **one file**.
-`core/module/autoload_spec.rb` crashes on roughly one run in four while popping a
+Run-to-run spread is possible, and it is a **known bug rather than noise in the
+method**. `core/module/autoload_spec.rb` crashes intermittently while popping a
 frame ([#615](https://github.com/go-embedded-ruby/ruby/issues/615)), and the whole
-file's examples are lost when it does. Read the **low** run as the guaranteed
-figure.
+file's examples are lost when it does — an earlier set of four runs, on the commit
+before this one, spread 21 845–21 903 for exactly that reason. The four runs above
+happened not to hit it. Run it more than once and read the **low** run as the
+guaranteed figure.
 
-There is no honest denominator for "percent of Ruby". The 91.1 % above is the
+There is no honest denominator for "percent of Ruby". The 91.4 % above is the
 share of the examples *this shim actually ran*: the shim is not mspec, 473 skips
 sit outside the ratio entirely, and 15 files produce no result at all.
 
@@ -161,7 +169,7 @@ Both are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
 ([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **21 740** today,
-across 26 conformance waves.
+across 27 conformance waves.
 
 ### Known limitations
 
@@ -177,8 +185,7 @@ Object.const_source_location(:Comparable)     # rbgo: nil   MRI 4.0.5: []
 
 | | |
 | --- | --- |
-| `Errno` has **28** constants, not MRI's 158 | [#633](https://github.com/go-embedded-ruby/ruby/issues/633) |
-| `FileTest` carries **11** of MRI's 26 predicates | — |
+| `Errno` carries all **158** of MRI's constants, but **32** of them report errno `0` on darwin where MRI has a real number (`EAUTH` 0 vs 80, `EBADRPC` 0 vs 72, …); the other 126 match exactly | [#633](https://github.com/go-embedded-ruby/ruby/issues/633) |
 | `Thread#backtrace` answers for the **current** thread only; another thread raises `NotImplementedError` | — |
 | `Process.fork` **does not exist** — Go's runtime cannot be forked safely | — |
 | `Numeric#to_int` is not defined | [#631](https://github.com/go-embedded-ruby/ruby/issues/631) |
