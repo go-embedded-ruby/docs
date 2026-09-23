@@ -54,7 +54,10 @@ puts fib(20)   # => 6765
 
 - `puts 1 + 2` prints `3` end to end.
 - `fib(20)` evaluates to `6765` end to end.
-- **~92% test coverage**, with the `object` package at **100%**.
+- **~92% test coverage**, with the `object` package at **100%** — the bar
+  *at the time this phase closed*. The interpreter has since been held to a
+  **100% gate** on the POSIX CI lanes; see
+  [Conformance](../conformance.md#what-ci-enforces).
 - Behaviour is **differential-tested against MRI**: the same programs are run on
   reference Ruby and the outputs compared.
 
@@ -65,7 +68,7 @@ Phase 0 and arrive in later [phases](../roadmap.md):
 
 - **No receiver method calls yet** — only top-level/`self` calls and the
   built-ins above (the object model and dispatch are Phase 1).
-- **No blocks** (Phase 3).
+- **No blocks** (Phase 1).
 - **No bignum promotion** — in the Phase 0 slice integers are plain `int64` and
   do not promote on overflow. (Automatic **Bignum** promotion and
   arbitrary-precision literals have since landed — see the
