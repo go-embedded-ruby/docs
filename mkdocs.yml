@@ -48,7 +48,7 @@ nav:
       - Front-end (lexer, parser, compiler): architecture/frontend.md
       - Build & single binary: architecture/build.md
   - Scientific stack: scientific-stack.md
-  - WebAssembly (js/wasm): webassembly.md
+  - WebAssembly: webassembly.md
   - Roadmap (phases): roadmap.md
   - Conformance: conformance.md
   - Benchmarks: benchmarks.md

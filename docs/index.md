@@ -1,8 +1,35 @@
 # go-embedded-ruby documentation
 
-**A pure-Go implementation of Ruby** — a bytecode VM with the lexer, parser, and
-compiler embedded in the binary, compiling to a single static executable with
-**zero cgo**.
+**A Ruby interpreter written in pure Go, with cgo disabled** — a bytecode VM with
+the lexer, parser and compiler embedded in the binary. Embed it in a Go program, or
+ship it as a single static executable that cross-compiles wherever Go does, with no
+C toolchain and no libruby.
+
+**How complete is it?** It passes **22,488** of ruby/spec's `language/` + `core/`
+examples — a large and growing subset of Ruby, and **not** a drop-in replacement for
+CRuby. [Conformance](conformance.md#where-it-stands--measured-2026-09-26) states
+exactly what that counts and what it leaves out, and
+[Known limitations](conformance.md#known-limitations) is worth reading before you
+depend on it.
+
+## Embedding it in a Go program
+
+The public API is one function:
+
+```go
+import "github.com/go-embedded-ruby/ruby"
+
+var out bytes.Buffer
+err := ruby.Run(`puts "hello from Ruby"`, &out)   // out: "hello from Ruby\n"
+```
+
+Everything else lives under `internal/`, so this is the whole embedding surface
+today. Measured behaviour worth knowing: there is **one writer, carrying both
+streams** (`$stderr` and `warn` land in `out` too); a Ruby exception comes back as a
+Go `error` (`ArgumentError: bad`); **each call gets a fresh VM**, so nothing is
+shared between `Run`s and there is no exported way to hold a VM open, call a Ruby
+method from Go, or pass Go values in; and `require_relative` resolves against the
+**process working directory**, since `Run` has no script to anchor to.
 
 go-embedded-ruby compiles Ruby source to bytecode and runs it on a stack VM in
 the **mruby/YARV lineage**. Because the front-end (lexer + parser + compiler)
@@ -159,14 +186,15 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
     - *Documents & observability* — **`prawn`** (PDF generation, well-formed
       PDF 1.3+), **`bleve`** (full-text search), **`opentelemetry`** (distributed
       tracing over the OpenTelemetry Go SDK).
-- **WebAssembly (js/wasm):** a first-class target — the interpreter and the whole
-  stack compile to `GOOS=js GOARCH=wasm` and run **in the browser**, both as a
-  REPL playground and as closed-world apps (`rbgo build --closed --target wasm`)
-  that drive the DOM/Canvas via the built-in `JS` module. The gems whose backends
-  need real TCP sockets or OS facilities (`grpc`, `nats`, `kafka`, `mysql2`,
-  `mongo`, `arrow`, `parquet`, and the `redis`-backed `sidekiq`/`resque`) are
-  **compiled out of the wasm build** and `require` raises `LoadError` there; the
-  native build is unchanged. See [WebAssembly](webassembly.md).
+- **WebAssembly:** the **WASI** target (`GOOS=wasip1 GOARCH=wasm`) builds and runs
+  — verified under [wazero](https://wazero.io), and gated in CI. The **browser**
+  target (`GOOS=js GOARCH=wasm`) **does not currently build**: the playground, the
+  `JS` bridge and `rbgo build --closed --target wasm` are all blocked behind one
+  compile error in `internal/vm`. On any wasm target the gems whose backends need
+  real TCP sockets or OS facilities (`grpc`, `nats`, `kafka`, `mysql2`, `mongo`,
+  `arrow`, `parquet`, and the `redis`-backed `sidekiq`/`resque`) are **compiled
+  out** and `require` raises a clean `LoadError`; the native build is unchanged.
+  See [WebAssembly](webassembly.md).
 
 Closed-world builds have landed (`rbgo build --closed` bakes the program in as
 bytecode and drops the front-end; `--target wasm` cross-compiles it to the
