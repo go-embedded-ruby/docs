@@ -332,6 +332,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#embedding-it-in-a-go-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedding it in a Go program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supported-today" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -645,7 +656,7 @@
   <span class="md-ellipsis">
     
   
-    WebAssembly (js/wasm)
+    WebAssembly
   
 
     
@@ -820,6 +831,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#embedding-it-in-a-go-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedding it in a Go program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#supported-today" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -903,9 +925,30 @@
 
 
 <h1 id="go-embedded-ruby-documentation">go-embedded-ruby documentation<a class="headerlink" href="#go-embedded-ruby-documentation" title="Permanent link">&para;</a></h1>
-<p><strong>A pure-Go implementation of Ruby</strong> — a bytecode VM with the lexer, parser, and
-compiler embedded in the binary, compiling to a single static executable with
-<strong>zero cgo</strong>.</p>
+<p><strong>A Ruby interpreter written in pure Go, with cgo disabled</strong> — a bytecode VM with
+the lexer, parser and compiler embedded in the binary. Embed it in a Go program, or
+ship it as a single static executable that cross-compiles wherever Go does, with no
+C toolchain and no libruby.</p>
+<p><strong>How complete is it?</strong> It passes <strong>22,488</strong> of ruby/spec's <code>language/</code> + <code>core/</code>
+examples — a large and growing subset of Ruby, and <strong>not</strong> a drop-in replacement for
+CRuby. <a href="conformance/#where-it-stands--measured-2026-09-26">Conformance</a> states
+exactly what that counts and what it leaves out, and
+<a href="conformance/#known-limitations">Known limitations</a> is worth reading before you
+depend on it.</p>
+<h2 id="embedding-it-in-a-go-program">Embedding it in a Go program<a class="headerlink" href="#embedding-it-in-a-go-program" title="Permanent link">&para;</a></h2>
+<p>The public API is one function:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="s">"github.com/go-embedded-ruby/ruby"</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kd">var</span><span class="w"> </span><span class="nx">out</span><span class="w"> </span><span class="nx">bytes</span><span class="p">.</span><span class="nx">Buffer</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nx">err</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">ruby</span><span class="p">.</span><span class="nx">Run</span><span class="p">(</span><span class="s">`puts "hello from Ruby"`</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">out</span><span class="p">)</span><span class="w">   </span><span class="c1">// out: "hello from Ruby\n"</span>
+</code></pre></div>
+<p>Everything else lives under <code>internal/</code>, so this is the whole embedding surface
+today. Measured behaviour worth knowing: there is <strong>one writer, carrying both
+streams</strong> (<code>$stderr</code> and <code>warn</code> land in <code>out</code> too); a Ruby exception comes back as a
+Go <code>error</code> (<code>ArgumentError: bad</code>); <strong>each call gets a fresh VM</strong>, so nothing is
+shared between <code>Run</code>s and there is no exported way to hold a VM open, call a Ruby
+method from Go, or pass Go values in; and <code>require_relative</code> resolves against the
+<strong>process working directory</strong>, since <code>Run</code> has no script to anchor to.</p>
 <p>go-embedded-ruby compiles Ruby source to bytecode and runs it on a stack VM in
 the <strong>mruby/YARV lineage</strong>. Because the front-end (lexer + parser + compiler)
 ships <em>inside</em> the binary, dynamic features like <code>eval</code> and runtime <code>require</code>
@@ -1060,14 +1103,15 @@ performance baselines against MRI and JRuby.</p>
   tracing over the OpenTelemetry Go SDK).</li>
 </ul>
 </li>
-<li><strong>WebAssembly (js/wasm):</strong> a first-class target — the interpreter and the whole
-  stack compile to <code>GOOS=js GOARCH=wasm</code> and run <strong>in the browser</strong>, both as a
-  REPL playground and as closed-world apps (<code>rbgo build --closed --target wasm</code>)
-  that drive the DOM/Canvas via the built-in <code>JS</code> module. The gems whose backends
-  need real TCP sockets or OS facilities (<code>grpc</code>, <code>nats</code>, <code>kafka</code>, <code>mysql2</code>,
-  <code>mongo</code>, <code>arrow</code>, <code>parquet</code>, and the <code>redis</code>-backed <code>sidekiq</code>/<code>resque</code>) are
-  <strong>compiled out of the wasm build</strong> and <code>require</code> raises <code>LoadError</code> there; the
-  native build is unchanged. See <a href="webassembly/">WebAssembly</a>.</li>
+<li><strong>WebAssembly:</strong> the <strong>WASI</strong> target (<code>GOOS=wasip1 GOARCH=wasm</code>) builds and runs
+  — verified under <a href="https://wazero.io">wazero</a>, and gated in CI. The <strong>browser</strong>
+  target (<code>GOOS=js GOARCH=wasm</code>) <strong>does not currently build</strong>: the playground, the
+  <code>JS</code> bridge and <code>rbgo build --closed --target wasm</code> are all blocked behind one
+  compile error in <code>internal/vm</code>. On any wasm target the gems whose backends need
+  real TCP sockets or OS facilities (<code>grpc</code>, <code>nats</code>, <code>kafka</code>, <code>mysql2</code>, <code>mongo</code>,
+  <code>arrow</code>, <code>parquet</code>, and the <code>redis</code>-backed <code>sidekiq</code>/<code>resque</code>) are <strong>compiled
+  out</strong> and <code>require</code> raises a clean <code>LoadError</code>; the native build is unchanged.
+  See <a href="webassembly/">WebAssembly</a>.</li>
 </ul>
 <p>Closed-world builds have landed (<code>rbgo build --closed</code> bakes the program in as
 bytecode and drops the front-end; <code>--target wasm</code> cross-compiles it to the

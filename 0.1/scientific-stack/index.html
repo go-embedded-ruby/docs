@@ -680,7 +680,7 @@
   <span class="md-ellipsis">
     
   
-    WebAssembly (js/wasm)
+    WebAssembly
   
 
     
@@ -1076,10 +1076,13 @@ a self-contained playground (a Ruby REPL and an image pipeline that loads an
 image, runs <code>gaussian_blur</code>/<code>sobel</code>/<code>canny</code>, and renders it to a <code>&lt;canvas&gt;</code>):</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./web/build.sh<span class="w"> </span>serve<span class="w">     </span><span class="c1"># build web/rbgo.wasm and serve http://localhost:8080</span>
 </code></pre></div>
-<p>WebAssembly is a first-class target with two flavours — the playground above and
-<code>rbgo build --closed --target wasm</code> for closed-world browser apps that drive the
-DOM/Canvas via the built-in <code>JS</code> module. See <strong><a href="../webassembly/">WebAssembly</a></strong>
-for the full story.</p>
+<div class="admonition warning">
+<p class="admonition-title">The browser wasm target does not currently build</p>
+<p>Both the playground above and <code>rbgo build --closed --target wasm</code> target
+<code>GOOS=js GOARCH=wasm</code>, which fails to compile on <code>3e8e3cc</code>. The WASI target
+(<code>GOOS=wasip1 GOARCH=wasm</code>) builds and runs. See
+<strong><a href="../webassembly/">WebAssembly</a></strong> for the error and the details.</p>
+</div>
 
 
 

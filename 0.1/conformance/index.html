@@ -534,7 +534,7 @@
   <span class="md-ellipsis">
     
   
-    WebAssembly (js/wasm)
+    WebAssembly
   
 
     
@@ -703,10 +703,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#where-it-stands-measured-2026-09-23" class="md-nav__link">
+  <a href="#where-it-stands-measured-2026-09-26" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where it stands — measured 2026-09-23
+        Where it stands — measured 2026-09-26
       
     </span>
   </a>
@@ -973,10 +973,10 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#where-it-stands-measured-2026-09-23" class="md-nav__link">
+  <a href="#where-it-stands-measured-2026-09-26" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where it stands — measured 2026-09-23
+        Where it stands — measured 2026-09-26
       
     </span>
   </a>
@@ -1172,12 +1172,9 @@ direction only. The shim stubs a few MSpec matchers (<code>complain</code>, <cod
 floor is a deliberately <strong>conservative lower bound</strong>. The
 <a href="https://github.com/go-embedded-ruby/ruby/blob/main/.github/workflows/rubyspec-ratchet.yml"><code>rubyspec-ratchet</code></a>
 workflow enforces it on every push and pull request.</p>
-<h3 id="where-it-stands-measured-2026-09-23">Where it stands — measured 2026-09-23<a class="headerlink" href="#where-it-stands-measured-2026-09-23" title="Permanent link">&para;</a></h3>
-<p>On darwin/arm64 against the pinned corpus
-(<code>SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191</code>), on <code>d498ddc</code> — the tip of
-<code>main</code> at the time. <code>main</code> has since advanced to <code>2200e17</code>, whose only change is
-the <code>FLOOR</code> file (<a href="https://github.com/go-embedded-ruby/ruby/pull/638">#638</a>); the
-interpreter built from it is byte-identical, so these figures stand unchanged.</p>
+<h3 id="where-it-stands-measured-2026-09-26">Where it stands — measured 2026-09-26<a class="headerlink" href="#where-it-stands-measured-2026-09-26" title="Permanent link">&para;</a></h3>
+<p>On darwin/arm64, on <code>3e8e3cc</code>, against the pinned corpus
+(<code>SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191</code>).</p>
 <table>
 <thead>
 <tr>
@@ -1188,59 +1185,67 @@ interpreter built from it is byte-identical, so these figures stand unchanged.</
 <tbody>
 <tr>
 <td><strong>passing examples</strong></td>
-<td><strong>21 982</strong> — four consecutive runs, all four identical</td>
+<td><strong>22 488</strong></td>
 </tr>
 <tr>
-<td>fail / error</td>
-<td>1 321 / 740</td>
+<td>failing / erroring examples</td>
+<td>1 090 / 538</td>
 </tr>
 <tr>
-<td>skipped</td>
-<td>473</td>
+<td>skipped (a matcher the shim does not implement)</td>
+<td>477</td>
 </tr>
 <tr>
-<td>pass rate of the examples that ran</td>
-<td><strong>91.4 %</strong> (21 983 of 24 044)</td>
+<td>examples that actually ran (pass + fail + error)</td>
+<td>24 116</td>
+</tr>
+<tr>
+<td>share of those that passed</td>
+<td><strong>93.3 %</strong></td>
 </tr>
 <tr>
 <td>spec files</td>
-<td>2 191 of 2 206 produce a result; 15 produce none</td>
+<td>2 196 of 2 206 produce a result; 10 produce none</td>
 </tr>
 <tr>
 <td><strong><code>FLOOR</code></strong></td>
-<td><strong>21 970</strong></td>
+<td><strong>22 475</strong></td>
 </tr>
 </tbody>
 </table>
-<p>The ratchet reports 21 982; a separate sweep that also captures
-<code>fail</code>/<code>error</code>/<code>skip</code> read 21 983. The one-example difference is the <code>#615</code> noise
-described below.</p>
+<p>Three independent runs agreed exactly: <code>run.sh</code> twice, at different per-file
+timeouts (25 s and 60 s) and different parallelism, and once through a separate
+sweep that tallies all four counters. All three reported <strong>22 488</strong> passing and the
+same ten files producing no result.</p>
 <div class="admonition warning">
-<p class="admonition-title">The floor is a gate, not a score — and they are close on purpose</p>
-<p><code>FLOOR</code> says <em>"no run may come in below this"</em>. It is raised in its own PR
-after a wave lands. The measured total sits <strong>above</strong> it, but only just:
-21 982 against 21 970 is a margin of <strong>12</strong>, and that is deliberate.</p>
-<p>The floor is set a handful of examples below the <strong>lowest observed run</strong> —
-enough to absorb the run-to-run jitter of
-<a href="https://github.com/go-embedded-ruby/ruby/issues/615">#615</a>, and no more,
-because a floor slack enough to hide the loss of a whole spec file would
-defeat the thing the ratchet exists to catch. A small gap is therefore the
-ratchet working; a large one would mean it had gone slack.</p>
-<p>They remain different claims. The floor is the <strong>guarantee CI enforces</strong>; the
-measured total is <strong>what rbgo does</strong> on a given run. Quoting the floor as the
-conformance figure understates rbgo by the margin; quoting the measured total
-as a guarantee overstates it by the same amount.</p>
+<p class="admonition-title">The floor is a gate, not a score</p>
+<p><code>FLOOR</code> says <em>"no run may come in below this"</em>, and it can only be raised. It is
+therefore the level <strong>CI guarantees</strong>; the measured total is <strong>what rbgo did on
+a given run</strong>. Quoting the floor as the conformance figure understates rbgo by
+the margin between them; quoting the measured total as a guarantee overstates it
+by the same amount.</p>
 </div>
-<p>Run-to-run spread is possible, and it is a <strong>known bug rather than noise in the
-method</strong>. <code>core/module/autoload_spec.rb</code> crashes intermittently while popping a
-frame (<a href="https://github.com/go-embedded-ruby/ruby/issues/615">#615</a>), and the whole
-file's examples are lost when it does — an earlier set of four runs, on the commit
-before this one, spread 21 845–21 903 for exactly that reason. The four runs above
-happened not to hit it. Run it more than once and read the <strong>low</strong> run as the
-guaranteed figure.</p>
-<p>There is no honest denominator for "percent of Ruby". The 91.4 % above is the
-share of the examples <em>this shim actually ran</em>: the shim is not mspec, 473 skips
-sit outside the ratio entirely, and 15 files produce no result at all.</p>
+<div class="admonition danger">
+<p class="admonition-title">What this number is not</p>
+<p>It is <strong>not</strong> "rbgo implements 93 % of Ruby", and it cannot be turned into a
+percentage of the language:</p>
+<ul>
+<li><strong>Only <code>language/</code> and <code>core/</code> are swept.</strong> ruby/spec's <code>library/</code>,
+  <code>optional/</code> and <code>security/</code> trees are <strong>not run at all</strong> — most of what people
+  mean by "the standard library" is outside this measurement entirely.</li>
+<li><strong>The shim is not mspec.</strong> Some matchers are stubbed, so the examples needing
+  them are counted as <em>skipped</em>, never as passing. The total is a conservative
+  lower bound.</li>
+<li><strong>Skips are outside the ratio.</strong> The 93.3 % divides passes by the examples
+  that ran; the 477 skips and the 10 unreadable files are in neither column.</li>
+<li><strong>Examples are not weighted.</strong> A heavily specified method contributes far more
+  examples than a rarely used one, so the count does not track "features".</li>
+</ul>
+</div>
+<p>An earlier revision of this page reported run-to-run spread from an intermittent
+crash in <code>core/module/autoload_spec.rb</code>. That did not reproduce during this
+measurement: five consecutive runs of that file returned identical counts, and it
+appeared in none of the three full sweeps.</p>
 <h3 id="not-every-gain-is-vm-conformance">Not every gain is VM conformance<a class="headerlink" href="#not-every-gain-is-vm-conformance" title="Permanent link">&para;</a></h3>
 <p>Two of the recent jumps came from fixing the <strong>measurement</strong>, not the
 interpreter, and blurring the two would be misleading:</p>
@@ -1262,16 +1267,23 @@ interpreter, and blurring the two would be misleading:</p>
 <p>Both are gains in what the measurement can <strong>see</strong>, not in what the VM can
 <strong>do</strong>. The rest of the climb is the VM: the floor went from <strong>6 000</strong> when the
 ratchet landed on 2026-08-03
-(<a href="https://github.com/go-embedded-ruby/ruby/pull/263">#263</a>) to <strong>21 970</strong> today,
-across 27 conformance waves.</p>
+(<a href="https://github.com/go-embedded-ruby/ruby/pull/263">#263</a>) to <strong>22 475</strong> today.</p>
 <h3 id="known-limitations">Known limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h3>
-<p>Named plainly, each with an open issue. <strong><code>__LINE__</code> is always <code>0</code></strong> — rbgo
-records no line map — which costs <code>const_source_location</code>, <code>warn(uplevel:)</code> and
-every backtrace line number entirely:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">puts</span><span class="w"> </span><span class="bp">__LINE__</span><span class="w">                                 </span><span class="c1"># rbgo: 0     MRI 4.0.5: 1</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="no">Object</span><span class="o">.</span><span class="n">const_source_location</span><span class="p">(</span><span class="ss">:Comparable</span><span class="p">)</span><span class="w">     </span><span class="c1"># rbgo: nil   MRI 4.0.5: []</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1"># e.backtrace.first -&gt; "probe.rb:0:in '&lt;main&gt;'" against MRI's "probe.rb:4:…"</span>
-</code></pre></div>
+<p>Each entry below was re-run on <code>3e8e3cc</code> against <strong>MRI 4.0.5 on the same host</strong>
+(darwin/arm64, 2026-09-26). Entries that no longer reproduced were removed — notably
+the former headline limitation, <em>"<code>__LINE__</code> is always <code>0</code>"</em>: rbgo and MRI now agree
+exactly on <code>__LINE__</code>, on backtrace line numbers, on <code>warn(uplevel:)</code> prefixes and on
+<code>const_source_location</code>.</p>
+<p>Two limitations matter most to anyone embedding rbgo:</p>
+<ul>
+<li><strong>The browser WebAssembly target does not build.</strong> <code>GOOS=js GOARCH=wasm</code> fails to
+  compile <code>internal/vm</code> (three <code>syscall</code> constants the <code>js</code> port does not define). It
+  built at <code>68cb53a</code>, the commit before the Errno subsystem landed, and no CI lane
+  catches it because only <code>wasip1</code> is gated. WASI is unaffected.</li>
+<li><strong><code>$stderr</code> is not a separate stream.</strong> The VM is built with one output writer and
+  <code>$stderr</code>/<code>STDERR</code> are wired to it, so <code>warn</code> and <code>$stderr.puts</code> arrive on
+  <strong>stdout</strong>. Only the CLI's uncaught-exception printer writes to real stderr.</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -1281,7 +1293,11 @@ every backtrace line number entirely:</p>
 </thead>
 <tbody>
 <tr>
-<td><code>Errno</code> carries all <strong>158</strong> of MRI's constants, but <strong>32</strong> of them report errno <code>0</code> on darwin where MRI has a real number (<code>EAUTH</code> 0 vs 80, <code>EBADRPC</code> 0 vs 72, …); the other 126 match exactly</td>
+<td><code>RUBY_VERSION</code> reports <code>"3.4.1"</code>, though the differential oracle is MRI 4.0.5</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>Errno</code> carries all <strong>158</strong> of MRI's constant names, but <strong>32</strong> report errno <code>0</code> where MRI has a real number (<code>EAUTH</code>, <code>EBADRPC</code>, <code>EDEVERR</code>, …). By set difference on darwin: 81 names are zero-valued under rbgo, 49 under MRI, and every MRI zero is also zero under rbgo</td>
 <td><a href="https://github.com/go-embedded-ruby/ruby/issues/633">#633</a></td>
 </tr>
 <tr>
@@ -1293,19 +1309,27 @@ every backtrace line number entirely:</p>
 <td>—</td>
 </tr>
 <tr>
-<td><code>Numeric#to_int</code> is not defined</td>
+<td><code>Numeric#to_int</code> is not defined — <code>Complex(2.9, 0).to_int</code> raises <code>NoMethodError</code> where MRI returns <code>2</code></td>
 <td><a href="https://github.com/go-embedded-ruby/ruby/issues/631">#631</a></td>
 </tr>
 <tr>
-<td><code>File::Stat#==</code> answers identity, not <code>Comparable#==</code></td>
+<td><code>File::Stat#==</code> answers identity: <code>a == b</code> is <code>false</code> for two stats of one file where MRI says <code>true</code></td>
 <td><a href="https://github.com/go-embedded-ruby/ruby/issues/632">#632</a></td>
 </tr>
 <tr>
-<td><code>File#stat</code> cannot answer for a file unlinked while open</td>
+<td><code>File#stat</code> raises <code>Errno::ENOENT</code> for a file unlinked while open; MRI answers from the descriptor</td>
 <td><a href="https://github.com/go-embedded-ruby/ruby/issues/635">#635</a></td>
 </tr>
 <tr>
-<td><code>BEGIN { }</code> / <code>END { }</code> do not parse</td>
+<td>Magic encoding comments are not honoured — <code># encoding: ascii-8bit</code> still reports <code>UTF-8</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Neither <code>Kernel#pp</code> nor <code>require "pp"</code> exists (<code>require "prettyprint"</code> works)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>BEGIN { }</code> / <code>END { }</code> do not parse. Everything else the front-end was known to refuse now parses</td>
 <td>front-end</td>
 </tr>
 <tr>
@@ -1322,6 +1346,7 @@ every backtrace line number entirely:</p>
 </tr>
 </tbody>
 </table>
+<p>The three Windows rows were <strong>not</strong> re-verified: this measurement ran on darwin.</p>
 <p>Two more are <strong>harness</strong>, not interpreter, and are listed apart so they are not
 read as VM gaps: the shim's <code>SPEC_TMP_BASE</code> is <code>/tmp</code>, a symlink on darwin, which
 fails 11 <code>realpath</code>/<code>realdirpath</code> examples on paths that are correct
@@ -1439,10 +1464,10 @@ genuine <code>Puppet::Util::CommandLine</code> → <code>Puppet::Application::Ap
 applied (creating Puppet's config dirs on disk), then the user catalog applied
 through the transaction / RAL. The real CLI emits genuine Puppet output and exits
 <code>0</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$ rbgo run puppet_apply.rb   # ARGV = apply -e 'notify { "hello": message =&gt; "hi from rbgo cli" }'
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Notice: Compiled catalog for  in environment production in 0.00 seconds
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Notice: hi from rbgo cli
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Notice: /Stage[main]/Main/Notify[hello]/message: defined 'message' as 'hi from rbgo cli'
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ rbgo run puppet_apply.rb   # ARGV = apply -e 'notify { "hello": message =&gt; "hi from rbgo cli" }'
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Notice: Compiled catalog for  in environment production in 0.00 seconds
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Notice: hi from rbgo cli
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Notice: /Stage[main]/Main/Notify[hello]/message: defined 'message' as 'hi from rbgo cli'
 </code></pre></div>
 <p>That is the actual <code>notify</code> resource type applying through the transaction and the
 Resource Abstraction Layer — not a <code>notice(...)</code> evaluator print. Reaching the CLI
@@ -1473,17 +1498,17 @@ system-state providers are the active next milestone, not done.</p>
 <h2 id="run-it-yourself">Run it yourself<a class="headerlink" href="#run-it-yourself" title="Permanent link">&para;</a></h2>
 <p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on
 <code>PATH</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">'p (1..10).select(&amp;:even?).map { |x| x**2 }'</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">'p (1..10).select(&amp;:even?).map { |x| x**2 }'</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
 </code></pre></div>
 <p>Either invocation exits non-zero if any implementation disagrees.</p>
 <p>The ruby/spec ratchet, against a corpus you already have (it clones one at
 <code>SPEC_SHA</code> otherwise):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">SPECDIR</span><span class="o">=</span>/path/to/ruby-spec<span class="w"> </span><span class="nv">CACHE</span><span class="o">=</span>/path/to/ruby-spec<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>scripts/conformance/rubyspec/run.sh
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">SPECDIR</span><span class="o">=</span>/path/to/ruby-spec<span class="w"> </span><span class="nv">CACHE</span><span class="o">=</span>/path/to/ruby-spec<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>scripts/conformance/rubyspec/run.sh
 </code></pre></div>
 <p>It prints the measured total and the frozen floor. Run it <strong>more than once</strong>:
 <code>core/module/autoload_spec.rb</code> crashes intermittently

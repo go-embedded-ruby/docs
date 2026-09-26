@@ -27,7 +27,7 @@
     
     
       
-        <title>WebAssembly (js/wasm) - go-embedded-ruby docs</title>
+        <title>WebAssembly - go-embedded-ruby docs</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#webassembly-jswasm" class="md-skip">
+        <a href="#webassembly" class="md-skip">
           Skip to content
         </a>
       
@@ -117,7 +117,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              WebAssembly (js/wasm)
+              WebAssembly
             
           </span>
         </div>
@@ -543,7 +543,7 @@
   <span class="md-ellipsis">
     
   
-    WebAssembly (js/wasm)
+    WebAssembly
   
 
     
@@ -561,7 +561,7 @@
   <span class="md-ellipsis">
     
   
-    WebAssembly (js/wasm)
+    WebAssembly
   
 
     
@@ -894,11 +894,39 @@
 
 
 
-<h1 id="webassembly-jswasm">WebAssembly (js/wasm)<a class="headerlink" href="#webassembly-jswasm" title="Permanent link">&para;</a></h1>
-<p><strong><code>GOOS=js GOARCH=wasm</code> is a first-class target.</strong> go-embedded-ruby is pure Go
-with cgo disabled, so the interpreter, the numeric stack and the cgo-free image
-pipeline compile to a single WebAssembly module and run <strong>entirely in the
-browser</strong> — there is no server-side code.</p>
+<h1 id="webassembly">WebAssembly<a class="headerlink" href="#webassembly" title="Permanent link">&para;</a></h1>
+<div class="admonition danger">
+<p class="admonition-title">The browser target does not currently build</p>
+<p>As measured on <code>3e8e3cc</code> (2026-09-26), <strong><code>GOOS=js GOARCH=wasm</code> fails to
+compile</strong>, so everything on this page about running in the <em>browser</em> describes a
+target you cannot build today:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">$ </span><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/rbgo
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp"># </span>github.com/go-embedded-ruby/ruby/internal/vm
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="go">internal/vm/errno.go:101:35: undefined: syscall.ENOTRECOVERABLE</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="go">internal/vm/errno.go:108:35: undefined: syscall.EOWNERDEAD</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="go">internal/vm/errno.go:120:35: undefined: syscall.ETXTBSY</span>
+</code></pre></div>
+<p><code>internal/vm/errno.go</code> carries no build tags, so it is compiled for every
+target, and the <code>js</code> port of <code>syscall</code> does not define those three names. The
+playground (<code>cmd/wasm</code>), the <code>JS</code> bridge and
+<code>rbgo build --closed --target wasm</code> all link <code>internal/vm</code> and so all fail.</p>
+<p>It is a <strong>regression</strong>, not a long-standing gap: the same build succeeded at
+<code>68cb53a</code>, the commit before the Errno subsystem landed. Two things let it
+through — <code>ci.yml</code> gates only the <code>wasip1</code> wasm target, and the one test that
+does catch it, <code>TestClosedWasmBuildIntegration</code>, is gated behind
+<code>RBGO_BUILD_IT=1</code>, which no workflow sets. Run with that variable set, it fails
+with exactly the error above.</p>
+</div>
+<p><strong>WASI (<code>GOOS=wasip1 GOARCH=wasm</code>) does work, and is gated in CI:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="gp">$ </span><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GOOS</span><span class="o">=</span>wasip1<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>rbgo.wasm<span class="w"> </span>./cmd/rbgo
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="gp">$ </span>wazero<span class="w"> </span>run<span class="w"> </span>rbgo.wasm<span class="w"> </span>-e<span class="w"> </span><span class="s1">'puts (1..10).sum'</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="go">55</span>
+</code></pre></div>
+<p>The rest of this page describes the browser design as intended. go-embedded-ruby is
+pure Go with cgo disabled, so the interpreter, the numeric stack and the cgo-free
+image pipeline are <em>meant</em> to compile to a single WebAssembly module and run
+entirely in the browser, with no server-side code — and did until the regression
+above.</p>
 <p>There are two distinct ways to ship Ruby to the browser, and they answer
 different needs:</p>
 <table>
@@ -981,13 +1009,13 @@ can evaluate <em>any</em> Ruby the user types. It lives in
 <a href="https://github.com/go-embedded-ruby/ruby/tree/main/web"><code>web/</code></a> and is a Ruby
 REPL plus an image pipeline (load an image → <code>gaussian_blur</code>/<code>sobel</code>/<code>canny</code> →
 render to a <code>&lt;canvas&gt;</code>).</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>./web/build.sh<span class="w"> </span>serve<span class="w">     </span><span class="c1"># build web/rbgo.wasm and serve http://localhost:8080</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>./web/build.sh<span class="w"> </span>serve<span class="w">     </span><span class="c1"># build web/rbgo.wasm and serve http://localhost:8080</span>
 </code></pre></div>
 <p><code>build.sh</code> cross-compiles <a href="https://github.com/go-embedded-ruby/ruby/tree/main/cmd/wasm"><code>cmd/wasm</code></a>
 with <code>GOOS=js GOARCH=wasm</code> and copies Go's <code>wasm_exec.js</code> loader from the active
 toolchain. Build without <code>serve</code> to produce just the artifacts for static hosting
 (e.g. GitHub Pages):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./web/build.sh<span class="w">           </span><span class="c1"># produces web/rbgo.wasm + web/wasm_exec.js</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./web/build.sh<span class="w">           </span><span class="c1"># produces web/rbgo.wasm + web/wasm_exec.js</span>
 </code></pre></div>
 <p>The module publishes two functions on the JS global object:</p>
 <table>
@@ -1015,14 +1043,14 @@ toolchain. Build without <code>serve</code> to produce just the artifacts for st
 <code>String</code>), runs <code>src</code>, and — when the program's result is a <code>String</code> (e.g. the
 output of <code>Image#to_png</code>) — hands those bytes back as a <code>Uint8Array</code> for the page
 to paint. The image demo's pipeline is plain Ruby:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">Image</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="no">INPUT</span><span class="p">)</span><span class="o">.</span><span class="n">gaussian_blur</span><span class="p">(</span><span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sobel_mag</span><span class="o">.</span><span class="n">to_png</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">Image</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="no">INPUT</span><span class="p">)</span><span class="o">.</span><span class="n">gaussian_blur</span><span class="p">(</span><span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sobel_mag</span><span class="o">.</span><span class="n">to_png</span>
 </code></pre></div>
 <p>Arbitrary REPL input can never crash the interpreter: a native binding that
 faults on bad arguments is converted to a rescuable Ruby <code>ArgumentError</code>.</p>
 <h2 id="2-rbgo-build-target-wasm-a-closed-world-wasm-app">2. <code>rbgo build --target wasm</code> — a closed-world wasm app<a class="headerlink" href="#2-rbgo-build-target-wasm-a-closed-world-wasm-app" title="Permanent link">&para;</a></h2>
 <p>To ship a <em>single</em> program rather than a REPL, AOT-bake it into a closed-world
 wasm module that <strong>drops the front-end</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>rbgo<span class="w"> </span>build<span class="w"> </span>--closed<span class="w"> </span>--target<span class="w"> </span>wasm<span class="w"> </span>-o<span class="w"> </span>app.wasm<span class="w"> </span>app.rb
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>rbgo<span class="w"> </span>build<span class="w"> </span>--closed<span class="w"> </span>--target<span class="w"> </span>wasm<span class="w"> </span>-o<span class="w"> </span>app.wasm<span class="w"> </span>app.rb
 </code></pre></div>
 <ul>
 <li><code>--target wasm</code> <strong>requires <code>--closed</code></strong> — the wasm entry point runs the
@@ -1042,25 +1070,25 @@ wasm module that <strong>drops the front-end</strong>:</p>
 <p>A closed-world wasm program reaches the page through the built-in <strong><code>JS</code>
 module</strong>, which the VM registers automatically on wasm. So a Ruby browser app can
 render and handle events with <strong>no hand-written JavaScript</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="n">doc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">JS</span><span class="o">.</span><span class="n">document</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">canvas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getElementById"</span><span class="p">,</span><span class="w"> </span><span class="s2">"screen"</span><span class="p">)</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canvas</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getContext"</span><span class="p">,</span><span class="w"> </span><span class="s2">"2d"</span><span class="p">)</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="n">ctx</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"fillStyle"</span><span class="p">,</span><span class="w"> </span><span class="s2">"tomato"</span><span class="p">)</span>
-<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"fillRect"</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span>
-<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>
-<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">doc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getElementById"</span><span class="p">,</span><span class="w"> </span><span class="s2">"go"</span><span class="p">)</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="s2">"click"</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">_event</span><span class="o">|</span>
-<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">  </span><span class="no">JS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">"clicked!"</span><span class="p">)</span>
-<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="k">end</span>
-<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
-<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="c1"># an animation loop: reschedule from inside the block</span>
-<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">nil</span>
-<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"clearRect"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">320</span><span class="p">,</span><span class="w"> </span><span class="mi">240</span><span class="p">)</span>
-<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">  </span><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"fillRect"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">300</span><span class="p">),</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
-<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">  </span><span class="no">JS</span><span class="o">.</span><span class="n">raf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">draw</span><span class="p">)</span>
-<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="p">}</span>
-<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="no">JS</span><span class="o">.</span><span class="n">raf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">draw</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">doc</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="no">JS</span><span class="o">.</span><span class="n">document</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="n">canvas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">doc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getElementById"</span><span class="p">,</span><span class="w"> </span><span class="s2">"screen"</span><span class="p">)</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="n">ctx</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">canvas</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getContext"</span><span class="p">,</span><span class="w"> </span><span class="s2">"2d"</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="n">ctx</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="s2">"fillStyle"</span><span class="p">,</span><span class="w"> </span><span class="s2">"tomato"</span><span class="p">)</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"fillRect"</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="mi">120</span><span class="p">,</span><span class="w"> </span><span class="mi">80</span><span class="p">)</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="n">doc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"getElementById"</span><span class="p">,</span><span class="w"> </span><span class="s2">"go"</span><span class="p">)</span><span class="o">.</span><span class="n">on</span><span class="p">(</span><span class="s2">"click"</span><span class="p">)</span><span class="w"> </span><span class="k">do</span><span class="w"> </span><span class="o">|</span><span class="n">_event</span><span class="o">|</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">  </span><span class="no">JS</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="s2">"clicked!"</span><span class="p">)</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="k">end</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="c1"># an animation loop: reschedule from inside the block</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kp">nil</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="n">draw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">-&gt;</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"clearRect"</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">320</span><span class="p">,</span><span class="w"> </span><span class="mi">240</span><span class="p">)</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span><span class="n">ctx</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="s2">"fillRect"</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="n">t</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="mi">300</span><span class="p">),</span><span class="w"> </span><span class="mi">50</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">,</span><span class="w"> </span><span class="mi">20</span><span class="p">)</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">  </span><span class="no">JS</span><span class="o">.</span><span class="n">raf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">draw</span><span class="p">)</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="p">}</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="no">JS</span><span class="o">.</span><span class="n">raf</span><span class="p">(</span><span class="o">&amp;</span><span class="n">draw</span><span class="p">)</span>
 </code></pre></div>
 <p>The surface:</p>
 <table>
@@ -1111,11 +1139,15 @@ gated behind <code>RBGO_BUILD_IT=1</code> because it shells out to the Go toolch
 bakes a <code>JS</code>-using program, then asserts the output carries the WebAssembly magic
 (<code>\0asm</code>) and that the linker dropped the front-end (no <code>go-ruby-parser/parser</code>
 or <code>internal/compiler</code> symbols in the module):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">RBGO_BUILD_IT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>go<span class="w"> </span><span class="nb">test</span><span class="w"> </span>./cmd/rbgo<span class="w"> </span>-run<span class="w"> </span>TestClosedWasmBuildIntegration
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nv">RBGO_BUILD_IT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>go<span class="w"> </span><span class="nb">test</span><span class="w"> </span>./cmd/rbgo<span class="w"> </span>-run<span class="w"> </span>TestClosedWasmBuildIntegration
 </code></pre></div>
-<p>Both targets also build directly:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/wasm<span class="w">    </span><span class="c1"># the playground</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/rbgo<span class="w">    </span><span class="c1"># the rbgo CLI / closed-world entry</span>
+<p>Both targets are <em>meant</em> to build directly, but <strong>both currently fail</strong> with the
+<code>internal/vm/errno.go</code> error at the top of this page:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/wasm<span class="w">    </span><span class="c1"># the playground   — fails today</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/rbgo<span class="w">    </span><span class="c1"># the CLI / closed-world entry — fails today</span>
+</code></pre></div>
+<p>The WASI target builds and runs:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GOOS</span><span class="o">=</span>wasip1<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>rbgo.wasm<span class="w"> </span>./cmd/rbgo
 </code></pre></div>
 
 
