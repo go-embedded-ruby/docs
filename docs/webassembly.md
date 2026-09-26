@@ -1,9 +1,43 @@
-# WebAssembly (js/wasm)
+# WebAssembly
 
-**`GOOS=js GOARCH=wasm` is a first-class target.** go-embedded-ruby is pure Go
-with cgo disabled, so the interpreter, the numeric stack and the cgo-free image
-pipeline compile to a single WebAssembly module and run **entirely in the
-browser** — there is no server-side code.
+!!! danger "The browser target does not currently build"
+    As measured on `3e8e3cc` (2026-09-26), **`GOOS=js GOARCH=wasm` fails to
+    compile**, so everything on this page about running in the *browser* describes a
+    target you cannot build today:
+
+    ```console
+    $ CGO_ENABLED=0 GOOS=js GOARCH=wasm go build ./cmd/rbgo
+    # github.com/go-embedded-ruby/ruby/internal/vm
+    internal/vm/errno.go:101:35: undefined: syscall.ENOTRECOVERABLE
+    internal/vm/errno.go:108:35: undefined: syscall.EOWNERDEAD
+    internal/vm/errno.go:120:35: undefined: syscall.ETXTBSY
+    ```
+
+    `internal/vm/errno.go` carries no build tags, so it is compiled for every
+    target, and the `js` port of `syscall` does not define those three names. The
+    playground (`cmd/wasm`), the `JS` bridge and
+    `rbgo build --closed --target wasm` all link `internal/vm` and so all fail.
+
+    It is a **regression**, not a long-standing gap: the same build succeeded at
+    `68cb53a`, the commit before the Errno subsystem landed. Two things let it
+    through — `ci.yml` gates only the `wasip1` wasm target, and the one test that
+    does catch it, `TestClosedWasmBuildIntegration`, is gated behind
+    `RBGO_BUILD_IT=1`, which no workflow sets. Run with that variable set, it fails
+    with exactly the error above.
+
+**WASI (`GOOS=wasip1 GOARCH=wasm`) does work, and is gated in CI:**
+
+```console
+$ CGO_ENABLED=0 GOOS=wasip1 GOARCH=wasm go build -o rbgo.wasm ./cmd/rbgo
+$ wazero run rbgo.wasm -e 'puts (1..10).sum'
+55
+```
+
+The rest of this page describes the browser design as intended. go-embedded-ruby is
+pure Go with cgo disabled, so the interpreter, the numeric stack and the cgo-free
+image pipeline are *meant* to compile to a single WebAssembly module and run
+entirely in the browser, with no server-side code — and did until the regression
+above.
 
 There are two distinct ways to ship Ruby to the browser, and they answer
 different needs:
@@ -160,9 +194,16 @@ or `internal/compiler` symbols in the module):
 RBGO_BUILD_IT=1 go test ./cmd/rbgo -run TestClosedWasmBuildIntegration
 ```
 
-Both targets also build directly:
+Both targets are *meant* to build directly, but **both currently fail** with the
+`internal/vm/errno.go` error at the top of this page:
 
 ```sh
-GOOS=js GOARCH=wasm go build ./cmd/wasm    # the playground
-GOOS=js GOARCH=wasm go build ./cmd/rbgo    # the rbgo CLI / closed-world entry
+GOOS=js GOARCH=wasm go build ./cmd/wasm    # the playground   — fails today
+GOOS=js GOARCH=wasm go build ./cmd/rbgo    # the CLI / closed-world entry — fails today
+```
+
+The WASI target builds and runs:
+
+```sh
+CGO_ENABLED=0 GOOS=wasip1 GOARCH=wasm go build -o rbgo.wasm ./cmd/rbgo
 ```

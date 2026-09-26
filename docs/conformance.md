@@ -107,56 +107,52 @@ floor is a deliberately **conservative lower bound**. The
 [`rubyspec-ratchet`](https://github.com/go-embedded-ruby/ruby/blob/main/.github/workflows/rubyspec-ratchet.yml)
 workflow enforces it on every push and pull request.
 
-### Where it stands — measured 2026-09-23
+### Where it stands — measured 2026-09-26
 
-On darwin/arm64 against the pinned corpus
-(`SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191`), on `d498ddc` — the tip of
-`main` at the time. `main` has since advanced to `2200e17`, whose only change is
-the `FLOOR` file ([#638](https://github.com/go-embedded-ruby/ruby/pull/638)); the
-interpreter built from it is byte-identical, so these figures stand unchanged.
+On darwin/arm64, on `3e8e3cc`, against the pinned corpus
+(`SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191`).
 
 | | |
 | --- | --- |
-| **passing examples** | **21 982** — four consecutive runs, all four identical |
-| fail / error | 1 321 / 740 |
-| skipped | 473 |
-| pass rate of the examples that ran | **91.4 %** (21 983 of 24 044) |
-| spec files | 2 191 of 2 206 produce a result; 15 produce none |
-| **`FLOOR`** | **21 970** |
+| **passing examples** | **22 488** |
+| failing / erroring examples | 1 090 / 538 |
+| skipped (a matcher the shim does not implement) | 477 |
+| examples that actually ran (pass + fail + error) | 24 116 |
+| share of those that passed | **93.3 %** |
+| spec files | 2 196 of 2 206 produce a result; 10 produce none |
+| **`FLOOR`** | **22 475** |
 
-The ratchet reports 21 982; a separate sweep that also captures
-`fail`/`error`/`skip` read 21 983. The one-example difference is the `#615` noise
-described below.
+Three independent runs agreed exactly: `run.sh` twice, at different per-file
+timeouts (25 s and 60 s) and different parallelism, and once through a separate
+sweep that tallies all four counters. All three reported **22 488** passing and the
+same ten files producing no result.
 
-!!! warning "The floor is a gate, not a score — and they are close on purpose"
-    `FLOOR` says *"no run may come in below this"*. It is raised in its own PR
-    after a wave lands. The measured total sits **above** it, but only just:
-    21 982 against 21 970 is a margin of **12**, and that is deliberate.
+!!! warning "The floor is a gate, not a score"
+    `FLOOR` says *"no run may come in below this"*, and it can only be raised. It is
+    therefore the level **CI guarantees**; the measured total is **what rbgo did on
+    a given run**. Quoting the floor as the conformance figure understates rbgo by
+    the margin between them; quoting the measured total as a guarantee overstates it
+    by the same amount.
 
-    The floor is set a handful of examples below the **lowest observed run** —
-    enough to absorb the run-to-run jitter of
-    [#615](https://github.com/go-embedded-ruby/ruby/issues/615), and no more,
-    because a floor slack enough to hide the loss of a whole spec file would
-    defeat the thing the ratchet exists to catch. A small gap is therefore the
-    ratchet working; a large one would mean it had gone slack.
+!!! danger "What this number is not"
+    It is **not** "rbgo implements 93 % of Ruby", and it cannot be turned into a
+    percentage of the language:
 
-    They remain different claims. The floor is the **guarantee CI enforces**; the
-    measured total is **what rbgo does** on a given run. Quoting the floor as the
-    conformance figure understates rbgo by the margin; quoting the measured total
-    as a guarantee overstates it by the same amount.
+    - **Only `language/` and `core/` are swept.** ruby/spec's `library/`,
+      `optional/` and `security/` trees are **not run at all** — most of what people
+      mean by "the standard library" is outside this measurement entirely.
+    - **The shim is not mspec.** Some matchers are stubbed, so the examples needing
+      them are counted as *skipped*, never as passing. The total is a conservative
+      lower bound.
+    - **Skips are outside the ratio.** The 93.3 % divides passes by the examples
+      that ran; the 477 skips and the 10 unreadable files are in neither column.
+    - **Examples are not weighted.** A heavily specified method contributes far more
+      examples than a rarely used one, so the count does not track "features".
 
-Run-to-run spread is possible, and it is a **known bug rather than noise in the
-method**. `core/module/autoload_spec.rb` crashes intermittently while popping a
-frame ([#615](https://github.com/go-embedded-ruby/ruby/issues/615)), and the whole
-file's examples are lost when it does — an earlier set of four runs, on the commit
-before this one, spread 21 845–21 903 for exactly that reason. The four runs above
-happened not to hit it. Run it more than once and read the **low** run as the
-guaranteed figure.
-
-There is no honest denominator for "percent of Ruby". The 91.4 % above is the
-share of the examples *this shim actually ran*: the shim is not mspec, 473 skips
-sit outside the ratio entirely, and 15 files produce no result at all.
-
+An earlier revision of this page reported run-to-run spread from an intermittent
+crash in `core/module/autoload_spec.rb`. That did not reproduce during this
+measurement: five consecutive runs of that file returned identical counts, and it
+appeared in none of the three full sweeps.
 ### Not every gain is VM conformance
 
 Two of the recent jumps came from fixing the **measurement**, not the
@@ -179,33 +175,43 @@ interpreter, and blurring the two would be misleading:
 Both are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
-([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **21 970** today,
-across 27 conformance waves.
+([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** today.
 
 ### Known limitations
 
-Named plainly, each with an open issue. **`__LINE__` is always `0`** — rbgo
-records no line map — which costs `const_source_location`, `warn(uplevel:)` and
-every backtrace line number entirely:
+Each entry below was re-run on `3e8e3cc` against **MRI 4.0.5 on the same host**
+(darwin/arm64, 2026-09-26). Entries that no longer reproduced were removed — notably
+the former headline limitation, *"`__LINE__` is always `0`"*: rbgo and MRI now agree
+exactly on `__LINE__`, on backtrace line numbers, on `warn(uplevel:)` prefixes and on
+`const_source_location`.
 
-```ruby
-puts __LINE__                                 # rbgo: 0     MRI 4.0.5: 1
-Object.const_source_location(:Comparable)     # rbgo: nil   MRI 4.0.5: []
-# e.backtrace.first -> "probe.rb:0:in '<main>'" against MRI's "probe.rb:4:…"
-```
+Two limitations matter most to anyone embedding rbgo:
+
+- **The browser WebAssembly target does not build.** `GOOS=js GOARCH=wasm` fails to
+  compile `internal/vm` (three `syscall` constants the `js` port does not define). It
+  built at `68cb53a`, the commit before the Errno subsystem landed, and no CI lane
+  catches it because only `wasip1` is gated. WASI is unaffected.
+- **`$stderr` is not a separate stream.** The VM is built with one output writer and
+  `$stderr`/`STDERR` are wired to it, so `warn` and `$stderr.puts` arrive on
+  **stdout**. Only the CLI's uncaught-exception printer writes to real stderr.
 
 | | |
 | --- | --- |
-| `Errno` carries all **158** of MRI's constants, but **32** of them report errno `0` on darwin where MRI has a real number (`EAUTH` 0 vs 80, `EBADRPC` 0 vs 72, …); the other 126 match exactly | [#633](https://github.com/go-embedded-ruby/ruby/issues/633) |
+| `RUBY_VERSION` reports `"3.4.1"`, though the differential oracle is MRI 4.0.5 | — |
+| `Errno` carries all **158** of MRI's constant names, but **32** report errno `0` where MRI has a real number (`EAUTH`, `EBADRPC`, `EDEVERR`, …). By set difference on darwin: 81 names are zero-valued under rbgo, 49 under MRI, and every MRI zero is also zero under rbgo | [#633](https://github.com/go-embedded-ruby/ruby/issues/633) |
 | `Thread#backtrace` answers for the **current** thread only; another thread raises `NotImplementedError` | — |
 | `Process.fork` **does not exist** — Go's runtime cannot be forked safely | — |
-| `Numeric#to_int` is not defined | [#631](https://github.com/go-embedded-ruby/ruby/issues/631) |
-| `File::Stat#==` answers identity, not `Comparable#==` | [#632](https://github.com/go-embedded-ruby/ruby/issues/632) |
-| `File#stat` cannot answer for a file unlinked while open | [#635](https://github.com/go-embedded-ruby/ruby/issues/635) |
-| `BEGIN { }` / `END { }` do not parse | front-end |
+| `Numeric#to_int` is not defined — `Complex(2.9, 0).to_int` raises `NoMethodError` where MRI returns `2` | [#631](https://github.com/go-embedded-ruby/ruby/issues/631) |
+| `File::Stat#==` answers identity: `a == b` is `false` for two stats of one file where MRI says `true` | [#632](https://github.com/go-embedded-ruby/ruby/issues/632) |
+| `File#stat` raises `Errno::ENOENT` for a file unlinked while open; MRI answers from the descriptor | [#635](https://github.com/go-embedded-ruby/ruby/issues/635) |
+| Magic encoding comments are not honoured — `# encoding: ascii-8bit` still reports `UTF-8` | — |
+| Neither `Kernel#pp` nor `require "pp"` exists (`require "prettyprint"` works) | — |
+| `BEGIN { }` / `END { }` do not parse. Everything else the front-end was known to refuse now parses | front-end |
 | **Windows:** no text-mode newline translation | [#610](https://github.com/go-embedded-ruby/ruby/issues/610) |
 | **Windows:** `File::Stat#atime`/`#ctime` fall back to mtime | [#635](https://github.com/go-embedded-ruby/ruby/issues/635) |
 | **Windows:** `File.realpath` does not expand 8.3 short names | [#636](https://github.com/go-embedded-ruby/ruby/issues/636) |
+
+The three Windows rows were **not** re-verified: this measurement ran on darwin.
 
 Two more are **harness**, not interpreter, and are listed apart so they are not
 read as VM gaps: the shim's `SPEC_TMP_BASE` is `/tmp`, a symlink on darwin, which

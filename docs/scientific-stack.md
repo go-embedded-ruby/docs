@@ -126,7 +126,8 @@ image, runs `gaussian_blur`/`sobel`/`canny`, and renders it to a `<canvas>`):
 ./web/build.sh serve     # build web/rbgo.wasm and serve http://localhost:8080
 ```
 
-WebAssembly is a first-class target with two flavours — the playground above and
-`rbgo build --closed --target wasm` for closed-world browser apps that drive the
-DOM/Canvas via the built-in `JS` module. See **[WebAssembly](webassembly.md)**
-for the full story.
+!!! warning "The browser wasm target does not currently build"
+    Both the playground above and `rbgo build --closed --target wasm` target
+    `GOOS=js GOARCH=wasm`, which fails to compile on `3e8e3cc`. The WASI target
+    (`GOOS=wasip1 GOARCH=wasm`) builds and runs. See
+    **[WebAssembly](webassembly.md)** for the error and the details.
