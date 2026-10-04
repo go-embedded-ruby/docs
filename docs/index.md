@@ -26,10 +26,26 @@ err := ruby.Run(`puts "hello from Ruby"`, &out)   // out: "hello from Ruby\n"
 Everything else lives under `internal/`, so this is the whole embedding surface
 today. Measured behaviour worth knowing: there is **one writer, carrying both
 streams** (`$stderr` and `warn` land in `out` too); a Ruby exception comes back as a
-Go `error` (`ArgumentError: bad`); **each call gets a fresh VM**, so nothing is
-shared between `Run`s and there is no exported way to hold a VM open, call a Ruby
-method from Go, or pass Go values in; and `require_relative` resolves against the
-**process working directory**, since `Run` has no script to anchor to.
+Go `error` (`ArgumentError: bad`), though `exit`, `exit!` and `abort` stop the
+program and return **`nil`**, so a caller cannot tell “finished” from “stopped”;
+**each call gets a fresh VM**, so the Ruby heap is not shared between `Run`s and
+there is no exported way to hold a VM open, call a Ruby method from Go, or pass
+Go values in; but **process state *is* shared** with the host and with every
+other `Run` — `ENV`, the working directory, open files and signal handlers — which
+is also why `require_relative` resolves against the **process working
+directory**, since `Run` has no script to anchor to.
+
+!!! warning "`Run` is not a sandbox"
+
+    Conformance is the goal and MRI is not sandboxed either, so neither is this.
+    Through that one function, Ruby source can spawn `/bin/sh`, read and write
+    the filesystem as the host's uid, open sockets, `require` any absolute path,
+    and change the host's `ENV` and working directory. **Do not pass untrusted
+    Ruby to it.** Two things are deliberately out of reach: there is no path from
+    Ruby to the host's Go state, and the host's standard descriptors are not
+    exposed, so a script cannot write outside the `out` you passed. The
+    [repository README](https://github.com/go-embedded-ruby/ruby#run-is-not-a-sandbox)
+    carries the measurements.
 
 go-embedded-ruby compiles Ruby source to bytecode and runs it on a stack VM in
 the **mruby/YARV lineage**. Because the front-end (lexer + parser + compiler)
