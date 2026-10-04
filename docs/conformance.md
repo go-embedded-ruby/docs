@@ -188,7 +188,8 @@ interpreter, and blurring the two would be misleading:
 Both are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
-([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** today.
+([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** by the
+time it was replaced by the per-file baseline, whose sum is **23 481** today.
 
 ### Known limitations
 
