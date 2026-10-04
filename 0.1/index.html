@@ -945,10 +945,26 @@ depend on it.</p>
 <p>Everything else lives under <code>internal/</code>, so this is the whole embedding surface
 today. Measured behaviour worth knowing: there is <strong>one writer, carrying both
 streams</strong> (<code>$stderr</code> and <code>warn</code> land in <code>out</code> too); a Ruby exception comes back as a
-Go <code>error</code> (<code>ArgumentError: bad</code>); <strong>each call gets a fresh VM</strong>, so nothing is
-shared between <code>Run</code>s and there is no exported way to hold a VM open, call a Ruby
-method from Go, or pass Go values in; and <code>require_relative</code> resolves against the
-<strong>process working directory</strong>, since <code>Run</code> has no script to anchor to.</p>
+Go <code>error</code> (<code>ArgumentError: bad</code>), though <code>exit</code>, <code>exit!</code> and <code>abort</code> stop the
+program and return <strong><code>nil</code></strong>, so a caller cannot tell “finished” from “stopped”;
+<strong>each call gets a fresh VM</strong>, so the Ruby heap is not shared between <code>Run</code>s and
+there is no exported way to hold a VM open, call a Ruby method from Go, or pass
+Go values in; but <strong>process state <em>is</em> shared</strong> with the host and with every
+other <code>Run</code> — <code>ENV</code>, the working directory, open files and signal handlers — which
+is also why <code>require_relative</code> resolves against the <strong>process working
+directory</strong>, since <code>Run</code> has no script to anchor to.</p>
+<div class="admonition warning">
+<p class="admonition-title"><code>Run</code> is not a sandbox</p>
+<p>Conformance is the goal and MRI is not sandboxed either, so neither is this.
+Through that one function, Ruby source can spawn <code>/bin/sh</code>, read and write
+the filesystem as the host's uid, open sockets, <code>require</code> any absolute path,
+and change the host's <code>ENV</code> and working directory. <strong>Do not pass untrusted
+Ruby to it.</strong> Two things are deliberately out of reach: there is no path from
+Ruby to the host's Go state, and the host's standard descriptors are not
+exposed, so a script cannot write outside the <code>out</code> you passed. The
+<a href="https://github.com/go-embedded-ruby/ruby#run-is-not-a-sandbox">repository README</a>
+carries the measurements.</p>
+</div>
 <p>go-embedded-ruby compiles Ruby source to bytecode and runs it on a stack VM in
 the <strong>mruby/YARV lineage</strong>. Because the front-end (lexer + parser + compiler)
 ships <em>inside</em> the binary, dynamic features like <code>eval</code> and runtime <code>require</code>
