@@ -94,16 +94,27 @@ On top of the oracle, rbgo runs the `language/` and `core/` suites of
 the language and core library — through `rbgo` under a minimal MSpec-compatible
 shim
 ([`scripts/conformance/rubyspec/`](https://github.com/go-embedded-ruby/ruby/tree/main/scripts/conformance/rubyspec)).
-Each spec file runs in its own `rbgo` process; the runner sums the passing
-examples and compares the total against a **frozen floor** (`FLOOR`):
+Each spec file runs in its own `rbgo` process, and the runner records **one row
+per spec file** — `OK<TAB>path<TAB>passing`, or `FILEFAIL<TAB>path` for a file
+that produced no result — in
+[`BASELINE`](https://github.com/go-embedded-ruby/ruby/blob/main/scripts/conformance/rubyspec/BASELINE):
 
-- a total **below** the floor fails the run (a conformance regression);
-- an improvement raises the floor **in the same PR** (`UPDATE_FLOOR=1`).
+- a file that passes **fewer** examples than its row, or stops producing a
+  result, fails the run and **is named**;
+- an improvement is locked in with `UPDATE_BASELINE=1`, which rewrites the
+  record from that sweep.
 
-Because the floor can only be raised, measured language conformance moves in one
-direction only. The shim stubs a few MSpec matchers (`complain`, `output`,
-`ruby_exe`, …), so their examples count as *skipped* rather than passing — the
-floor is a deliberately **conservative lower bound**. The
+Judging per file is what makes every move attributable, and it needs no margin.
+A single threshold could not have both: its margin had to be wider than the
+largest spec file — 384 examples in `core/encoding/compatible_spec.rb`, since a
+file that fails to load loses its whole count at once — so a drop inside that
+margin could not distinguish *one file failing to load* from *hundreds of specs
+regressing*. A run that gains examples overall still fails here if any single
+file drops, which a total could not see.
+
+The shim stubs a few MSpec matchers (`complain`, `output`, `ruby_exe`, …), so
+their examples count as *skipped* rather than passing — the record is a
+deliberately **conservative lower bound**. The
 [`rubyspec-ratchet`](https://github.com/go-embedded-ruby/ruby/blob/main/.github/workflows/rubyspec-ratchet.yml)
 workflow enforces it on every push and pull request.
 
@@ -120,19 +131,21 @@ On darwin/arm64, on `3e8e3cc`, against the pinned corpus
 | examples that actually ran (pass + fail + error) | 24 116 |
 | share of those that passed | **93.3 %** |
 | spec files | 2 196 of 2 206 produce a result; 10 produce none |
-| **`FLOOR`** | **22 475** |
+| **enforced by CI** | a **per-file** baseline, not a single number |
 
 Three independent runs agreed exactly: `run.sh` twice, at different per-file
 timeouts (25 s and 60 s) and different parallelism, and once through a separate
 sweep that tallies all four counters. All three reported **22 488** passing and the
 same ten files producing no result.
 
-!!! warning "The floor is a gate, not a score"
-    `FLOOR` says *"no run may come in below this"*, and it can only be raised. It is
-    therefore the level **CI guarantees**; the measured total is **what rbgo did on
-    a given run**. Quoting the floor as the conformance figure understates rbgo by
-    the margin between them; quoting the measured total as a guarantee overstates it
-    by the same amount.
+!!! warning "The baseline is a gate, not a score"
+    `BASELINE` says *"no file may come in below its row"*. Its sum is therefore the
+    level **CI guarantees**; a measured total is **what rbgo did on a given run**.
+    Quoting the guaranteed figure as the conformance result understates rbgo by
+    whatever has landed since the record was last written; quoting a measured total
+    as a guarantee overstates it by the same amount. The sum is **23 481** as of
+    2026-10-04, and the repository README reads that figure out of the file
+    mechanically, with a test that fails if the two disagree.
 
 !!! danger "What this number is not"
     It is **not** "rbgo implements 93 % of Ruby", and it cannot be turned into a
@@ -374,7 +387,9 @@ CGO_ENABLED=0 SPECDIR=/path/to/ruby-spec CACHE=/path/to/ruby-spec \
   scripts/conformance/rubyspec/run.sh
 ```
 
-It prints the measured total and the frozen floor. Run it **more than once**:
+It emits one record per spec file and hands them to the ratchet, which names
+any file that regressed and exits non-zero; `UPDATE_BASELINE=1` rewrites the
+record instead. Run it **more than once**:
 `core/module/autoload_spec.rb` crashes intermittently
 ([#615](https://github.com/go-embedded-ruby/ruby/issues/615)) and a single run can
 read ~57 examples low.
