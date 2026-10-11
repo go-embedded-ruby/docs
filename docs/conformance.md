@@ -120,6 +120,21 @@ workflow enforces it on every push and pull request.
 
 ### Where it stands — measured 2026-09-26
 
+!!! info "The gate's current total is **23 511** — rbgo v0.3.0, 2026-10-11"
+    The table below is one **dated full sweep**, and a dated measurement going
+    stale is not an error: it is what it says it is. The number that moves with
+    every merge is the per-file baseline's sum, which the badge and the README
+    quote, and it is read straight out of the gate's own file:
+
+    ```console
+    $ awk -F'\t' '/^OK\t/{n+=$3} END{print n}' scripts/conformance/rubyspec/BASELINE
+    23511
+    ```
+
+    The breakdown below — failing, erroring, skipped — needs a full sweep to
+    refresh and has not been re-run, so it keeps its own date rather than being
+    mixed with a newer total.
+
 On darwin/arm64, on `3e8e3cc`, against the pinned corpus
 (`SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191`).
 
@@ -143,9 +158,9 @@ same ten files producing no result.
     level **CI guarantees**; a measured total is **what rbgo did on a given run**.
     Quoting the guaranteed figure as the conformance result understates rbgo by
     whatever has landed since the record was last written; quoting a measured total
-    as a guarantee overstates it by the same amount. The sum is **23 481** as of
-    2026-10-04, and the repository README reads that figure out of the file
-    mechanically, with a test that fails if the two disagree.
+    as a guarantee overstates it by the same amount. The sum is **23 511** as of
+    2026-10-11 (rbgo v0.3.0), and the repository README reads that figure out of
+    the file mechanically, with a test that fails if the two disagree.
 
 !!! danger "What this number is not"
     It is **not** "rbgo implements 93 % of Ruby", and it cannot be turned into a
@@ -189,38 +204,61 @@ Both are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
 ([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** by the
-time it was replaced by the per-file baseline, whose sum is **23 481** today.
+time it was replaced by the per-file baseline, whose sum is **23 511** at
+v0.3.0 (2026-10-11).
 
 ### Known limitations
 
-Each entry below was re-run on `3e8e3cc` against **MRI 4.0.5 on the same host**
-(darwin/arm64, 2026-09-26). Entries that no longer reproduced were removed — notably
+Each entry below was re-run on `4872e01` against **MRI 4.0.7 on the same host**
+(darwin/arm64, 2026-10-11). Entries that no longer reproduced were removed — notably
 the former headline limitation, *"`__LINE__` is always `0`"*: rbgo and MRI now agree
 exactly on `__LINE__`, on backtrace line numbers, on `warn(uplevel:)` prefixes and on
 `const_source_location`.
 
-Two limitations matter most to anyone embedding rbgo:
+Re-checked on `4872e01` (2026-10-11) against **MRI 4.0.7** on the same host. Four
+entries no longer reproduced and have gone:
 
-- **The browser WebAssembly target does not build.** `GOOS=js GOARCH=wasm` fails to
-  compile `internal/vm` (three `syscall` constants the `js` port does not define). It
-  built at `68cb53a`, the commit before the Errno subsystem landed, and no CI lane
-  catches it because only `wasip1` is gated. WASI is unaffected.
-- **`$stderr` is not a separate stream.** The VM is built with one output writer and
-  `$stderr`/`STDERR` are wired to it, so `warn` and `$stderr.puts` arrive on
-  **stdout**. Only the CLI's uncaught-exception printer writes to real stderr.
+- *"The browser WebAssembly target does not build"* — fixed by
+  [#684](https://github.com/go-embedded-ruby/ruby/pull/684), which also added the
+  `wasm (js, browser)` lane. `GOOS=js GOARCH=wasm go build ./...` exits 0.
+- *"`$stderr` is not a separate stream"* — the VM takes two writers, and
+  `rbgo -e '$stdout.print "O"; $stderr.print "E"'` now sends one byte to each.
+- *"Magic encoding comments are not honoured"* — a file beginning
+  `# encoding: ascii-8bit` reports `ASCII-8BIT`, as MRI does.
+- *"`BEGIN { }` / `END { }` do not parse"* — both run.
+  `BEGIN { puts "B" }; puts "main"; END { puts "E" }` prints `B main E`. `END`
+  did something worse than not parsing in between: it killed the process with a
+  Go panic, fixed in v0.3.0 via parser v0.13.1
+  ([#805](https://github.com/go-embedded-ruby/ruby/issues/805)).
+
+Two limitations matter most to anyone embedding rbgo, and both **fail open** —
+the call returns successfully and nothing says the guarantee is missing:
+
+- **`Timeout.timeout` never times out.** The module, `Timeout::Error` and the
+  `rescue` path all exist; only the enforcement is absent, so the block runs to
+  completion and its value is returned.
+  `Timeout.timeout(0.3) { sleep 2 }` returns after 2 s where MRI raises at 0.3 s.
+  It is *the* ordinary Ruby way to bound work that might hang, so code relying on
+  it for that is unprotected here.
+  [#803](https://github.com/go-embedded-ruby/ruby/issues/803).
+- **`Kernel#fork` does not fork.** The block runs in the same process, so the
+  "child" mutates the parent's globals, `ENV` and working directory, and a
+  synthetic pid comes back. `fork` is the standard way to isolate untrusted work
+  and to drop privileges; a program forking for either reason gets neither, and
+  gets no error. `exit`/`exit!`/`abort` inside the block do now stop only the
+  "child" (v0.3.0); an uncaught *exception* in it still takes the parent down.
+  [#774](https://github.com/go-embedded-ruby/ruby/issues/774).
 
 | | |
 | --- | --- |
-| `RUBY_VERSION` reports `"3.4.1"`, though the differential oracle is MRI 4.0.5 | — |
+| `RUBY_VERSION` reports `"3.4.1"`, though the differential oracle is MRI 4.0.7 and the pinned corpus is 4.0.x. That is not only cosmetic: the shim's version guard is pinned to the same `3.4.1`, so **167 examples behind a `ruby_version_is "4.0"` guard are never reached**, while 40 guards that end *before* 4.0 are being asserted | [#799](https://github.com/go-embedded-ruby/ruby/issues/799) |
 | `Errno` carries all **158** of MRI's constant names, but **32** report errno `0` where MRI has a real number (`EAUTH`, `EBADRPC`, `EDEVERR`, …). By set difference on darwin: 81 names are zero-valued under rbgo, 49 under MRI, and every MRI zero is also zero under rbgo | [#633](https://github.com/go-embedded-ruby/ruby/issues/633) |
 | `Thread#backtrace` answers for the **current** thread only; another thread raises `NotImplementedError` | — |
 | `Process.fork` **does not exist** — Go's runtime cannot be forked safely | — |
 | `Numeric#to_int` is not defined — `Complex(2.9, 0).to_int` raises `NoMethodError` where MRI returns `2` | [#631](https://github.com/go-embedded-ruby/ruby/issues/631) |
 | `File::Stat#==` answers identity: `a == b` is `false` for two stats of one file where MRI says `true` | [#632](https://github.com/go-embedded-ruby/ruby/issues/632) |
 | `File#stat` raises `Errno::ENOENT` for a file unlinked while open; MRI answers from the descriptor | [#635](https://github.com/go-embedded-ruby/ruby/issues/635) |
-| Magic encoding comments are not honoured — `# encoding: ascii-8bit` still reports `UTF-8` | — |
 | Neither `Kernel#pp` nor `require "pp"` exists (`require "prettyprint"` works) | — |
-| `BEGIN { }` / `END { }` do not parse. Everything else the front-end was known to refuse now parses | front-end |
 | **Windows:** no text-mode newline translation | [#610](https://github.com/go-embedded-ruby/ruby/issues/610) |
 | **Windows:** `File::Stat#atime`/`#ctime` fall back to mtime | [#635](https://github.com/go-embedded-ruby/ruby/issues/635) |
 | **Windows:** `File.realpath` does not expand 8.3 short names | [#636](https://github.com/go-embedded-ruby/ruby/issues/636) |

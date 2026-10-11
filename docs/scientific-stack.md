@@ -126,8 +126,11 @@ image, runs `gaussian_blur`/`sobel`/`canny`, and renders it to a `<canvas>`):
 ./web/build.sh serve     # build web/rbgo.wasm and serve http://localhost:8080
 ```
 
-!!! warning "The browser wasm target does not currently build"
-    Both the playground above and `rbgo build --closed --target wasm` target
-    `GOOS=js GOARCH=wasm`, which fails to compile on `3e8e3cc`. The WASI target
-    (`GOOS=wasip1 GOARCH=wasm`) builds and runs. See
-    **[WebAssembly](webassembly.md)** for the error and the details.
+!!! note "Both wasm targets build"
+    The playground above and `rbgo build --closed --target wasm` target
+    `GOOS=js GOARCH=wasm`, which this page used to say failed to compile — true
+    on `3e8e3cc`, fixed by
+    [ruby#684](https://github.com/go-embedded-ruby/ruby/pull/684) and gated since
+    by the `wasm (js, browser)` lane. The WASI target
+    (`GOOS=wasip1 GOARCH=wasm`) builds and runs as before. See
+    **[WebAssembly](webassembly.md)**.
