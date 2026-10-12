@@ -40,6 +40,27 @@ jobs:
       - name: Build the site (strict)
         run: mkdocs build --strict
 
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: 1.27.2
+
+      # These pages state rbgo's ruby/spec total in the present tense in four
+      # places. On 2026-10-11 they said 22 488 on the front page and 23 481
+      # "today" in two others, while the gate's own file summed to 23 511 --
+      # three figures, none right, in a repository nothing checked. The ruby
+      # README has a test that reads the baseline mechanically; this is the
+      # equivalent for a site that lives in a different repository.
+      #
+      # It fetches the baseline over the network, so it is in `build` (which
+      # runs on pull requests) rather than in `deploy`: a wrong figure should
+      # block the change, not be discovered after publication. An unreachable
+      # baseline exits 2 and is a REFUSAL rather than a pass -- the step fails
+      # either way, which is the point, because an unreadable baseline finds no
+      # disagreement either.
+      - name: The stated conformance total matches the gate
+        run: go run ./tools/conformancefigure
+
   deploy:
     # Only main publishes. A pull request stops after build above: it has no
     # business pushing to gh-pages, and `permissions: contents: write` is not

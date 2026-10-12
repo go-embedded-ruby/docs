@@ -1,29 +1,22 @@
 # WebAssembly
 
-!!! danger "The browser target does not currently build"
-    As measured on `3e8e3cc` (2026-09-26), **`GOOS=js GOARCH=wasm` fails to
-    compile**, so everything on this page about running in the *browser* describes a
-    target you cannot build today:
+!!! success "The browser target builds, and a CI lane gates it"
+    This page carried a `danger` admonition saying `GOOS=js GOARCH=wasm` failed to
+    compile, measured on `3e8e3cc` (2026-09-26). It was fixed by
+    [ruby#684](https://github.com/go-embedded-ruby/ruby/pull/684), which closed the
+    three missing `syscall` constants **and added the lane that would have caught
+    it** — `wasm (js, browser)` in `ci.yml`, green on every pull request since.
+
+    Re-measured on `4872e01` (2026-10-11):
 
     ```console
-    $ CGO_ENABLED=0 GOOS=js GOARCH=wasm go build ./cmd/rbgo
-    # github.com/go-embedded-ruby/ruby/internal/vm
-    internal/vm/errno.go:101:35: undefined: syscall.ENOTRECOVERABLE
-    internal/vm/errno.go:108:35: undefined: syscall.EOWNERDEAD
-    internal/vm/errno.go:120:35: undefined: syscall.ETXTBSY
+    $ CGO_ENABLED=0 GOOS=js GOARCH=wasm go build ./...
+    $ echo $?
+    0
     ```
 
-    `internal/vm/errno.go` carries no build tags, so it is compiled for every
-    target, and the `js` port of `syscall` does not define those three names. The
-    playground (`cmd/wasm`), the `JS` bridge and
-    `rbgo build --closed --target wasm` all link `internal/vm` and so all fail.
-
-    It is a **regression**, not a long-standing gap: the same build succeeded at
-    `68cb53a`, the commit before the Errno subsystem landed. Two things let it
-    through — `ci.yml` gates only the `wasip1` wasm target, and the one test that
-    does catch it, `TestClosedWasmBuildIntegration`, is gated behind
-    `RBGO_BUILD_IT=1`, which no workflow sets. Run with that variable set, it fails
-    with exactly the error above.
+    `./cmd/rbgo`, `./cmd/wasm` and `./...` all exit 0, so the playground, the `JS`
+    bridge and `rbgo build --closed --target wasm` build as this page describes.
 
 **WASI (`GOOS=wasip1 GOARCH=wasm`) does work, and is gated in CI:**
 
