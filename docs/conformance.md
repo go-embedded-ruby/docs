@@ -120,7 +120,7 @@ workflow enforces it on every push and pull request.
 
 ### Where it stands — measured 2026-09-26
 
-!!! info "The gate's current total is **23 511** — rbgo v0.3.0, 2026-10-11"
+!!! info "The gate's current total is **23 511**"
     The table below is one **dated full sweep**, and a dated measurement going
     stale is not an error: it is what it says it is. The number that moves with
     every merge is the per-file baseline's sum, which the badge and the README
@@ -158,9 +158,12 @@ same ten files producing no result.
     level **CI guarantees**; a measured total is **what rbgo did on a given run**.
     Quoting the guaranteed figure as the conformance result understates rbgo by
     whatever has landed since the record was last written; quoting a measured total
-    as a guarantee overstates it by the same amount. The sum is **23 511** as of
-    2026-10-11 (rbgo v0.3.0), and the repository README reads that figure out of
-    the file mechanically, with a test that fails if the two disagree.
+    as a guarantee overstates it by the same amount. The sum is **23 511**, and
+    both the repository README and this page read that figure out of the file
+    mechanically, each with a check that fails if they disagree — which is why
+    neither carries a release number beside it. The figure is verified
+    continuously; a release name next to it would not be, and pairing them makes
+    a checked fact carry an unchecked one.
 
 !!! danger "What this number is not"
     It is **not** "rbgo implements 93 % of Ruby", and it cannot be turned into a
@@ -204,8 +207,7 @@ Both are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
 ([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** by the
-time it was replaced by the per-file baseline, whose sum is **23 511** at
-v0.3.0 (2026-10-11).
+time it was replaced by the per-file baseline, whose sum is **23 511**.
 
 ### Known limitations
 
