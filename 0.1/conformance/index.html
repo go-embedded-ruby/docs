@@ -1184,7 +1184,7 @@ deliberately <strong>conservative lower bound</strong>. The
 workflow enforces it on every push and pull request.</p>
 <h3 id="where-it-stands-measured-2026-09-26">Where it stands — measured 2026-09-26<a class="headerlink" href="#where-it-stands-measured-2026-09-26" title="Permanent link">&para;</a></h3>
 <div class="admonition info">
-<p class="admonition-title">The gate's current total is <strong>23 511</strong> — rbgo v0.3.0, 2026-10-11</p>
+<p class="admonition-title">The gate's current total is <strong>23 511</strong></p>
 <p>The table below is one <strong>dated full sweep</strong>, and a dated measurement going
 stale is not an error: it is what it says it is. The number that moves with
 every merge is the per-file baseline's sum, which the badge and the README
@@ -1246,9 +1246,12 @@ same ten files producing no result.</p>
 level <strong>CI guarantees</strong>; a measured total is <strong>what rbgo did on a given run</strong>.
 Quoting the guaranteed figure as the conformance result understates rbgo by
 whatever has landed since the record was last written; quoting a measured total
-as a guarantee overstates it by the same amount. The sum is <strong>23 511</strong> as of
-2026-10-11 (rbgo v0.3.0), and the repository README reads that figure out of
-the file mechanically, with a test that fails if the two disagree.</p>
+as a guarantee overstates it by the same amount. The sum is <strong>23 511</strong>, and
+both the repository README and this page read that figure out of the file
+mechanically, each with a check that fails if they disagree — which is why
+neither carries a release number beside it. The figure is verified
+continuously; a release name next to it would not be, and pairing them makes
+a checked fact carry an unchecked one.</p>
 </div>
 <div class="admonition danger">
 <p class="admonition-title">What this number is not</p>
@@ -1293,8 +1296,7 @@ interpreter, and blurring the two would be misleading:</p>
 <strong>do</strong>. The rest of the climb is the VM: the floor went from <strong>6 000</strong> when the
 ratchet landed on 2026-08-03
 (<a href="https://github.com/go-embedded-ruby/ruby/pull/263">#263</a>) to <strong>22 475</strong> by the
-time it was replaced by the per-file baseline, whose sum is <strong>23 511</strong> at
-v0.3.0 (2026-10-11).</p>
+time it was replaced by the per-file baseline, whose sum is <strong>23 511</strong>.</p>
 <h3 id="known-limitations">Known limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h3>
 <p>Each entry below was re-run on <code>4872e01</code> against <strong>MRI 4.0.7 on the same host</strong>
 (darwin/arm64, 2026-10-11). Entries that no longer reproduced were removed — notably
