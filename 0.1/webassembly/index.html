@@ -895,27 +895,20 @@
 
 
 <h1 id="webassembly">WebAssembly<a class="headerlink" href="#webassembly" title="Permanent link">&para;</a></h1>
-<div class="admonition danger">
-<p class="admonition-title">The browser target does not currently build</p>
-<p>As measured on <code>3e8e3cc</code> (2026-09-26), <strong><code>GOOS=js GOARCH=wasm</code> fails to
-compile</strong>, so everything on this page about running in the <em>browser</em> describes a
-target you cannot build today:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">$ </span><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./cmd/rbgo
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp"># </span>github.com/go-embedded-ruby/ruby/internal/vm
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="go">internal/vm/errno.go:101:35: undefined: syscall.ENOTRECOVERABLE</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="go">internal/vm/errno.go:108:35: undefined: syscall.EOWNERDEAD</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="go">internal/vm/errno.go:120:35: undefined: syscall.ETXTBSY</span>
+<div class="admonition success">
+<p class="admonition-title">The browser target builds, and a CI lane gates it</p>
+<p>This page carried a <code>danger</code> admonition saying <code>GOOS=js GOARCH=wasm</code> failed to
+compile, measured on <code>3e8e3cc</code> (2026-09-26). It was fixed by
+<a href="https://github.com/go-embedded-ruby/ruby/pull/684">ruby#684</a>, which closed the
+three missing <code>syscall</code> constants <strong>and added the lane that would have caught
+it</strong> — <code>wasm (js, browser)</code> in <code>ci.yml</code>, green on every pull request since.</p>
+<p>Re-measured on <code>4872e01</code> (2026-10-11):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="gp">$ </span><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GOOS</span><span class="o">=</span>js<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>./...
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="gp">$ </span><span class="nb">echo</span><span class="w"> </span><span class="nv">$?</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="go">0</span>
 </code></pre></div>
-<p><code>internal/vm/errno.go</code> carries no build tags, so it is compiled for every
-target, and the <code>js</code> port of <code>syscall</code> does not define those three names. The
-playground (<code>cmd/wasm</code>), the <code>JS</code> bridge and
-<code>rbgo build --closed --target wasm</code> all link <code>internal/vm</code> and so all fail.</p>
-<p>It is a <strong>regression</strong>, not a long-standing gap: the same build succeeded at
-<code>68cb53a</code>, the commit before the Errno subsystem landed. Two things let it
-through — <code>ci.yml</code> gates only the <code>wasip1</code> wasm target, and the one test that
-does catch it, <code>TestClosedWasmBuildIntegration</code>, is gated behind
-<code>RBGO_BUILD_IT=1</code>, which no workflow sets. Run with that variable set, it fails
-with exactly the error above.</p>
+<p><code>./cmd/rbgo</code>, <code>./cmd/wasm</code> and <code>./...</code> all exit 0, so the playground, the <code>JS</code>
+bridge and <code>rbgo build --closed --target wasm</code> build as this page describes.</p>
 </div>
 <p><strong>WASI (<code>GOOS=wasip1 GOARCH=wasm</code>) does work, and is gated in CI:</strong></p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="gp">$ </span><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">GOOS</span><span class="o">=</span>wasip1<span class="w"> </span><span class="nv">GOARCH</span><span class="o">=</span>wasm<span class="w"> </span>go<span class="w"> </span>build<span class="w"> </span>-o<span class="w"> </span>rbgo.wasm<span class="w"> </span>./cmd/rbgo

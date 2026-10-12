@@ -1183,6 +1183,19 @@ deliberately <strong>conservative lower bound</strong>. The
 <a href="https://github.com/go-embedded-ruby/ruby/blob/main/.github/workflows/rubyspec-ratchet.yml"><code>rubyspec-ratchet</code></a>
 workflow enforces it on every push and pull request.</p>
 <h3 id="where-it-stands-measured-2026-09-26">Where it stands — measured 2026-09-26<a class="headerlink" href="#where-it-stands-measured-2026-09-26" title="Permanent link">&para;</a></h3>
+<div class="admonition info">
+<p class="admonition-title">The gate's current total is <strong>23 511</strong> — rbgo v0.3.0, 2026-10-11</p>
+<p>The table below is one <strong>dated full sweep</strong>, and a dated measurement going
+stale is not an error: it is what it says it is. The number that moves with
+every merge is the per-file baseline's sum, which the badge and the README
+quote, and it is read straight out of the gate's own file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="gp">$ </span>awk<span class="w"> </span>-F<span class="s1">'\t'</span><span class="w"> </span><span class="s1">'/^OK\t/{n+=$3} END{print n}'</span><span class="w"> </span>scripts/conformance/rubyspec/BASELINE
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="go">23511</span>
+</code></pre></div>
+<p>The breakdown below — failing, erroring, skipped — needs a full sweep to
+refresh and has not been re-run, so it keeps its own date rather than being
+mixed with a newer total.</p>
+</div>
 <p>On darwin/arm64, on <code>3e8e3cc</code>, against the pinned corpus
 (<code>SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191</code>).</p>
 <table>
@@ -1233,9 +1246,9 @@ same ten files producing no result.</p>
 level <strong>CI guarantees</strong>; a measured total is <strong>what rbgo did on a given run</strong>.
 Quoting the guaranteed figure as the conformance result understates rbgo by
 whatever has landed since the record was last written; quoting a measured total
-as a guarantee overstates it by the same amount. The sum is <strong>23 481</strong> as of
-2026-10-04, and the repository README reads that figure out of the file
-mechanically, with a test that fails if the two disagree.</p>
+as a guarantee overstates it by the same amount. The sum is <strong>23 511</strong> as of
+2026-10-11 (rbgo v0.3.0), and the repository README reads that figure out of
+the file mechanically, with a test that fails if the two disagree.</p>
 </div>
 <div class="admonition danger">
 <p class="admonition-title">What this number is not</p>
@@ -1280,22 +1293,47 @@ interpreter, and blurring the two would be misleading:</p>
 <strong>do</strong>. The rest of the climb is the VM: the floor went from <strong>6 000</strong> when the
 ratchet landed on 2026-08-03
 (<a href="https://github.com/go-embedded-ruby/ruby/pull/263">#263</a>) to <strong>22 475</strong> by the
-time it was replaced by the per-file baseline, whose sum is <strong>23 481</strong> today.</p>
+time it was replaced by the per-file baseline, whose sum is <strong>23 511</strong> at
+v0.3.0 (2026-10-11).</p>
 <h3 id="known-limitations">Known limitations<a class="headerlink" href="#known-limitations" title="Permanent link">&para;</a></h3>
-<p>Each entry below was re-run on <code>3e8e3cc</code> against <strong>MRI 4.0.5 on the same host</strong>
-(darwin/arm64, 2026-09-26). Entries that no longer reproduced were removed — notably
+<p>Each entry below was re-run on <code>4872e01</code> against <strong>MRI 4.0.7 on the same host</strong>
+(darwin/arm64, 2026-10-11). Entries that no longer reproduced were removed — notably
 the former headline limitation, <em>"<code>__LINE__</code> is always <code>0</code>"</em>: rbgo and MRI now agree
 exactly on <code>__LINE__</code>, on backtrace line numbers, on <code>warn(uplevel:)</code> prefixes and on
 <code>const_source_location</code>.</p>
-<p>Two limitations matter most to anyone embedding rbgo:</p>
+<p>Re-checked on <code>4872e01</code> (2026-10-11) against <strong>MRI 4.0.7</strong> on the same host. Four
+entries no longer reproduced and have gone:</p>
 <ul>
-<li><strong>The browser WebAssembly target does not build.</strong> <code>GOOS=js GOARCH=wasm</code> fails to
-  compile <code>internal/vm</code> (three <code>syscall</code> constants the <code>js</code> port does not define). It
-  built at <code>68cb53a</code>, the commit before the Errno subsystem landed, and no CI lane
-  catches it because only <code>wasip1</code> is gated. WASI is unaffected.</li>
-<li><strong><code>$stderr</code> is not a separate stream.</strong> The VM is built with one output writer and
-  <code>$stderr</code>/<code>STDERR</code> are wired to it, so <code>warn</code> and <code>$stderr.puts</code> arrive on
-  <strong>stdout</strong>. Only the CLI's uncaught-exception printer writes to real stderr.</li>
+<li><em>"The browser WebAssembly target does not build"</em> — fixed by
+  <a href="https://github.com/go-embedded-ruby/ruby/pull/684">#684</a>, which also added the
+  <code>wasm (js, browser)</code> lane. <code>GOOS=js GOARCH=wasm go build ./...</code> exits 0.</li>
+<li><em>"<code>$stderr</code> is not a separate stream"</em> — the VM takes two writers, and
+  <code>rbgo -e '$stdout.print "O"; $stderr.print "E"'</code> now sends one byte to each.</li>
+<li><em>"Magic encoding comments are not honoured"</em> — a file beginning
+  <code># encoding: ascii-8bit</code> reports <code>ASCII-8BIT</code>, as MRI does.</li>
+<li><em>"<code>BEGIN { }</code> / <code>END { }</code> do not parse"</em> — both run.
+  <code>BEGIN { puts "B" }; puts "main"; END { puts "E" }</code> prints <code>B main E</code>. <code>END</code>
+  did something worse than not parsing in between: it killed the process with a
+  Go panic, fixed in v0.3.0 via parser v0.13.1
+  (<a href="https://github.com/go-embedded-ruby/ruby/issues/805">#805</a>).</li>
+</ul>
+<p>Two limitations matter most to anyone embedding rbgo, and both <strong>fail open</strong> —
+the call returns successfully and nothing says the guarantee is missing:</p>
+<ul>
+<li><strong><code>Timeout.timeout</code> never times out.</strong> The module, <code>Timeout::Error</code> and the
+  <code>rescue</code> path all exist; only the enforcement is absent, so the block runs to
+  completion and its value is returned.
+  <code>Timeout.timeout(0.3) { sleep 2 }</code> returns after 2 s where MRI raises at 0.3 s.
+  It is <em>the</em> ordinary Ruby way to bound work that might hang, so code relying on
+  it for that is unprotected here.
+  <a href="https://github.com/go-embedded-ruby/ruby/issues/803">#803</a>.</li>
+<li><strong><code>Kernel#fork</code> does not fork.</strong> The block runs in the same process, so the
+  "child" mutates the parent's globals, <code>ENV</code> and working directory, and a
+  synthetic pid comes back. <code>fork</code> is the standard way to isolate untrusted work
+  and to drop privileges; a program forking for either reason gets neither, and
+  gets no error. <code>exit</code>/<code>exit!</code>/<code>abort</code> inside the block do now stop only the
+  "child" (v0.3.0); an uncaught <em>exception</em> in it still takes the parent down.
+  <a href="https://github.com/go-embedded-ruby/ruby/issues/774">#774</a>.</li>
 </ul>
 <table>
 <thead>
@@ -1306,8 +1344,8 @@ exactly on <code>__LINE__</code>, on backtrace line numbers, on <code>warn(uplev
 </thead>
 <tbody>
 <tr>
-<td><code>RUBY_VERSION</code> reports <code>"3.4.1"</code>, though the differential oracle is MRI 4.0.5</td>
-<td>—</td>
+<td><code>RUBY_VERSION</code> reports <code>"3.4.1"</code>, though the differential oracle is MRI 4.0.7 and the pinned corpus is 4.0.x. That is not only cosmetic: the shim's version guard is pinned to the same <code>3.4.1</code>, so <strong>167 examples behind a <code>ruby_version_is "4.0"</code> guard are never reached</strong>, while 40 guards that end <em>before</em> 4.0 are being asserted</td>
+<td><a href="https://github.com/go-embedded-ruby/ruby/issues/799">#799</a></td>
 </tr>
 <tr>
 <td><code>Errno</code> carries all <strong>158</strong> of MRI's constant names, but <strong>32</strong> report errno <code>0</code> where MRI has a real number (<code>EAUTH</code>, <code>EBADRPC</code>, <code>EDEVERR</code>, …). By set difference on darwin: 81 names are zero-valued under rbgo, 49 under MRI, and every MRI zero is also zero under rbgo</td>
@@ -1334,16 +1372,8 @@ exactly on <code>__LINE__</code>, on backtrace line numbers, on <code>warn(uplev
 <td><a href="https://github.com/go-embedded-ruby/ruby/issues/635">#635</a></td>
 </tr>
 <tr>
-<td>Magic encoding comments are not honoured — <code># encoding: ascii-8bit</code> still reports <code>UTF-8</code></td>
-<td>—</td>
-</tr>
-<tr>
 <td>Neither <code>Kernel#pp</code> nor <code>require "pp"</code> exists (<code>require "prettyprint"</code> works)</td>
 <td>—</td>
-</tr>
-<tr>
-<td><code>BEGIN { }</code> / <code>END { }</code> do not parse. Everything else the front-end was known to refuse now parses</td>
-<td>front-end</td>
 </tr>
 <tr>
 <td><strong>Windows:</strong> no text-mode newline translation</td>
@@ -1477,10 +1507,10 @@ genuine <code>Puppet::Util::CommandLine</code> → <code>Puppet::Application::Ap
 applied (creating Puppet's config dirs on disk), then the user catalog applied
 through the transaction / RAL. The real CLI emits genuine Puppet output and exits
 <code>0</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$ rbgo run puppet_apply.rb   # ARGV = apply -e 'notify { "hello": message =&gt; "hi from rbgo cli" }'
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>Notice: Compiled catalog for  in environment production in 0.00 seconds
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>Notice: hi from rbgo cli
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>Notice: /Stage[main]/Main/Notify[hello]/message: defined 'message' as 'hi from rbgo cli'
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>$ rbgo run puppet_apply.rb   # ARGV = apply -e 'notify { "hello": message =&gt; "hi from rbgo cli" }'
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>Notice: Compiled catalog for  in environment production in 0.00 seconds
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>Notice: hi from rbgo cli
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>Notice: /Stage[main]/Main/Notify[hello]/message: defined 'message' as 'hi from rbgo cli'
 </code></pre></div>
 <p>That is the actual <code>notify</code> resource type applying through the transaction and the
 Resource Abstraction Layer — not a <code>notice(...)</code> evaluator print. Reaching the CLI
@@ -1511,17 +1541,17 @@ system-state providers are the active next milestone, not done.</p>
 <h2 id="run-it-yourself">Run it yourself<a class="headerlink" href="#run-it-yourself" title="Permanent link">&para;</a></h2>
 <p>From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on
 <code>PATH</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">'p (1..10).select(&amp;:even?).map { |x| x**2 }'</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># One expression, diffed across rbgo / MRI / JRuby:</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>scripts/oracle.sh<span class="w"> </span>-e<span class="w"> </span><span class="s1">'p (1..10).select(&amp;:even?).map { |x| x**2 }'</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># A whole corpus (one snippet per line), with an N/total summary:</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>scripts/oracle.sh<span class="w"> </span>-b<span class="w"> </span>scripts/conformance/core_ext.txt
 </code></pre></div>
 <p>Either invocation exits non-zero if any implementation disagrees.</p>
 <p>The ruby/spec ratchet, against a corpus you already have (it clones one at
 <code>SPEC_SHA</code> otherwise):</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">SPECDIR</span><span class="o">=</span>/path/to/ruby-spec<span class="w"> </span><span class="nv">CACHE</span><span class="o">=</span>/path/to/ruby-spec<span class="w"> </span><span class="se">\</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span>scripts/conformance/rubyspec/run.sh
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nv">CGO_ENABLED</span><span class="o">=</span><span class="m">0</span><span class="w"> </span><span class="nv">SPECDIR</span><span class="o">=</span>/path/to/ruby-spec<span class="w"> </span><span class="nv">CACHE</span><span class="o">=</span>/path/to/ruby-spec<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span>scripts/conformance/rubyspec/run.sh
 </code></pre></div>
 <p>It emits one record per spec file and hands them to the ratchet, which names
 any file that regressed and exits non-zero; <code>UPDATE_BASELINE=1</code> rewrites the

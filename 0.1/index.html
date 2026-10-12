@@ -929,7 +929,7 @@
 the lexer, parser and compiler embedded in the binary. Embed it in a Go program, or
 ship it as a single static executable that cross-compiles wherever Go does, with no
 C toolchain and no libruby.</p>
-<p><strong>How complete is it?</strong> It passes <strong>22,488</strong> of ruby/spec's <code>language/</code> + <code>core/</code>
+<p><strong>How complete is it?</strong> It passes <strong>23,511</strong> of ruby/spec's <code>language/</code> + <code>core/</code>
 examples — a large and growing subset of Ruby, and <strong>not</strong> a drop-in replacement for
 CRuby. <a href="conformance/#where-it-stands--measured-2026-09-26">Conformance</a> states
 exactly what that counts and what it leaves out, and
@@ -1121,9 +1121,9 @@ performance baselines against MRI and JRuby.</p>
 </li>
 <li><strong>WebAssembly:</strong> the <strong>WASI</strong> target (<code>GOOS=wasip1 GOARCH=wasm</code>) builds and runs
   — verified under <a href="https://wazero.io">wazero</a>, and gated in CI. The <strong>browser</strong>
-  target (<code>GOOS=js GOARCH=wasm</code>) <strong>does not currently build</strong>: the playground, the
-  <code>JS</code> bridge and <code>rbgo build --closed --target wasm</code> are all blocked behind one
-  compile error in <code>internal/vm</code>. On any wasm target the gems whose backends need
+  target (<code>GOOS=js GOARCH=wasm</code>) builds too, and has its own lane
+  (<code>wasm (js, browser)</code>) since
+  <a href="https://github.com/go-embedded-ruby/ruby/pull/684">ruby#684</a>. On any wasm target the gems whose backends need
   real TCP sockets or OS facilities (<code>grpc</code>, <code>nats</code>, <code>kafka</code>, <code>mysql2</code>, <code>mongo</code>,
   <code>arrow</code>, <code>parquet</code>, and the <code>redis</code>-backed <code>sidekiq</code>/<code>resque</code>) are <strong>compiled
   out</strong> and <code>require</code> raises a clean <code>LoadError</code>; the native build is unchanged.
