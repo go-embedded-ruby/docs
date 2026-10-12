@@ -100,10 +100,13 @@ var vocabularyCases = []struct {
 	// A number that is about something else entirely.
 	{"the floor went from **6 000** when the ratchet landed on 2026-08-03", false, ""},
 	{"climbed to **22 475** by the time it was replaced", false, ""},
-	// Of the examples that ran, 93.3% pass (22,488 of 24,116): a ratio inside the
-	// dated block. The percentage must not be read as a total, and the figure
-	// beside it belongs to that dated run.
-	{"Of the examples that ran, <b>93.3%</b> pass (22,488 of 24,116), measured 2026-09-26", false, ""},
+	// The landing page's ratio line, VERBATIM -- it carries no date, so it is not
+	// exempt, and it must miss on its own. It does: the figure is followed by
+	// "of 24,116" rather than by "examples pass", and the words before it are
+	// "93.3% pass" rather than "passes". That is a narrow escape and it is
+	// recorded as a case so a later widening of either pattern cannot start
+	// reading a ratio as a total without this failing first.
+	{`<li>Of the examples that ran, <b>93.3%</b> pass (22,488 of 24,116); 477 more are skipped because our shim stubs the matcher they need, and 10 of 2,206 spec files produce no result.</li>`, false, ""},
 }
 
 // match returns the figure a line claims as the CURRENT total, if any.
