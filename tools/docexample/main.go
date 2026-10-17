@@ -49,8 +49,11 @@ import (
 var fence = regexp.MustCompile("^\\s*```(\\w*)\\s*$")
 
 // claim matches a line that states its own answer: anything, then a comment of
-// the form `# => value`. The value runs to the end of the line.
-var claim = regexp.MustCompile(`#\s*=>\s*(.*)$`)
+// the form `# => value`, where the value must start with a non-space -- a bare
+// `# =>` claims nothing, and treating it as a claim of "" would compare the
+// printed line against an empty string and report a mismatch nobody wrote.
+// The value runs to the end of the line.
+var claim = regexp.MustCompile(`#\s*=>\s*(\S.*)$`)
 
 // example is one fenced block that claims at least one answer.
 type example struct {
@@ -254,6 +257,17 @@ func runSelfTest() int {
 			md:       "```ruby\np \"a#b\"   # => \"a#b\"\n```\n",
 			wantEx:   1,
 			wantWant: []string{`"a#b"`},
+		},
+		{
+			name:   "a bare # => claims nothing",
+			md:     "```ruby\np 1   # =>\n```\n",
+			wantEx: 0,
+		},
+		{
+			name:     "a value is kept even with no space after the arrow",
+			md:       "```ruby\np 1   #=>2\n```\n",
+			wantEx:   1,
+			wantWant: []string{"2"},
 		},
 	}
 	bad := 0
