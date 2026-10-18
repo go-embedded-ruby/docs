@@ -1,4 +1,9 @@
-# Values & object model
+---
+title: "Values & object model"
+weight: 30
+---
+
+# Values & object model {#values-object-model}
 
 Everything in Ruby is an object, and in go-embedded-ruby every Ruby object is a
 Go value. The `object` package defines a single `Value` interface implemented by
@@ -6,7 +11,7 @@ concrete Go types. Because these are ordinary Go heap allocations, **Go's
 garbage collector manages Ruby's heap** — there is no separate collector to
 write.
 
-## The `Value` interface
+## The `Value` interface {#the-value-interface}
 
 `Value` is an interface; each Ruby type is a concrete implementation. In Phase 0
 the set is deliberately small:
@@ -19,9 +24,9 @@ the set is deliberately small:
 
 The user-defined object types arrive later: `RObject` (instances), `RClass`
 (classes), and `RModule` (modules) land as the object model fills out in
-[Phase 1](../roadmap.md).
+[Phase 1]({{< relref "../roadmap.md" >}}).
 
-## Dynamic dispatch — the project's `objc_msgSend`
+## Dynamic dispatch — the project's `objc_msgSend` {#dynamic-dispatch-the-projects-objc_msgsend}
 
 Method calls are resolved at runtime through **mutable, per-class method
 tables**. Every class carries a table mapping method names to their compiled
@@ -41,14 +46,14 @@ falls out for free —
 - **singleton classes** (a per-object table inserted into the chain), and
 - **reflection** (the tables *are* the metadata).
 
-## Numbers, tags, and a real tension with Go's GC
+## Numbers, tags, and a real tension with Go's GC {#numbers-tags-and-a-real-tension-with-gos-gc}
 
 Ruby's integers are conceptually unbounded. Following the usual MRI-style
 **`Fixnum`/`Bignum` split**, small integers stay machine-width and promote to a
 big-integer (`math/big`) representation on overflow; arbitrary-precision
 integer literals are parsed directly to `Bignum`. (This promotion landed after
 the Phase 0 slice, which used plain `int64` and did *not* promote — see
-[Phase 0](../phases/phase0.md).)
+[Phase 0]({{< relref "../phases/phase0.md" >}}).)
 
 There is a genuine design tension here. The fastest representation for small
 integers is an **immediate / tagged value** — stuffing the integer into the
@@ -57,4 +62,4 @@ pointer-sized slot with a tag bit, as MRI does. But tagged non-pointer values
 pointers it can scan. The Phase 0 choice is therefore the safe one: **interface
 boxing** (each value is a real Go object behind the `Value` interface).
 Performance work on representation — including whether any form of tagging is
-worth the complexity — is deferred to [Phase 8](../roadmap.md).
+worth the complexity — is deferred to [Phase 8]({{< relref "../roadmap.md" >}}).

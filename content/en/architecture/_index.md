@@ -1,4 +1,9 @@
-# Architecture overview
+---
+title: "Architecture"
+weight: 20
+---
+
+# Architecture overview {#architecture-overview}
 
 go-embedded-ruby is a compiler **and** a virtual machine. Ruby source is lowered
 through a conventional front-end into a bytecode instruction sequence (an
@@ -6,7 +11,7 @@ through a conventional front-end into a bytecode instruction sequence (an
 the binary, so it is available both ahead-of-time and at runtime (for `eval` and
 dynamic `require`).
 
-## The pipeline
+## The pipeline {#the-pipeline}
 
 ```text
 source.rb → lexer → parser → AST → compiler → bytecode (ISeq) → VM
@@ -19,7 +24,7 @@ Each stage has a single responsibility:
 - **compiler** lowers the AST into bytecode — an ISeq.
 - **VM** executes the ISeq against the object model.
 
-## Two run modes
+## Two run modes {#two-run-modes}
 
 `rbgo` exposes the pipeline two ways:
 
@@ -28,9 +33,9 @@ Each stage has a single responsibility:
   `eval` and runtime `require` re-enter the front-end here.
 - **`rbgo build`** emits a **static binary**: it compiles the application and the
   reached standard library to bytecode, embeds that bytecode, and links one
-  self-contained executable. See [Build & single binary](build.md).
+  self-contained executable. See [Build & single binary]({{< relref "build.md" >}}).
 
-## Packages
+## Packages {#packages}
 
 The interpreter (`github.com/go-embedded-ruby/ruby`) is organized as a chain of
 small packages mirroring the pipeline stages, plus the object model the VM
@@ -48,6 +53,6 @@ operates on:
 | `object` | the value/object model the VM manipulates |
 
 The detail pages cover the three load-bearing pieces:
-[Values & object model](object-model.md),
-[Bytecode & VM](bytecode-vm.md), and the
-[Front-end](frontend.md).
+[Values & object model]({{< relref "object-model.md" >}}),
+[Bytecode & VM]({{< relref "bytecode-vm.md" >}}), and the
+[Front-end]({{< relref "frontend.md" >}}).

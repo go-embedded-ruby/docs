@@ -1,10 +1,15 @@
-# Bytecode & VM
+---
+title: "Bytecode & VM"
+weight: 40
+---
+
+# Bytecode & VM {#bytecode-vm}
 
 The compiler lowers the AST to a **YARV-style stack instruction set**, and the
 VM executes it. The design follows MRI's YARV and mruby closely so that
 behaviour can be reasoned about against a known model.
 
-## The instruction set
+## The instruction set {#the-instruction-set}
 
 The ISA is a classic stack machine. The instruction families in play are:
 
@@ -16,7 +21,7 @@ The ISA is a classic stack machine. The instruction families in play are:
 - **definition** — `define_method` (and class/module definition as the model
   grows)
 
-## The ISeq
+## The ISeq {#the-iseq}
 
 The unit of compiled code is the **instruction sequence (ISeq)**. An ISeq is not
 just a flat list of opcodes; it bundles everything the VM needs to run one method
@@ -29,7 +34,7 @@ or block:
 - **locals** — the local-variable slot map
 - **children** — nested ISeqs (for blocks and inner methods)
 
-## Frames, control flow, and errors (Phase 0)
+## Frames, control flow, and errors (Phase 0) {#frames-control-flow-and-errors-phase-0}
 
 In Phase 0 the VM **recurses on the Go stack**: a Ruby method call is a Go call
 into the interpreter loop, with an explicit **frame** capturing the receiver,
@@ -41,11 +46,14 @@ local slots, and the ISeq being run. Non-trivial control flow is handled by
 
 **Fibers** are not on the Go stack: the plan is **Fiber-on-goroutine**, with each
 Ruby `Fiber` backed by a goroutine, arriving in
-[Phase 3](../roadmap.md).
+[Phase 3]({{< relref "../roadmap.md" >}}).
 
-!!! note "Error propagation will change"
-    In Phase 0, Ruby errors travel as a Go `panic(RubyError)` and are recovered
-    at frame boundaries — this is the quickest way to get `rescue`/`ensure`
-    correct early. When exceptions land properly (Phase 3), error propagation
-    moves to explicit **status-returns** from the interpreter loop, removing the
-    panic/recover hot path.
+{{< callout type="info" >}}
+**Error propagation will change**
+
+In Phase 0, Ruby errors travel as a Go `panic(RubyError)` and are recovered
+at frame boundaries — this is the quickest way to get `rescue`/`ensure`
+correct early. When exceptions land properly (Phase 3), error propagation
+moves to explicit **status-returns** from the interpreter loop, removing the
+panic/recover hot path.
+{{< /callout >}}

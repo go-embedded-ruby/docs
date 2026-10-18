@@ -1,4 +1,9 @@
-# Benchmarks
+---
+title: "Benchmarks"
+weight: 110
+---
+
+# Benchmarks {#benchmarks}
 
 The numbers below are real measurements, reported honestly — including where
 rbgo is slower. They are **wall-clock** (process startup included), **best-of-8**
@@ -6,7 +11,7 @@ on an Apple **M4 Max** (darwin/arm64). The same `bench/*.rb` is run through ever
 runtime and each program's stdout is checked **byte-identical against MRI** before
 it is timed.
 
-## Six-runtime comparison
+## Six-runtime comparison {#six-runtime-comparison}
 
 `rbgo` is the pure-Go bytecode interpreter; **rbgo+AOT** is the native binary from
 `rbgo build` (the program's integer-bound methods lowered to Go). References:
@@ -42,7 +47,7 @@ Reproduce: `AOT=1 RUNS=8 JRUBY=jruby TRUFFLE=<path> bash bench/run.sh 8`. The fu
 write-up (methodology, profiling, where the time goes) is in
 [`BENCHMARKS.md`](https://github.com/go-embedded-ruby/ruby/blob/main/BENCHMARKS.md).
 
-## Per-module steady-state comparison (measured 2026-07-03)
+## Per-module steady-state comparison (measured 2026-07-03) {#per-module-steady-state-comparison-measured-2026-07-03}
 
 The whole-program table above is wall-clock and startup-dominated, which — as the
 [caveats](#methodology-caveats) note — is **not** a fair JIT comparison. This
@@ -109,7 +114,7 @@ ratio is unchanged** on purpose: profiling shows the format directive is only
 per-op allocation** in the surrounding checksum/interpolation, a VM-wide concern,
 not a module gap (see triage below).
 
-### Where rbgo already wins or is at parity
+### Where rbgo already wins or is at parity {#where-rbgo-already-wins-or-is-at-parity}
 
 - **rbgo *beats* MRI outright on six modules** — `rexml` (**28× faster** than
   MRI: the pure-Go go-ruby-rexml parser vs REXML's notoriously slow Ruby
@@ -124,7 +129,7 @@ not a module gap (see triage below).
 - **TruffleRuby is the compute ceiling** on the tight numeric kernels
   (`complex`, `rational`, `matrix`), as expected of a Graal JIT.
 
-### Gap triage — status after the fixes
+### Gap triage — status after the fixes {#gap-triage-status-after-the-fixes}
 
 The original sweep flagged three modules > 5× MRI. All three were investigated
 with pprof; two were real module gaps and are now **fixed**, the third turned out
@@ -164,14 +169,14 @@ this overhead is negligible, so their ratios are faithful. `strscan` (4.68×) an
 regexp-literal cache already pulled `strscan` in from an earlier ~25× regression,
 and `rational`'s residual is largely the same small-op VM overhead as `format`.
 
-### Variance
+### Variance {#variance}
 
 Median-of-3 spreads were < 5 % for all rbgo and MRI/YJIT cells. The larger relative
 spreads were confined to the **sub-microsecond** TruffleRuby/JRuby cells (e.g.
 Truffle `prime` 350 ns ± 33 %, `complex` 0.6 ns) where absolute noise dominates,
 and to `zlib` on Truffle (± 28 %); none affect the rbgo-vs-MRI ratios reported here.
 
-## Earlier startup-focused snapshot
+## Earlier startup-focused snapshot {#earlier-startup-focused-snapshot}
 
 An earlier, single-run snapshot (rbgo vs MRI+YJIT vs JRuby) — kept for the startup
 story:
@@ -185,7 +190,7 @@ story:
 | string build 300k | 0.07 s | 0.07 s | 1.16 s |
 | array map+sort 300k | 0.33 s | 0.07 s | 1.15 s |
 
-## Startup is rbgo's superpower
+## Startup is rbgo's superpower {#startup-is-rbgos-superpower}
 
 rbgo starts in **~0.02 s** — a single static Go binary, no separate runtime, no
 JVM — against MRI's ~0.05 s and JRuby's ~1.06 s. For an embedded interpreter or
@@ -195,28 +200,31 @@ the process is up and running before the alternatives have finished initialising
 It also colours the rest of the table. To read the **compute** cost of a
 workload, subtract this fixed startup from each column.
 
-## Interpreted compute
+## Interpreted compute {#interpreted-compute}
 
 On raw interpreted compute, **MRI leads** — its C interpreter with YJIT is the
 reference for fast Ruby, and rbgo, a **pure-Go bytecode VM**, is a few× slower on
 tight numeric and allocation-heavy loops (`fib`, `loop sum`, `array map+sort`).
 String building is already at parity (0.07 s vs 0.07 s).
 
-!!! warning "The JRuby numbers here are not a steady-state JIT comparison"
-    JRuby's JVM JIT pays a **large warm-up cost**, and every workload in this
-    table is short and therefore **startup-dominated**. These runs do not let the
-    JIT warm up, so they are **not** a fair picture of JRuby's steady-state
-    performance — JRuby competes on long-running, warm workloads, which this
-    table deliberately does not contain.
+{{< callout type="warning" >}}
+**The JRuby numbers here are not a steady-state JIT comparison**
 
-## rbgo's compute answer: AOT compilation
+JRuby's JVM JIT pays a **large warm-up cost**, and every workload in this
+table is short and therefore **startup-dominated**. These runs do not let the
+JIT warm up, so they are **not** a fair picture of JRuby's steady-state
+performance — JRuby competes on long-running, warm workloads, which this
+table deliberately does not contain.
+{{< /callout >}}
+
+## rbgo's compute answer: AOT compilation {#rbgos-compute-answer-aot-compilation}
 
 The interpreter is for embedding, portability and instant startup. When you need
 **raw compute speed**, the answer is the **AOT compiler**, `rbgo build`: it lowers
 hot methods to native Go — **unboxed `int64` kernels** with a deopt guard back to
 the interpreter on overflow or `÷0`. AOT-compiled, `fib(30)` runs **~4× faster
 than MRI + YJIT** while staying correct for every input. See the
-[AOT compiler](architecture/build.md) doc.
+[AOT compiler]({{< relref "architecture/build.md" >}}) doc.
 
 So the positioning is straightforward:
 
@@ -227,7 +235,7 @@ The scientific stack (`NDArray` / `FFT` / `Image`) gets a further lift from
 **go-asmgen-generated SIMD kernels** across the 64-bit arches, keeping the heavy
 numeric paths fast while staying CGO=0.
 
-## Methodology caveats
+## Methodology caveats {#methodology-caveats}
 
 Read these numbers as **indicative, not a rigorous benchmark suite**:
 

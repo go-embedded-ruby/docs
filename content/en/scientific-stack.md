@@ -1,4 +1,9 @@
-# Scientific stack & WebAssembly
+---
+title: "Scientific stack"
+weight: 70
+---
+
+# Scientific stack & WebAssembly {#scientific-stack-webassembly}
 
 Beyond the language core, go-embedded-ruby ships a **cgo-free numeric and
 scientific stack** as built-in Ruby classes. Each numeric extension binds a
@@ -9,7 +14,7 @@ pure Go — also compiles to **WebAssembly and runs in the browser**.
 All behaviour is differential-tested against MRI Ruby 4.0.5 (where MRI has an
 equivalent) and the bindings hold the org-wide **100% coverage** gate.
 
-## Numeric core
+## Numeric core {#numeric-core}
 
 | Type | Highlights |
 | --- | --- |
@@ -23,7 +28,7 @@ p Complex(1, 1) * Complex(2, -1)    # => (3+1i)
 p Math.hypot(3, 4)                  # => 5.0
 ```
 
-## NDArray — NumPy-style arrays
+## NDArray — NumPy-style arrays {#ndarray-numpy-style-arrays}
 
 Binds [go-ndarray](https://github.com/go-ndarray/ndarray): constructors
 `zeros`/`ones`/`full`/`arange`/`from`, element-wise `+ - * /` with scalar
@@ -37,7 +42,7 @@ p a.sum                 # => 15.0
 p a.transpose.shape     # => [3, 2]
 ```
 
-## FFT — numpy.fft-style transforms
+## FFT — numpy.fft-style transforms {#fft-numpyfft-style-transforms}
 
 Binds [go-fft](https://github.com/go-fft/fft) — no FFTW. 1-D
 (`fft`/`ifft`/`rfft`/`irfft`), N-D and 2-D (`fftn`/`ifftn`/`fft2`/`ifft2`),
@@ -49,7 +54,7 @@ bin-frequency helpers (`fftfreq`/`rfftfreq`), windows
 p FFT.fft([1, 2, 3, 4]).map { |c| c.real.round(3) }   # => [10.0, -2.0, -2.0, -2.0]
 ```
 
-## Special — scipy.special-style functions
+## Special — scipy.special-style functions {#special-scipyspecial-style-functions}
 
 Binds [go-numerics/special](https://github.com/go-numerics/special) — no SciPy:
 **all 67** of its functions under 66 Ruby names, which are **scipy's own**. The
@@ -76,7 +81,7 @@ p Special.zeta(2.0)                                         # => 1.6449340668482
 p Special.gamma(NDArray.from([1.0, 2.0, 3.0, 4.0], [2, 2])).to_a  # => [1.0, 1.0, 2.0, 6.0]
 ```
 
-## Stats — scipy.stats-style distributions
+## Stats — scipy.stats-style distributions {#stats-scipystats-style-distributions}
 
 Binds [go-statistics/stats](https://github.com/go-statistics/stats) — no SciPy:
 the **32 univariate distributions**, again under scipy's names, which is why
@@ -102,7 +107,7 @@ p Stats.poisson(3.0).pmf(2)      # => 0.22404180765538775
 p Stats.binom(10, 0.5).mean      # => 5.0
 ```
 
-## Integrate — scipy.integrate-style quadrature
+## Integrate — scipy.integrate-style quadrature {#integrate-scipyintegrate-style-quadrature}
 
 Binds [go-numerics/integrate](https://github.com/go-numerics/integrate) — no
 SciPy: adaptive `quad` (finite **or infinite** limits, `points:` for a known
@@ -129,7 +134,7 @@ p Integrate.quad(0.0, Float::INFINITY) { |x| Math.exp(-x) }[0].round(12)  # => 1
 p Integrate.trapezoid([0.0, 1.0, 4.0], dx: 1.0)           # => 3.0
 ```
 
-## Optimize — scipy.optimize-style root finding and minimisation
+## Optimize — scipy.optimize-style root finding and minimisation {#optimize-scipyoptimize-style-root-finding-and-minimisation}
 
 Binds [go-numerics/optimize](https://github.com/go-numerics/optimize) — no
 SciPy: the bracketing root finders `brentq`/`brenth`/`bisect`/`ridder` and
@@ -149,7 +154,7 @@ r = Optimize.minimize([0.0, 0.0]) { |v| (v[0] - 1.0) ** 2 + (v[1] - 2.0) ** 2 }
 p r[:x].map { |z| z.round(6) }                            # => [1.0, 2.0]
 ```
 
-## Image — scikit-image-style processing
+## Image — scikit-image-style processing {#image-scikit-image-style-processing}
 
 Binds [go-images](https://github.com/go-images/images): `Image.new`/`load`/`save`
 plus in-memory `decode`/`to_png`/`to_jpeg`, pixel `get`/`set`, filters
@@ -163,7 +168,7 @@ edges = Image.load("photo.png").gaussian_blur(1.0).sobel_mag
 edges.save("edges.png")
 ```
 
-## Set
+## Set {#set}
 
 Binds [go-composites/set](https://github.com/go-composites/set): `Set.new`/`[]`,
 `add`(`<<`)/`add?`/`delete`/`merge`/`clear`,
@@ -174,7 +179,7 @@ Binds [go-composites/set](https://github.com/go-composites/set): `Set.new`/`[]`,
 p (Set.new([1, 2, 3]) & Set.new([2, 3, 4])).to_a.sort   # => [2, 3]
 ```
 
-## Bag
+## Bag {#bag}
 
 A multiset / counter (element → multiplicity), binding
 [go-composites/bag](https://github.com/go-composites/bag): `add`(`<<`)/`delete`,
@@ -189,7 +194,7 @@ p b.count(:a)        # => 2
 p b.most_common(1)   # => [[:a, 2]]
 ```
 
-## Time & Date
+## Time & Date {#time-date}
 
 `Time` binds [go-composites/time](https://github.com/go-composites/time) and
 `Date` binds [go-composites/date](https://github.com/go-composites/date):
@@ -203,7 +208,7 @@ comparisons via `<=>`.
 p Date.new(2026, 6, 21).next_month.to_s   # => "2026-07-21"
 ```
 
-## BigDecimal
+## BigDecimal {#bigdecimal}
 
 Arbitrary-precision decimal, binding
 [go-composites/bigfloat](https://github.com/go-composites/bigfloat): `+ - * / **`,
@@ -214,7 +219,7 @@ comparisons — exact decimals without the float rounding of `Float`.
 p (BigDecimal("0.1") + BigDecimal("0.2")).to_s   # exact, no 0.30000000000000004
 ```
 
-## In the browser (WebAssembly)
+## In the browser (WebAssembly) {#in-the-browser-webassembly}
 
 The interpreter and the whole stack above compile to `GOOS=js GOARCH=wasm` and
 run **entirely in the browser** — there is no server-side code. The
@@ -226,11 +231,14 @@ image, runs `gaussian_blur`/`sobel`/`canny`, and renders it to a `<canvas>`):
 ./web/build.sh serve     # build web/rbgo.wasm and serve http://localhost:8080
 ```
 
-!!! note "Both wasm targets build"
-    The playground above and `rbgo build --closed --target wasm` target
-    `GOOS=js GOARCH=wasm`, which this page used to say failed to compile — true
-    on `3e8e3cc`, fixed by
-    [ruby#684](https://github.com/go-embedded-ruby/ruby/pull/684) and gated since
-    by the `wasm (js, browser)` lane. The WASI target
-    (`GOOS=wasip1 GOARCH=wasm`) builds and runs as before. See
-    **[WebAssembly](webassembly.md)**.
+{{< callout type="info" >}}
+**Both wasm targets build**
+
+The playground above and `rbgo build --closed --target wasm` target
+`GOOS=js GOARCH=wasm`, which this page used to say failed to compile — true
+on `3e8e3cc`, fixed by
+[ruby#684](https://github.com/go-embedded-ruby/ruby/pull/684) and gated since
+by the `wasm (js, browser)` lane. The WASI target
+(`GOOS=wasip1 GOARCH=wasm`) builds and runs as before. See
+**[WebAssembly]({{< relref "webassembly.md" >}})**.
+{{< /callout >}}
