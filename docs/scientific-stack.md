@@ -115,10 +115,17 @@ The integrand is a **block**, which is how Ruby passes a callable — and which
 takes `&f` for a Proc or lambda without any further surface. `quad` answers
 scipy's `(value, abserr)` pair, so it destructures the same way.
 
+The two quadrature results in the example below are rounded, and the others on
+this page are not. Quadrature sums products, which Go fuses into an FMA on
+arm64 and not on amd64, so the last bit of `quad`'s answer differs between
+architectures: `0.3333333333333333` on one and `0.33333333333333337` on the
+other. The special functions do not drift that way — their kernels are kept
+FMA-free on purpose — which is why only these two carry a `round`.
+
 ```ruby
 v, err = Integrate.quad(0.0, 1.0) { |x| x * x }
-p v                                                       # => 0.3333333333333333
-p Integrate.quad(0.0, Float::INFINITY) { |x| Math.exp(-x) }[0]  # => 1.0
+p v.round(12)                                             # => 0.333333333333
+p Integrate.quad(0.0, Float::INFINITY) { |x| Math.exp(-x) }[0].round(12)  # => 1.0
 p Integrate.trapezoid([0.0, 1.0, 4.0], dx: 1.0)           # => 3.0
 ```
 
