@@ -1,11 +1,16 @@
-# Build & single binary
+---
+title: "Build & single binary"
+weight: 60
+---
+
+# Build & single binary {#build-single-binary}
 
 `rbgo build` turns a Ruby program into **one static, self-contained
 executable** — no Ruby installation, no C toolchain, no shared libraries. The
 trick is to compile everything reachable to bytecode, embed it, and let the Go
 linker drop everything else.
 
-## How `rbgo build` works
+## How `rbgo build` works {#how-rbgo-build-works}
 
 1. **Scan the require graph.** Starting from the entry script, `rbgo` follows
    `require`s to discover exactly which standard-library files the program can
@@ -19,7 +24,7 @@ linker drop everything else.
 4. **Embed and link.** The bytecode is embedded into a small Go program that
    bundles the VM, and a plain **`go build`** produces a single static binary.
 
-## Closed-world mode
+## Closed-world mode {#closed-world-mode}
 
 A program that never calls `eval` and never does a *dynamic* `require` does not
 need the front-end at runtime. **Closed-world mode** takes advantage of this: it
@@ -28,9 +33,9 @@ already compiled to bytecode at build time. The result is a noticeably **smaller
 binary**, at the cost of giving up runtime code loading.
 
 The open-world default keeps the front-end embedded so `eval` and dynamic
-`require` keep working (see [Front-end](frontend.md)).
+`require` keep working (see [Front-end]({{< relref "frontend.md" >}})).
 
-## Ahead-of-time method compilation (landed)
+## Ahead-of-time method compilation (landed) {#ahead-of-time-method-compilation-landed}
 
 `rbgo build` already does more than embed bytecode: it **compiles the program's
 lowerable methods to native Go** and links them in, so dispatch runs machine
@@ -54,7 +59,7 @@ falls back to the interpreter for the genuinely dynamic parts. Design notes:
 Still ahead (the *single-binary* half of `rbgo build`): the require-graph scan,
 build-tag/`go:embed` stdlib selection and closed-world mode described above.
 
-## Precedent
+## Precedent {#precedent}
 
 This is not a new idea: **mruby** does essentially the same thing with
 *mrbgems*, where the set of compiled-in components is selected at build time via
@@ -63,4 +68,4 @@ selection is the same closed-world philosophy expressed through the Go
 toolchain.
 
 The build toolchain is developed in full in
-[Phase 7](../roadmap.md).
+[Phase 7]({{< relref "../roadmap.md" >}}).

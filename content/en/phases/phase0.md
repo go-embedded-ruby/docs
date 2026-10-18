@@ -1,11 +1,16 @@
-# Phase 0 — Vertical slice
+---
+title: "Phase 0 — Vertical slice"
+weight: 120
+---
+
+# Phase 0 — Vertical slice {#phase-0-vertical-slice}
 
 Phase 0 is a **thin vertical slice** through the whole system: source → lexer →
 parser → AST → compiler → bytecode → VM, runnable end to end. It is deliberately
 narrow but *complete* along its width, so every later phase extends a working
 machine rather than assembling one.
 
-## What Phase 0 delivers
+## What Phase 0 delivers {#what-phase-0-delivers}
 
 **Values**
 
@@ -36,7 +41,7 @@ machine rather than assembling one.
 
 - `puts`, `print`, `p`
 
-## The fib example
+## The fib example {#the-fib-example}
 
 The canonical Phase 0 program — method definition, required params, recursion,
 arithmetic, and a comparison — runs end to end:
@@ -50,21 +55,21 @@ end
 puts fib(20)   # => 6765
 ```
 
-## Exit criteria (met)
+## Exit criteria (met) {#exit-criteria-met}
 
 - `puts 1 + 2` prints `3` end to end.
 - `fib(20)` evaluates to `6765` end to end.
 - **~92% test coverage**, with the `object` package at **100%** — the bar
   *at the time this phase closed*. The interpreter has since been held to a
   **100% gate** on the POSIX CI lanes; see
-  [Conformance](../conformance.md#what-ci-enforces).
+  [Conformance]({{< relref "../conformance.md#what-ci-enforces" >}}).
 - Behaviour is **differential-tested against MRI**: the same programs are run on
   reference Ruby and the outputs compared.
 
-## Intentionally deferred
+## Intentionally deferred {#intentionally-deferred}
 
 To keep the slice thin, several things are explicitly **out of scope** for
-Phase 0 and arrive in later [phases](../roadmap.md):
+Phase 0 and arrive in later [phases]({{< relref "../roadmap.md" >}}):
 
 - **No receiver method calls yet** — only top-level/`self` calls and the
   built-ins above (the object model and dispatch are Phase 1).
@@ -72,5 +77,5 @@ Phase 0 and arrive in later [phases](../roadmap.md):
 - **No bignum promotion** — in the Phase 0 slice integers are plain `int64` and
   do not promote on overflow. (Automatic **Bignum** promotion and
   arbitrary-precision literals have since landed — see the
-  [roadmap](../roadmap.md).) See
-  [Values & object model](../architecture/object-model.md).
+  [roadmap]({{< relref "../roadmap.md" >}}).) See
+  [Values & object model]({{< relref "../architecture/object-model.md" >}}).

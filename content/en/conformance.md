@@ -1,10 +1,15 @@
-# Conformance
+---
+title: "Conformance"
+weight: 100
+---
+
+# Conformance {#conformance}
 
 go-embedded-ruby targets **Ruby 4.0** semantics. Correctness is not asserted by
 reading the spec and hoping — it is *measured* against running reference
 implementations, snippet by snippet, with the result checked into CI.
 
-## Two independent reference implementations
+## Two independent reference implementations {#two-independent-reference-implementations}
 
 Every behaviour is judged against **two independent reference implementations** of
 Ruby 4.0, so an agreement between them is strong evidence the behaviour is the
@@ -16,14 +21,17 @@ language's and not an accident of one VM:
 A subset of **ruby/spec** is run on top of this to cover behaviours the corpora
 do not yet reach.
 
-!!! note "TruffleRuby being added"
-    A third reference — **TruffleRuby** (the GraalVM implementation) — is being
-    added to both the conformance oracle and the performance baselines
-    ([interpreter PR #1](https://github.com/go-embedded-ruby/ruby/pull/1)). The
-    oracle and corpora below describe the rbgo / MRI / JRuby comparison that runs
-    on `main` today.
+{{< callout type="info" >}}
+**TruffleRuby being added**
 
-## The three-way differential oracle
+A third reference — **TruffleRuby** (the GraalVM implementation) — is being
+added to both the conformance oracle and the performance baselines
+([interpreter PR #1](https://github.com/go-embedded-ruby/ruby/pull/1)). The
+oracle and corpora below describe the rbgo / MRI / JRuby comparison that runs
+on `main` today.
+{{< /callout >}}
+
+## The three-way differential oracle {#the-three-way-differential-oracle}
 
 The tool that establishes correctness is a **three-way differential oracle**,
 [`scripts/oracle.sh`](https://github.com/go-embedded-ruby/ruby/blob/main/scripts/oracle.sh)
@@ -46,7 +54,7 @@ three implementations, with a summary of how many agree (`N/total`):
 scripts/oracle.sh -b scripts/conformance/core_ext.txt
 ```
 
-## What CI enforces
+## What CI enforces {#what-ci-enforces}
 
 On top of the oracle, the interpreter holds a hard CI gate:
 
@@ -68,7 +76,7 @@ is the authority on which lane runs what.
 A feature does not count as landed until it agrees with the reference and the
 lines that implement it are covered.
 
-### Real hardware, not just qemu
+### Real hardware, not just qemu {#real-hardware-not-just-qemu}
 
 qemu is the CI gate; **real silicon is the correctness-and-performance oracle**,
 so every one of the six arches is validated on real hardware:
@@ -84,10 +92,10 @@ so every one of the six arches is validated on real hardware:
 
 This real-hardware access is what turns the **SIMD-accelerated modules**
 (`base64` / `securerandom` / `hex`, via go-simd) and the
-[performance benchmarks](benchmarks.md) into measured numbers rather than
+[performance benchmarks]({{< relref "benchmarks.md" >}}) into measured numbers rather than
 llvm-mca estimates.
 
-## The ruby/spec ratchet
+## The ruby/spec ratchet {#the-rubyspec-ratchet}
 
 On top of the oracle, rbgo runs the `language/` and `core/` suites of
 [ruby/spec](https://github.com/ruby/spec) — the **executable specification** of
@@ -118,22 +126,25 @@ deliberately **conservative lower bound**. The
 [`rubyspec-ratchet`](https://github.com/go-embedded-ruby/ruby/blob/main/.github/workflows/rubyspec-ratchet.yml)
 workflow enforces it on every push and pull request.
 
-### Where it stands — measured 2026-09-26
+### Where it stands — measured 2026-09-26 {#where-it-stands-measured-2026-09-26}
 
-!!! info "The gate's current total is **23 511**"
-    The table below is one **dated full sweep**, and a dated measurement going
-    stale is not an error: it is what it says it is. The number that moves with
-    every merge is the per-file baseline's sum, which the badge and the README
-    quote, and it is read straight out of the gate's own file:
+{{< callout type="info" >}}
+**The gate's current total is **23 511****
 
-    ```console
-    $ awk -F'\t' '/^OK\t/{n+=$3} END{print n}' scripts/conformance/rubyspec/BASELINE
-    23511
-    ```
+The table below is one **dated full sweep**, and a dated measurement going
+stale is not an error: it is what it says it is. The number that moves with
+every merge is the per-file baseline's sum, which the badge and the README
+quote, and it is read straight out of the gate's own file:
 
-    The breakdown below — failing, erroring, skipped — needs a full sweep to
-    refresh and has not been re-run, so it keeps its own date rather than being
-    mixed with a newer total.
+```console
+$ awk -F'\t' '/^OK\t/{n+=$3} END{print n}' scripts/conformance/rubyspec/BASELINE
+23511
+```
+
+The breakdown below — failing, erroring, skipped — needs a full sweep to
+refresh and has not been re-run, so it keeps its own date rather than being
+mixed with a newer total.
+{{< /callout >}}
 
 On darwin/arm64, on `3e8e3cc`, against the pinned corpus
 (`SPEC_SHA=87b1631992bd00cf0c4934474766d54dad088191`).
@@ -153,38 +164,44 @@ timeouts (25 s and 60 s) and different parallelism, and once through a separate
 sweep that tallies all four counters. All three reported **22 488** passing and the
 same ten files producing no result.
 
-!!! warning "The baseline is a gate, not a score"
-    `BASELINE` says *"no file may come in below its row"*. Its sum is therefore the
-    level **CI guarantees**; a measured total is **what rbgo did on a given run**.
-    Quoting the guaranteed figure as the conformance result understates rbgo by
-    whatever has landed since the record was last written; quoting a measured total
-    as a guarantee overstates it by the same amount. The sum is **23 511**, and
-    both the repository README and this page read that figure out of the file
-    mechanically, each with a check that fails if they disagree — which is why
-    neither carries a release number beside it. The figure is verified
-    continuously; a release name next to it would not be, and pairing them makes
-    a checked fact carry an unchecked one.
+{{< callout type="warning" >}}
+**The baseline is a gate, not a score**
 
-!!! danger "What this number is not"
-    It is **not** "rbgo implements 93 % of Ruby", and it cannot be turned into a
-    percentage of the language:
+`BASELINE` says *"no file may come in below its row"*. Its sum is therefore the
+level **CI guarantees**; a measured total is **what rbgo did on a given run**.
+Quoting the guaranteed figure as the conformance result understates rbgo by
+whatever has landed since the record was last written; quoting a measured total
+as a guarantee overstates it by the same amount. The sum is **23 511**, and
+both the repository README and this page read that figure out of the file
+mechanically, each with a check that fails if they disagree — which is why
+neither carries a release number beside it. The figure is verified
+continuously; a release name next to it would not be, and pairing them makes
+a checked fact carry an unchecked one.
+{{< /callout >}}
 
-    - **Only `language/` and `core/` are swept.** ruby/spec's `library/`,
-      `optional/` and `security/` trees are **not run at all** — most of what people
-      mean by "the standard library" is outside this measurement entirely.
-    - **The shim is not mspec.** Some matchers are stubbed, so the examples needing
-      them are counted as *skipped*, never as passing. The total is a conservative
-      lower bound.
-    - **Skips are outside the ratio.** The 93.3 % divides passes by the examples
-      that ran; the 477 skips and the 10 unreadable files are in neither column.
-    - **Examples are not weighted.** A heavily specified method contributes far more
-      examples than a rarely used one, so the count does not track "features".
+{{< callout type="error" >}}
+**What this number is not**
+
+It is **not** "rbgo implements 93 % of Ruby", and it cannot be turned into a
+percentage of the language:
+
+- **Only `language/` and `core/` are swept.** ruby/spec's `library/`,
+  `optional/` and `security/` trees are **not run at all** — most of what people
+  mean by "the standard library" is outside this measurement entirely.
+- **The shim is not mspec.** Some matchers are stubbed, so the examples needing
+  them are counted as *skipped*, never as passing. The total is a conservative
+  lower bound.
+- **Skips are outside the ratio.** The 93.3 % divides passes by the examples
+  that ran; the 477 skips and the 10 unreadable files are in neither column.
+- **Examples are not weighted.** A heavily specified method contributes far more
+  examples than a rarely used one, so the count does not track "features".
+{{< /callout >}}
 
 An earlier revision of this page reported run-to-run spread from an intermittent
 crash in `core/module/autoload_spec.rb`. That did not reproduce during this
 measurement: five consecutive runs of that file returned identical counts, and it
 appeared in none of the three full sweeps.
-### Not every gain is VM conformance
+### Not every gain is VM conformance {#not-every-gain-is-vm-conformance}
 
 Two of the recent jumps came from fixing the **measurement**, not the
 interpreter, and blurring the two would be misleading:
@@ -209,7 +226,7 @@ ratchet landed on 2026-08-03
 ([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** by the
 time it was replaced by the per-file baseline, whose sum is **23 511**.
 
-### Known limitations
+### Known limitations {#known-limitations}
 
 Each entry below was re-run on `4872e01` against **MRI 4.0.7 on the same host**
 (darwin/arm64, 2026-10-11). Entries that no longer reproduced were removed — notably
@@ -275,7 +292,7 @@ them the same way through the same shim** — and the `instance_eval` rebinding
 above ([#621](https://github.com/go-embedded-ruby/ruby/issues/621)), largely fixed
 but not closed.
 
-## Real-world corpora
+## Real-world corpora {#real-world-corpora}
 
 Synthetic tests prove a feature works in isolation; they do not prove the idioms
 real Ruby code actually uses are supported. So beyond synthetic tests, **idioms and
@@ -291,7 +308,7 @@ gaps it exposed were fixed, it reached **15/15**. The committed corpus
 `scripts/conformance/core_ext.txt` currently runs **20/20** in agreement across
 rbgo, MRI and JRuby.
 
-## Heavyweight front-end conformance — Rails & Puppet
+## Heavyweight front-end conformance — Rails & Puppet {#heavyweight-front-end-conformance-rails-puppet}
 
 The two largest reference Ruby codebases double as a front-end stress test. The
 metric is **front-end (parse + compile) acceptance**: for every `.rb` file, does
@@ -328,19 +345,22 @@ Thor, Kramdown, dry-struct 100 %**; Homebrew 98.7 %; Chef 99.1 %; concurrent-rub
 98.3 %; Asciidoctor 93.8 % — and **RSpec DSL usage is 10/10** byte-identical to
 MRI.
 
-!!! warning "Front-end acceptance is not whole-application execution"
-    "Rails 99.82 %" means rbgo's front-end **parses and compiles** that fraction
-    of Rails's `.rb` files — **not** that rbgo **runs** Rails. Running a full Rails
-    or Puppet application additionally needs the runtime stdlib surface and
-    C-extension equivalents, which is **ongoing and unproven**. What these numbers
-    establish is that the **Ruby language / front-end is essentially complete** on
-    real-world code; whether any *given application boots* end-to-end is separate,
-    future work. Full reports:
-    [`CONFORMANCE-RAILS-PUPPET.md`](https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-RAILS-PUPPET.md)
-    and
-    [`CONFORMANCE-LIBRARIES.md`](https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-LIBRARIES.md).
+{{< callout type="warning" >}}
+**Front-end acceptance is not whole-application execution**
 
-## The conformance & benchmark ladder
+"Rails 99.82 %" means rbgo's front-end **parses and compiles** that fraction
+of Rails's `.rb` files — **not** that rbgo **runs** Rails. Running a full Rails
+or Puppet application additionally needs the runtime stdlib surface and
+C-extension equivalents, which is **ongoing and unproven**. What these numbers
+establish is that the **Ruby language / front-end is essentially complete** on
+real-world code; whether any *given application boots* end-to-end is separate,
+future work. Full reports:
+[`CONFORMANCE-RAILS-PUPPET.md`](https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-RAILS-PUPPET.md)
+and
+[`CONFORMANCE-LIBRARIES.md`](https://github.com/go-embedded-ruby/ruby/blob/main/CONFORMANCE-LIBRARIES.md).
+{{< /callout >}}
+
+## The conformance & benchmark ladder {#the-conformance-benchmark-ladder}
 
 Conformance is grown in three rungs, each a real corpus rather than a synthetic
 suite:
@@ -358,7 +378,7 @@ These are **front-end (parse + compile) acceptance** figures, not whole-app
 execution. Running a real application additionally needs the runtime stdlib
 surface and C-extension equivalents — which is now real enough to boot one.
 
-## Running Puppet — `puppet apply` runs end-to-end
+## Running Puppet — `puppet apply` runs end-to-end {#running-puppet-puppet-apply-runs-end-to-end}
 
 Beyond parsing real-world Ruby, **rbgo runs the real `puppet apply` CLI
 end-to-end**. `require "puppet"` **fully boots** the framework (Puppet 8.11.0) on
@@ -396,16 +416,19 @@ Three resource types now converge end-to-end through the transaction / RAL:
 is correctly skipped. `puppet apply` exits cleanly, the YAML run report / state
 round-tripping through the pure-Go Psych emitter / loader.
 
-!!! note "The honest frontier"
-    What converges end-to-end is the `puppet apply` CLI applying **`notify`**,
-    **`file`** and **`exec`** resources through the full pipeline (boot → parse →
-    compile → transaction / RAL → output → clean exit). The next frontier is the
-    **broader resource providers**: `user` / `group` are provider-ready, while
-    `package` / `service` need a host package manager / systemd and root. The
-    pipeline and the first convergent providers are proven; the remaining
-    system-state providers are the active next milestone, not done.
+{{< callout type="info" >}}
+**The honest frontier**
 
-## Run it yourself
+What converges end-to-end is the `puppet apply` CLI applying **`notify`**,
+**`file`** and **`exec`** resources through the full pipeline (boot → parse →
+compile → transaction / RAL → output → clean exit). The next frontier is the
+**broader resource providers**: `user` / `group` are provider-ready, while
+`package` / `service` need a host package manager / systemd and root. The
+pipeline and the first convergent providers are proven; the remaining
+system-state providers are the active next milestone, not done.
+{{< /callout >}}
+
+## Run it yourself {#run-it-yourself}
 
 From a checkout of the interpreter repo, with MRI 4.0.5 and JRuby 10.1 on
 `PATH`:

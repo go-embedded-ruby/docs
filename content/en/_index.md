@@ -1,4 +1,9 @@
-# go-embedded-ruby documentation
+---
+title: "Home"
+weight: 10
+---
+
+# go-embedded-ruby documentation {#go-embedded-ruby-documentation}
 
 **A Ruby interpreter written in pure Go, with cgo disabled** — a bytecode VM with
 the lexer, parser and compiler embedded in the binary. Embed it in a Go program, or
@@ -7,12 +12,12 @@ C toolchain and no libruby.
 
 **How complete is it?** It passes **23,511** of ruby/spec's `language/` + `core/`
 examples — a large and growing subset of Ruby, and **not** a drop-in replacement for
-CRuby. [Conformance](conformance.md#where-it-stands--measured-2026-09-26) states
+CRuby. [Conformance]({{< relref "conformance.md#where-it-stands-measured-2026-09-26" >}}) states
 exactly what that counts and what it leaves out, and
-[Known limitations](conformance.md#known-limitations) is worth reading before you
+[Known limitations]({{< relref "conformance.md#known-limitations" >}}) is worth reading before you
 depend on it.
 
-## Embedding it in a Go program
+## Embedding it in a Go program {#embedding-it-in-a-go-program}
 
 The public API is one function:
 
@@ -35,17 +40,20 @@ other `Run` — `ENV`, the working directory, open files and signal handlers —
 is also why `require_relative` resolves against the **process working
 directory**, since `Run` has no script to anchor to.
 
-!!! warning "`Run` is not a sandbox"
+{{< callout type="warning" >}}
+**`Run` is not a sandbox**
 
-    Conformance is the goal and MRI is not sandboxed either, so neither is this.
-    Through that one function, Ruby source can spawn `/bin/sh`, read and write
-    the filesystem as the host's uid, open sockets, `require` any absolute path,
-    and change the host's `ENV` and working directory. **Do not pass untrusted
-    Ruby to it.** Two things are deliberately out of reach: there is no path from
-    Ruby to the host's Go state, and the host's standard descriptors are not
-    exposed, so a script cannot write outside the `out` you passed. The
-    [repository README](https://github.com/go-embedded-ruby/ruby#run-is-not-a-sandbox)
-    carries the measurements.
+
+Conformance is the goal and MRI is not sandboxed either, so neither is this.
+Through that one function, Ruby source can spawn `/bin/sh`, read and write
+the filesystem as the host's uid, open sockets, `require` any absolute path,
+and change the host's `ENV` and working directory. **Do not pass untrusted
+Ruby to it.** Two things are deliberately out of reach: there is no path from
+Ruby to the host's Go state, and the host's standard descriptors are not
+exposed, so a script cannot write outside the `out` you passed. The
+[repository README](https://github.com/go-embedded-ruby/ruby#run-is-not-a-sandbox)
+carries the measurements.
+{{< /callout >}}
 
 go-embedded-ruby compiles Ruby source to bytecode and runs it on a stack VM in
 the **mruby/YARV lineage**. Because the front-end (lexer + parser + compiler)
@@ -65,12 +73,12 @@ POSIX lanes (ubuntu, macOS; the full `-race` suite also runs on windows, where a
 few POSIX-only paths make the gate unreachable). Per-PR architecture cover is the
 native `amd64` and `arm64` lanes; the four exotic 64-bit targets (riscv64,
 loong64, ppc64le, s390x) are validated nightly under QEMU and on scheduled real
-hardware. See [Conformance](conformance.md#what-ci-enforces). Beyond synthetic tests, the bar is real-world Ruby: idioms and test suites
+hardware. See [Conformance]({{< relref "conformance.md#what-ci-enforces" >}}). Beyond synthetic tests, the bar is real-world Ruby: idioms and test suites
 from **reference applications such as Rails** (ActiveSupport's pure-Ruby
 `core_ext`) and **OpenVox**/Puppet drive the remaining work and double as
 performance baselines against MRI and JRuby.
 
-## Supported today
+## Supported today {#supported-today}
 
 Every feature below is **differential-tested against MRI Ruby 4.0.5**:
 
@@ -180,7 +188,7 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   `Image` (scikit-image-style processing) — plus container/value types `Set`, `Bag`
   (multiset), `Time`, `Date` and `BigDecimal`, each binding a pure-Go sibling library
   (go-ndarray / go-fft / go-numerics / go-statistics / go-images / go-composites). See
-  [Scientific stack](scientific-stack.md).
+  [Scientific stack]({{< relref "scientific-stack.md" >}}).
 - **Native capability modules:** a set of `require`-able modules, each backed by a
   canonical pure-Go `go-ruby-*` library so the build stays **CGO=0**. They wrap
   real I/O / network / crypto engines, so throughput tracks the underlying driver
@@ -212,14 +220,14 @@ Every feature below is **differential-tested against MRI Ruby 4.0.5**:
   real TCP sockets or OS facilities (`grpc`, `nats`, `kafka`, `mysql2`, `mongo`,
   `arrow`, `parquet`, and the `redis`-backed `sidekiq`/`resque`) are **compiled
   out** and `require` raises a clean `LoadError`; the native build is unchanged.
-  See [WebAssembly](webassembly.md).
+  See [WebAssembly]({{< relref "webassembly.md" >}}).
 
 Closed-world builds have landed (`rbgo build --closed` bakes the program in as
 bytecode and drops the front-end; `--target wasm` cross-compiles it to the
-browser). Still ahead (see the [roadmap](roadmap.md)):
+browser). Still ahead (see the [roadmap]({{< relref "roadmap.md" >}})):
 conformance and representation/perf tuning (Phase 8).
 
-## Running real-world Ruby: Puppet
+## Running real-world Ruby: Puppet {#running-real-world-ruby-puppet}
 
 Beyond parsing real-world Ruby, **rbgo runs the real [Puppet](https://github.com/puppetlabs/puppet)
 `puppet apply` CLI end-to-end**. `require "puppet"` **fully boots** the framework
@@ -248,9 +256,9 @@ cleanly, the YAML run report / state round-tripping through the pure-Go Psych
 emitter / loader. The honest frontier is the **broader resource providers**:
 `user` / `group` are provider-ready, while `package` / `service` need a host
 package manager / systemd and root. See
-[Conformance](conformance.md#running-puppet-puppet-apply-runs-end-to-end).
+[Conformance]({{< relref "conformance.md#running-puppet-puppet-apply-runs-end-to-end" >}}).
 
-## Repositories
+## Repositories {#repositories}
 
 | Repo | What it is |
 | --- | --- |
@@ -258,7 +266,7 @@ package manager / systemd and root. See
 | [`docs`](https://github.com/go-embedded-ruby/docs) | this documentation site (MkDocs Material, versioned with mike) |
 | [`go-embedded-ruby.github.io`](https://github.com/go-embedded-ruby/go-embedded-ruby.github.io) | the organization landing page (Hugo) |
 
-## Ecosystem — the `go-ruby-*` family
+## Ecosystem — the `go-ruby-*` family {#ecosystem-the-go-ruby-family}
 
 rbgo is increasingly assembled from a family of **standalone pure-Go (CGO=0),
 MRI-compatible libraries** living in **sibling orgs**, each with **100% coverage
@@ -291,7 +299,7 @@ The scientific / container stack ([go-ndarray](https://github.com/go-ndarray/nda
 [go-statistics](https://github.com/go-statistics), [go-images](https://github.com/go-images/images),
 [go-composites](https://github.com/go-composites)) binds in the same way.
 
-## How it differs from goruby
+## How it differs from goruby {#how-it-differs-from-goruby}
 
 There is an existing Go project also called [goruby][goruby]. go-embedded-ruby
 takes a deliberately different path:
@@ -306,13 +314,13 @@ takes a deliberately different path:
 - **Ruby 4.0 as the target.** Behaviour is checked against MRI rather than
   approximated.
 
-## Where to go next
+## Where to go next {#where-to-go-next}
 
-- [Architecture overview](architecture/index.md) — the compilation pipeline and
+- [Architecture overview]({{< relref "architecture/_index.md" >}}) — the compilation pipeline and
   the packages that make it up.
-- [Roadmap (phases)](roadmap.md) — the nine phases from vertical slice to
+- [Roadmap (phases)]({{< relref "roadmap.md" >}}) — the nine phases from vertical slice to
   conformance and performance.
-- [Phase 0 — Vertical slice](phases/phase0.md) — what runs today and how it is
+- [Phase 0 — Vertical slice]({{< relref "phases/phase0.md" >}}) — what runs today and how it is
   tested.
 
 Source lives at

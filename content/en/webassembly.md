@@ -1,22 +1,30 @@
-# WebAssembly
+---
+title: "WebAssembly"
+weight: 80
+---
 
-!!! success "The browser target builds, and a CI lane gates it"
-    This page carried a `danger` admonition saying `GOOS=js GOARCH=wasm` failed to
-    compile, measured on `3e8e3cc` (2026-09-26). It was fixed by
-    [ruby#684](https://github.com/go-embedded-ruby/ruby/pull/684), which closed the
-    three missing `syscall` constants **and added the lane that would have caught
-    it** — `wasm (js, browser)` in `ci.yml`, green on every pull request since.
+# WebAssembly {#webassembly}
 
-    Re-measured on `4872e01` (2026-10-11):
+{{< callout type="info" >}}
+**The browser target builds, and a CI lane gates it**
 
-    ```console
-    $ CGO_ENABLED=0 GOOS=js GOARCH=wasm go build ./...
-    $ echo $?
-    0
-    ```
+This page carried a `danger` admonition saying `GOOS=js GOARCH=wasm` failed to
+compile, measured on `3e8e3cc` (2026-09-26). It was fixed by
+[ruby#684](https://github.com/go-embedded-ruby/ruby/pull/684), which closed the
+three missing `syscall` constants **and added the lane that would have caught
+it** — `wasm (js, browser)` in `ci.yml`, green on every pull request since.
 
-    `./cmd/rbgo`, `./cmd/wasm` and `./...` all exit 0, so the playground, the `JS`
-    bridge and `rbgo build --closed --target wasm` build as this page describes.
+Re-measured on `4872e01` (2026-10-11):
+
+```console
+$ CGO_ENABLED=0 GOOS=js GOARCH=wasm go build ./...
+$ echo $?
+0
+```
+
+`./cmd/rbgo`, `./cmd/wasm` and `./...` all exit 0, so the playground, the `JS`
+bridge and `rbgo build --closed --target wasm` build as this page describes.
+{{< /callout >}}
 
 **WASI (`GOOS=wasip1 GOARCH=wasm`) does work, and is gated in CI:**
 
@@ -45,7 +53,7 @@ different needs:
 
 Both produce a `.wasm` module that you serve next to Go's `wasm_exec.js` loader.
 
-## What is *not* available in the browser
+## What is *not* available in the browser {#what-is-not-available-in-the-browser}
 
 A browser tab has **no TCP sockets and no cgo**, so the gem backends that open
 real network connections or use OS facilities cannot function there. They are
@@ -66,7 +74,7 @@ Everything else — plain Ruby, the numeric / image stack, and the `JS` DOM/Canv
 bridge below — is fully available in the browser. A REPL that sticks to language
 features and the numeric/image APIs behaves identically to the native build.
 
-## 1. The playground — the full interpreter in the browser
+## 1. The playground — the full interpreter in the browser {#1-the-playground-the-full-interpreter-in-the-browser}
 
 The playground links the **whole** interpreter — front-end (lexer, parser,
 compiler), VM, the numeric stack and the cgo-free image pipeline — so the page
@@ -107,7 +115,7 @@ Image.decode(INPUT).gaussian_blur(2.0).sobel_mag.to_png
 Arbitrary REPL input can never crash the interpreter: a native binding that
 faults on bad arguments is converted to a rescuable Ruby `ArgumentError`.
 
-## 2. `rbgo build --target wasm` — a closed-world wasm app
+## 2. `rbgo build --target wasm` — a closed-world wasm app {#2-rbgo-build-target-wasm-a-closed-world-wasm-app}
 
 To ship a *single* program rather than a REPL, AOT-bake it into a closed-world
 wasm module that **drops the front-end**:
@@ -130,7 +138,7 @@ rbgo build --closed --target wasm -o app.wasm app.rb
 Serve the emitted `app.wasm` next to `wasm_exec.js` (copy it from
 `$(go env GOROOT)/lib/wasm/wasm_exec.js`).
 
-### The `JS` module — DOM, Canvas and events from Ruby
+### The `JS` module — DOM, Canvas and events from Ruby {#the-js-module-dom-canvas-and-events-from-ruby}
 
 A closed-world wasm program reaches the page through the built-in **`JS`
 module**, which the VM registers automatically on wasm. So a Ruby browser app can
@@ -174,7 +182,7 @@ JS values flow both ways: primitives convert directly (numbers, strings,
 booleans, null/undefined → `nil`), and objects/functions become opaque `JS::Ref`
 handles.
 
-## Verifying a wasm build
+## Verifying a wasm build {#verifying-a-wasm-build}
 
 The closed-world wasm path is covered end to end by an integration test
 ([`cmd/rbgo/wasm_build_test.go`](https://github.com/go-embedded-ruby/ruby/blob/main/cmd/rbgo/wasm_build_test.go),
