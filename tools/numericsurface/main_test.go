@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -131,13 +132,39 @@ func TestExtraction(t *testing.T) {
 func TestProbeAsksAboutEveryModule(t *testing.T) {
 	p := probe(modules)
 	for _, m := range modules {
-		if !strings.Contains(p, m.konst+".singleton_methods") {
-			t.Errorf("the probe does not ask about %s", m.konst)
+		for _, k := range m.konsts {
+			if !strings.Contains(p, k+".singleton_methods") {
+				t.Errorf("the probe does not ask about %s", k)
+			}
 		}
 		for _, inst := range m.instances {
 			if !strings.Contains(p, "("+inst+").methods") {
 				t.Errorf("the probe does not ask about the instance %s", inst)
 			}
+		}
+	}
+}
+
+// A section that covers two constants must POOL their names: checking each
+// against the shared prose reports the other's names as unknown. "Time & Date"
+// is the real case -- `leap?` and `next_day` are Date's, `at` is Time's, and a
+// reader meets all three in one section.
+func TestASharedSectionPoolsItsConstants(t *testing.T) {
+	var shared *module
+	for i := range modules {
+		if len(modules[i].konsts) > 1 {
+			shared = &modules[i]
+			break
+		}
+	}
+	if shared == nil {
+		t.Skip("no section covers more than one constant")
+	}
+	p := probe(modules)
+	for _, k := range shared.konsts {
+		want := k + ".singleton_methods.each { |n| puts \"" + shared.name() + "\\tsingleton"
+		if !strings.Contains(p, want) {
+			t.Errorf("%s does not report under the shared name %q", k, shared.name())
 		}
 	}
 }
@@ -148,7 +175,7 @@ func TestEveryExemptionGivesAReason(t *testing.T) {
 	for _, m := range modules {
 		for word, why := range m.prose {
 			if strings.TrimSpace(why) == "" {
-				t.Errorf("%s exempts %q with no reason", m.konst, word)
+				t.Errorf("%s exempts %q with no reason", m.name(), word)
 			}
 		}
 	}
@@ -223,21 +250,7 @@ func TestMain(m *testing.M) {
 // read is the defect this file exists to refuse, so the break cases assert the
 // message as well as the status.
 func TestItBites(t *testing.T) {
-	const answer = "Special\tsingleton\tgamma\n" +
-		"Special\tsingleton\terf\n" +
-		"Stats\tsingleton\tnorm\n" +
-		"Stats\tinstance\tpdf\n" +
-		"Integrate\tsingleton\tquad\n" +
-		"Optimize\tsingleton\tbrentq\n" +
-		"NDArray\tsingleton\tarange\n" +
-		"FFT\tsingleton\tfft\n"
-
-	// One page naming every module, so no module makes the run refuse for the
-	// wrong reason.
-	const clean = "## Special\n\n`gamma` and `erf`, 2 Ruby names.\n\n" +
-		"## Stats\n\n`norm`, `pdf`, the 1 univariate distributions.\n\n" +
-		"## Integrate\n\n`quad`\n\n## Optimize\n\n`brentq`\n\n" +
-		"## NDArray\n\n`arange`\n\n## FFT\n\n`fft`\n"
+	answer, clean := fixture(t)
 
 	cases := []struct {
 		name     string
@@ -248,15 +261,15 @@ func TestItBites(t *testing.T) {
 		{"the pages agree with the interpreter", clean, 0, ""},
 		{
 			name:     "a name the interpreter does not answer",
-			md:       strings.Replace(clean, "`gamma` and `erf`", "`gamma`, `erf` and `nosuchfunc`", 1),
+			md:       strings.Replace(clean, "`m0`", "`m0` and `nosuchfunc`", 1),
 			wantCode: 1,
 			wantMsg:  "nosuchfunc",
 		},
 		{
 			name:     "a stated count that is not the one the module has",
-			md:       strings.Replace(clean, "2 Ruby names", "9 Ruby names", 1),
+			md:       strings.Replace(clean, "1 Ruby names", "9 Ruby names", 1),
 			wantCode: 1,
-			wantMsg:  "states 9, the interpreter answers 2",
+			wantMsg:  "states 9, the interpreter answers 1",
 		},
 		{
 			name:     "a root holding no module section at all",
@@ -304,6 +317,41 @@ func TestItBites(t *testing.T) {
 			}
 		})
 	}
+}
+
+// countPhrase gives, for each `counted` pattern in the table, a sentence that
+// pattern must read. A module whose pattern has no phrase here FAILS the
+// fixture: otherwise a count could be added to the table and never exercised,
+// and an unexercised pattern is a guess -- which is how the site ended up
+// stating three different conformance totals in the first place.
+var countPhrase = map[string]func(int) string{
+	`(\d+) Ruby names`:               func(n int) string { return fmt.Sprintf("%d Ruby names", n) },
+	`(\d+) univariate distributions`: func(n int) string { return fmt.Sprintf("%d univariate distributions", n) },
+}
+
+// fixture builds, FROM THE TABLE, an interpreter answer and a page that agree:
+// one invented method per section, plus the stated count where a section states
+// one. Generating it means a module added to the table is covered here without
+// anybody remembering to extend a literal -- and the run refuses outright if a
+// module answers nothing, so a literal would have made every later addition
+// fail for the wrong reason.
+func fixture(t *testing.T) (answer, page string) {
+	t.Helper()
+	var a, p strings.Builder
+	for i, m := range modules {
+		meth := fmt.Sprintf("m%d", i)
+		fmt.Fprintf(&a, "%s\tsingleton\t%s\n", m.name(), meth)
+		fmt.Fprintf(&p, "## %s\n\n`%s`", m.heading, meth)
+		if m.counted != "" {
+			phrase, ok := countPhrase[m.counted]
+			if !ok {
+				t.Fatalf("the table counts %q but this test has no sentence for that pattern", m.counted)
+			}
+			fmt.Fprintf(&p, ", %s", phrase(1))
+		}
+		p.WriteString("\n\n")
+	}
+	return a.String(), p.String()
 }
 
 // The helper mode must actually be reachable, or every case above would be

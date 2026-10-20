@@ -218,8 +218,16 @@ p Date.new(2026, 6, 21).next_month.to_s   # => "2026-07-21"
 
 Arbitrary-precision decimal, binding
 [go-composites/bigfloat](https://github.com/go-composites/bigfloat): `+ - * / **`,
-`sqrt`/`abs`/`ceil`/`floor`/`round`/`pow`, `to_f`/`to_i`/`to_s`, `zero?`, and
-comparisons — exact decimals without the float rounding of `Float`.
+`abs`/`ceil`/`floor`/`round`/`truncate`/`pow`, the integer divisions
+`div`/`divmod`/`modulo`/`remainder`, the parts `frac`/`fix`/`exponent`/
+`precision`/`sign`/`split`, `to_f`/`to_i`/`to_r`/`to_s`, the predicates
+`zero?`/`nan?`/`finite?`/`infinite?`, and comparisons — exact decimals without
+the float rounding of `Float`.
+
+MRI's `BigDecimal#sqrt(n)` is **not bound yet**:
+[ruby#825](https://github.com/go-embedded-ruby/ruby/issues/825). This page said
+it was until 2026-10-20, which is the first broken promise
+`tools/numericsurface` found.
 
 ```ruby
 p (BigDecimal("0.1") + BigDecimal("0.2")).to_s   # exact, no 0.30000000000000004
