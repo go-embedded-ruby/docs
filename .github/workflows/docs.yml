@@ -73,6 +73,39 @@ jobs:
           hugo --gc --minify --panicOnWarning --printPathWarnings
           --baseURL "${DOCS_URL}/${{ steps.version.outputs.version }}/"
 
+      # ⛔ THE TWO DOCUMENTATION GUARDS. Both existed before the move from
+      # MkDocs to Hugo (#28), which rewrote this file and dropped them: they
+      # stayed in tools/ and nothing called them, so for two releases the pages
+      # could have stated any conformance total and any example output without
+      # a build disagreeing. tools/wired is the test that now fails when a tool
+      # under tools/ is named by no workflow, because a guard that is not wired
+      # is indistinguishable from one that passes -- both are silent.
+      #
+      # They run in `build`, which also covers pull requests, so a wrong figure
+      # blocks the change rather than being found after publication.
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '1.27.2'
+
+      - name: Every tool under tools/ is called by a workflow
+        run: go test ./...
+
+      - name: The stated conformance totals match the gate
+        run: go run ./tools/conformancefigure -root content/en
+
+      # The examples carry their answers in `# =>` comments; this runs them.
+      # rbgo is built from the ruby repository's main so they are judged against
+      # the interpreter these pages describe. An interpreter that cannot be
+      # produced exits 2 -- a REFUSAL, not a pass.
+      - name: The Ruby examples print what the pages say they print
+        run: |
+          go run ./tools/docexample -selftest
+          # GOBIN names the destination: `go install` otherwise writes to
+          # $(go env GOPATH)/bin, and an install that lands elsewhere looks
+          # exactly like one that worked.
+          GOBIN=/tmp go install github.com/go-embedded-ruby/ruby/cmd/rbgo@main
+          go run ./tools/docexample -rbgo /tmp/rbgo -root content/en
+
       - name: Lay out the site for the link check
         run: |
           mkdir -p _check/docs
