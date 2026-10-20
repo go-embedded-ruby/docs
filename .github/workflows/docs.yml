@@ -114,11 +114,10 @@ jobs:
       #
       # It uses the /tmp/rbgo the step above installed. If that step ever goes
       # away this one exits 2 -- a refusal, not a pass -- which is the failure
-      # worth having.
+      # worth having. Its own extraction is covered by `go test ./...` above,
+      # which is why it has no -selftest flag of its own.
       - name: Every method name the pages print is one the interpreter answers
-        run: |
-          go run ./tools/numericsurface -selftest
-          go run ./tools/numericsurface -rbgo /tmp/rbgo -root content/en
+        run: go run ./tools/numericsurface --rbgo /tmp/rbgo --root content/en
 
       - name: Lay out the site for the link check
         run: |

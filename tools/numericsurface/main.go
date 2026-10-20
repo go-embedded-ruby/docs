@@ -5,11 +5,11 @@
 // module's names "are scipy's own", while the ruby repository's own README --
 // which has a test holding it to the source -- says 63 of the 67 are, and names
 // the four that are not. The README had been corrected after one of those four,
-// `in`, turned out to be a name I had invented and attributed to scipy. The
+// `in`, turned out to be a name invented and attributed to scipy. The
 // correction never crossed the repository boundary, because nothing here reads
 // the ruby repository. That is the gap: tools/conformancefigure guards the one
 // NUMBER this site states, tools/docexample guards the OUTPUTS of examples that
-// claim one, and the long prose lists of method names -- around 120 of them --
+// claim one, and the long prose lists of method names -- around 150 of them --
 // were guarded by nothing at all.
 //
 // WHAT IT JUDGES. For each module in the table below, it takes the page section
@@ -37,8 +37,9 @@ package main
 
 import (
 	"bytes"
-	"flag"
+	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
@@ -47,6 +48,8 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 // module is one Ruby module or class the site documents, and how to find both
@@ -222,36 +225,61 @@ func ask(rbgo string, mods []module) (have map[string]map[string]bool, singles m
 	return have, singles, nil
 }
 
-func main() {
-	rbgo := flag.String("rbgo", "", "path to an rbgo binary (required)")
-	root := flag.String("root", "content/en", "directory of Markdown files to read")
-	verbose := flag.Bool("v", false, "also list the names that check out")
-	selftest := flag.Bool("selftest", false, "check the extraction against known cases and exit")
-	flag.Parse()
+// exitError carries the status the command means, so the documented 1/2/3 are
+// not flattened into cobra's single "an error happened" exit of 1.
+type exitError struct {
+	code int
+	msg  string
+}
 
-	if *selftest {
-		os.Exit(runSelfTest())
+func (e *exitError) Error() string { return e.msg }
+
+// RootCmd is the whole command, built so a test can drive it with SetArgs,
+// SetOut and SetErr instead of a subprocess.
+func RootCmd() *cobra.Command {
+	var (
+		rbgo    string
+		root    string
+		verbose bool
+	)
+	cmd := &cobra.Command{
+		Use:   "numericsurface",
+		Short: "Check that every method name the pages print is one the interpreter answers",
+		Long: "numericsurface reads the module sections of this site, collects every token\n" +
+			"written in backticks that could be a Ruby method name, and asks a real rbgo\n" +
+			"whether the module answers it. It also compares the counts the pages state\n" +
+			"with the counts the modules have.",
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		Args:          cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return check(cmd.OutOrStdout(), cmd.ErrOrStderr(), rbgo, root, verbose)
+		},
 	}
-	if *rbgo == "" {
-		fmt.Fprintln(os.Stderr, "numericsurface: -rbgo is required: without an interpreter this cannot check anything,")
-		fmt.Fprintln(os.Stderr, "and reporting success would be a pass it did not earn.")
-		os.Exit(2)
+	cmd.Flags().StringVar(&rbgo, "rbgo", "", "path to an rbgo binary (required)")
+	cmd.Flags().StringVar(&root, "root", "content/en", "directory of Markdown files to read")
+	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "also list the names that check out")
+	return cmd
+}
+
+// check is the whole decision, with its two streams passed in.
+func check(stdout, stderr io.Writer, rbgo, root string, verbose bool) error {
+	if rbgo == "" {
+		return &exitError{2, "--rbgo is required: without an interpreter this cannot check anything,\n" +
+			"and reporting success would be a pass it did not earn."}
 	}
-	if _, err := os.Stat(*rbgo); err != nil {
-		fmt.Fprintf(os.Stderr, "numericsurface: -rbgo %q: %v\n", *rbgo, err)
-		os.Exit(2)
+	if _, err := os.Stat(rbgo); err != nil {
+		return &exitError{2, fmt.Sprintf("--rbgo %q: %v", rbgo, err)}
 	}
 
-	have, singles, err := ask(*rbgo, modules)
+	have, singles, err := ask(rbgo, modules)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "numericsurface: asking the interpreter: %v\n", err)
-		os.Exit(2)
+		return &exitError{2, fmt.Sprintf("asking the interpreter: %v", err)}
 	}
 	for _, m := range modules {
 		if len(have[m.konst]) == 0 {
-			fmt.Fprintf(os.Stderr, "numericsurface: the interpreter answered no names for %s; "+
-				"either the module is gone or the probe no longer reaches it\n", m.konst)
-			os.Exit(2)
+			return &exitError{2, fmt.Sprintf("the interpreter answered no names for %s; "+
+				"either the module is gone or the probe no longer reaches it", m.konst)}
 		}
 	}
 
@@ -261,7 +289,7 @@ func main() {
 		body []byte
 	}
 	var pages []page
-	err = filepath.WalkDir(*root, func(p string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -276,12 +304,10 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "numericsurface: walking %s: %v\n", *root, err)
-		os.Exit(2)
+		return &exitError{2, fmt.Sprintf("walking %s: %v", root, err)}
 	}
 	if len(pages) == 0 {
-		fmt.Fprintf(os.Stderr, "numericsurface: read no Markdown under %s -- nothing was checked\n", *root)
-		os.Exit(3)
+		return &exitError{3, fmt.Sprintf("read no Markdown under %s -- nothing was checked", root)}
 	}
 
 	checked, bad, sections := 0, 0, 0
@@ -292,13 +318,12 @@ func main() {
 				continue
 			}
 			sections++
-			names := namesIn(body)
 			var unknown []string
-			for _, n := range names {
+			for _, n := range namesIn(body) {
 				checked++
 				if have[m.konst][n] {
-					if *verbose {
-						fmt.Printf("%s: %s.%s\n", pg.path, m.konst, n)
+					if verbose {
+						fmt.Fprintf(stdout, "%s: %s.%s\n", pg.path, m.konst, n)
 					}
 					continue
 				}
@@ -309,12 +334,12 @@ func main() {
 			}
 			if len(unknown) > 0 {
 				sort.Strings(unknown)
-				fmt.Fprintf(os.Stderr, "%s: the %s section prints %d name(s) the interpreter does not answer: %s\n",
+				fmt.Fprintf(stderr, "%s: the %s section prints %d name(s) the interpreter does not answer: %s\n",
 					pg.path, m.konst, len(unknown), strings.Join(unknown, " "))
 				bad += len(unknown)
 			}
 			if want, stated := countIn(body, m.counted); stated && want != singles[m.konst] {
-				fmt.Fprintf(os.Stderr, "%s: the %s section states %d, the interpreter answers %d\n",
+				fmt.Fprintf(stderr, "%s: the %s section states %d, the interpreter answers %d\n",
 					pg.path, m.konst, want, singles[m.konst])
 				bad++
 			}
@@ -323,146 +348,36 @@ func main() {
 
 	// "N of M, never N alone": a walk that found no section reports no
 	// disagreement, which is the same output as a correct site.
-	fmt.Printf("%d name(s) checked over %d module section(s) against a real interpreter; %d disagree\n",
+	fmt.Fprintf(stdout, "%d name(s) checked over %d module section(s) against a real interpreter; %d disagree\n",
 		checked, sections, bad)
 	if sections == 0 || checked == 0 {
-		fmt.Fprintf(os.Stderr, "numericsurface: found no documented module surface under %s; "+
-			"either the headings changed or the pages lost their method lists\n", *root)
-		os.Exit(3)
+		return &exitError{3, fmt.Sprintf("found no documented module surface under %s; "+
+			"either the headings changed or the pages lost their method lists", root)}
 	}
 	if bad > 0 {
-		os.Exit(1)
+		return &exitError{1, fmt.Sprintf("%d disagreement(s)", bad)}
 	}
+	return nil
 }
 
-// runSelfTest checks the extraction on cases whose answer is known, because a
-// pattern nobody tested is a guess and a guess that matches nothing looks
-// exactly like a clean page. Returns the process exit status.
-func runSelfTest() int {
-	cases := []struct {
-		name  string
-		md    string
-		want  string // the heading substring to look for
-		names []string
-		count int // -1 when the section states none
-		patt  string
-	}{
-		{
-			name:  "a section's backticked method names are collected in order",
-			md:    "## Special — functions\n\nGamma (`gamma`/`gammaln`) and `erf`.\n\n## Stats\n\n`norm`\n",
-			want:  "Special",
-			names: []string{"gamma", "gammaln", "erf"},
-			count: -1,
-		},
-		{
-			name:  "the next heading ends the section",
-			md:    "## Stats\n\n`norm`\n\n## Integrate\n\n`quad`\n",
-			want:  "Stats",
-			names: []string{"norm"},
-			count: -1,
-		},
-		{
-			name:  "a keyword argument is not a method name",
-			md:    "## Integrate\n\n`quad` with `points:` for a kink, `x:` or `dx:`.\n",
-			want:  "Integrate",
-			names: []string{"quad"},
-			count: -1,
-		},
-		{
-			name:  "a return shape and a Go name are not method names",
-			md:    "## Special\n\n`(value, abserr)`, and `Log1pExp` is `softplus`.\n",
-			want:  "Special",
-			names: []string{"softplus"},
-			count: -1,
-		},
-		{
-			name:  "a path and a command are not method names",
-			md:    "## Special\n\n`bench/scipy_server.py`, `testdata/gen/fam_*.py`, `rbgo build --closed`.\n",
-			want:  "Special",
-			names: nil,
-			count: -1,
-		},
-		{
-			name:  "a repeated name is collected once",
-			md:    "## FFT\n\n`fft` and again `fft`.\n",
-			want:  "FFT",
-			names: []string{"fft"},
-			count: -1,
-		},
-		{
-			name:  "a stated count is read",
-			md:    "## Special\n\nall 67 of its functions under 66 Ruby names.\n",
-			want:  "Special",
-			names: nil,
-			count: 66,
-			patt:  `(\d+) Ruby names`,
-		},
-		{
-			name:  "the count pattern misses a figure that is about something else",
-			md:    "## Special\n\n63 of the 67 carry such a pairing.\n",
-			want:  "Special",
-			names: nil,
-			count: -1,
-			patt:  `(\d+) Ruby names`,
-		},
-		{
-			name:  "a missing section is not an empty one",
-			md:    "## Stats\n\n`norm`\n",
-			want:  "Optimize",
-			names: nil,
-			count: -1,
-		},
-		{
-			name:  "CRLF is folded, as a Windows checkout serves it",
-			md:    "## Stats\r\n\r\n`norm` and `pdf`.\r\n",
-			want:  "Stats",
-			names: []string{"norm", "pdf"},
-			count: -1,
-		},
-		{
-			name:  "a predicate keeps its question mark",
-			md:    "## Stats\n\n`empty?` and `add!`.\n",
-			want:  "Stats",
-			names: []string{"empty?", "add!"},
-			count: -1,
-		},
+// osExit is a variable so a test can observe the status without ending the
+// test binary.
+var osExit = os.Exit
+
+func main() {
+	err := RootCmd().Execute()
+	if err == nil {
+		return
 	}
-	bad := 0
-	for _, c := range cases {
-		body := sectionFor([]byte(c.md), c.want)
-		got := namesIn(body)
-		if strings.Join(got, " ") != strings.Join(c.names, " ") {
-			fmt.Printf("selftest %q: names %v, want %v\n", c.name, got, c.names)
-			bad++
-		}
-		n, ok := countIn(body, c.patt)
-		switch {
-		case c.count < 0 && ok:
-			fmt.Printf("selftest %q: read a count of %d, want none\n", c.name, n)
-			bad++
-		case c.count >= 0 && (!ok || n != c.count):
-			fmt.Printf("selftest %q: count %d (found=%v), want %d\n", c.name, n, ok, c.count)
-			bad++
-		}
+	var ee *exitError
+	if errors.As(err, &ee) {
+		fmt.Fprintf(os.Stderr, "numericsurface: %s\n", ee.msg)
+		osExit(ee.code)
+		return
 	}
-	// The probe is generated, so a module added to the table cannot be
-	// forgotten in it -- assert that it really does name every one.
-	p := probe(modules)
-	for _, m := range modules {
-		if !strings.Contains(p, m.konst+".singleton_methods") {
-			fmt.Printf("selftest: the probe does not ask about %s\n", m.konst)
-			bad++
-		}
-		for _, inst := range m.instances {
-			if !strings.Contains(p, "("+inst+").methods") {
-				fmt.Printf("selftest: the probe does not ask about the instance %s\n", inst)
-				bad++
-			}
-		}
-	}
-	fmt.Printf("selftest: %d case(s) and %d module(s), %d failure(s)\n", len(cases), len(modules), bad)
-	if bad > 0 {
-		return 1
-	}
-	return 0
+	// A cobra error -- an unknown flag, an argument where none is taken. It is
+	// a refusal to run, not a verdict on the pages, so it exits 2 like the
+	// other refusals rather than 1.
+	fmt.Fprintf(os.Stderr, "numericsurface: %v\n", err)
+	osExit(2)
 }
