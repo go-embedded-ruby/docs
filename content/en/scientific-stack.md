@@ -57,11 +57,17 @@ p FFT.fft([1, 2, 3, 4]).map { |c| c.real.round(3) }   # => [10.0, -2.0, -2.0, -2
 ## Special — scipy.special-style functions {#special-scipyspecial-style-functions}
 
 Binds [go-numerics/special](https://github.com/go-numerics/special) — no SciPy:
-**all 67** of its functions under 66 Ruby names, which are **scipy's own**. The
-names come from the correspondence that module measures itself against in ULPs
-(`bench/scipy_server.py` and `testdata/gen/fam_*.py`), so `Log1pExp` is
-`softplus` and `LogGamma` is `gammaln` rather than a transliteration of the Go
-name. Gamma (`gamma`/`gammaln`/`gammasgn`/`digamma`/`polygamma`/`factorial`),
+**all 67** of its functions under 66 Ruby names. **63 of the 67** names are
+scipy's own: they come from the correspondence that module measures itself
+against in ULPs (`bench/scipy_server.py` and `testdata/gen/fam_*.py`), so
+`Log1pExp` is `softplus` and `LogGamma` is `gammaln` rather than a
+transliteration of the Go name. The four that are not say so — `gammasgn` and
+`kn` exist in scipy but are unpaired in the module; `log_factorial` is scipy's
+`gammaln(n+1)` and equals it exactly; `loggamma_sign` has no scipy counterpart,
+answering the pair \[log |Γ(x)|, sign] that Go's `math.Lgamma` returns and scipy
+splits between `gammaln` and `gammasgn`; and **`in` is not a scipy name at
+all**, because scipy cannot have one — `in` is a Python keyword — so `iv(0, x)`
+is scipy's spelling, `in(0, x)` is ours, and the two are equal exactly. Gamma (`gamma`/`gammaln`/`gammasgn`/`digamma`/`polygamma`/`factorial`),
 beta (`beta`/`betaln`/`binom`/`comb`/`perm`), error and normal
 (`erf`/`erfc`/`erfcx`/`erfinv`/`erfcinv`/`ndtr`/`ndtri`/`log_ndtr`), logistic
 (`expit`/`logit`/`softplus`/`xlogy`), reductions
@@ -170,7 +176,11 @@ edges.save("edges.png")
 
 ## Set {#set}
 
-Binds [go-composites/set](https://github.com/go-composites/set): `Set.new`/`[]`,
+Unlike its neighbours on this page, `Set` binds **no outside library**: it lives
+in rbgo itself and is, as MRI's `set.rb` is, a thin shell over a Hash whose keys
+are the members. That is what makes membership use the very `hash`/`eql?`
+semantics rbgo's Hash keys use — content equality for `Array`/`Hash`/`Set`
+members included. `Set.new`/`[]`,
 `add`(`<<`)/`add?`/`delete`/`merge`/`clear`,
 `include?`/`member?`/`size`/`length`/`count`/`empty?`, `subset?`/`superset?`,
 `union`(`|`)/`intersection`(`&`)/`difference`(`-`), and `each`/`to_a`/`to_set`.
@@ -197,7 +207,10 @@ p b.most_common(1)   # => [[:a, 2]]
 ## Time & Date {#time-date}
 
 `Time` binds [go-composites/time](https://github.com/go-composites/time) and
-`Date` binds [go-composites/date](https://github.com/go-composites/date):
+`Date` binds
+[go-ruby-date/date](https://github.com/go-ruby-date/date) — an MRI-4.0.5
+byte-exact `Date`/`DateTime`, which replaced `go-composites/date` because that
+one was proleptic-Gregorian only and had no 1582 reform:
 construction (`Time.now`/`at`/`parse`, `Date.new`/`parse`), arithmetic,
 `strftime`/`strptime` (Time), the field accessors
 (`year`/`month`/`mday`/`hour`/`min`/`sec`/`wday`/`yday`), weekday predicates and
@@ -211,9 +224,20 @@ p Date.new(2026, 6, 21).next_month.to_s   # => "2026-07-21"
 ## BigDecimal {#bigdecimal}
 
 Arbitrary-precision decimal, binding
-[go-composites/bigfloat](https://github.com/go-composites/bigfloat): `+ - * / **`,
-`sqrt`/`abs`/`ceil`/`floor`/`round`/`pow`, `to_f`/`to_i`/`to_s`, `zero?`, and
-comparisons — exact decimals without the float rounding of `Float`.
+[go-ruby-bigdecimal/bigdecimal](https://github.com/go-ruby-bigdecimal/bigdecimal)
+— an MRI-4.0.5 byte-exact `BigDecimal`, which replaced an earlier shim over
+`go-composites/bigfloat` that rendered a plain decimal where MRI renders
+`0.15e1`: `+ - * / **`,
+`abs`/`ceil`/`floor`/`round`/`truncate`/`pow`, the integer divisions
+`div`/`divmod`/`modulo`/`remainder`, the parts `frac`/`fix`/`exponent`/
+`precision`/`sign`/`split`, `to_f`/`to_i`/`to_r`/`to_s`, the predicates
+`zero?`/`nan?`/`finite?`/`infinite?`, and comparisons — exact decimals without
+the float rounding of `Float`.
+
+MRI's `BigDecimal#sqrt(n)` is **not bound yet**:
+[ruby#825](https://github.com/go-embedded-ruby/ruby/issues/825). This page said
+it was until 2026-10-20, which is the first broken promise
+`tools/numericsurface` found.
 
 ```ruby
 p (BigDecimal("0.1") + BigDecimal("0.2")).to_s   # exact, no 0.30000000000000004

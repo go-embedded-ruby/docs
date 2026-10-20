@@ -16,6 +16,41 @@ git submodule update --init --recursive   # themes/hextra, pinned at a release t
 hugo server                               # http://localhost:1313
 ```
 
+## What the build checks
+
+The pages state figures and print code, and both go stale silently. Three Go
+tools under `tools/` run in the `build` job — which also covers pull requests,
+so a wrong figure blocks the change instead of being found after publication.
+
+| tool | what it judges |
+|---|---|
+| `conformancefigure` | every **present-tense** claim about the ruby/spec total agrees with the gate's own `BASELINE` in the ruby repository. A *dated* sweep going stale is not an error, and is exempt by its date. |
+| `docexample` | every fenced `ruby` block that claims an answer in a `# =>` comment is **run**, and the lines it prints are compared in order. A block that claims nothing is skipped. |
+| `numericsurface` | every method name the prose **prints** in a module's section is one a real interpreter answers, and the counts the pages state are the counts the modules have. |
+
+```bash
+GOBIN=/tmp go install github.com/go-embedded-ruby/ruby/cmd/rbgo@main
+
+go run ./tools/conformancefigure -root content/en
+go run ./tools/docexample       -rbgo /tmp/rbgo -root content/en
+go run ./tools/numericsurface   --rbgo /tmp/rbgo --root content/en
+```
+
+⚠ `numericsurface` uses **cobra**, so its flags are POSIX `--long`; the two
+older tools still use the standard `flag` package and take `-root`. Converting
+them is [#33](https://github.com/go-embedded-ruby/docs/issues/33) — a breaking
+change, because `pflag` reads `-root` as a cluster of short flags rather than as
+`--root`.
+
+Each refuses rather than passes when it cannot judge: no interpreter, no
+Markdown read, no section found. A guard that fails open teaches you to trust a
+silence it did not earn.
+
+⛔ `go test ./...` holds the rest: `tools/wired` fails when a tool under
+`tools/` is named by no workflow, because **a guard that is not wired is
+indistinguishable from one that passes** — both are silent. The move to Hugo
+dropped two of them for two releases in exactly that way.
+
 ## Releasing a new docs version
 
 Each documented version is its own build under `/docs/<version>/`, and
