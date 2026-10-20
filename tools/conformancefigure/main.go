@@ -141,7 +141,10 @@ func allMatches(line string) []string {
 
 func main() {
 	var (
-		root     = flag.String("root", "docs", "the directory of Markdown to check")
+		// content/en since the move to Hugo (#28); it was docs/ under MkDocs,
+		// and a default naming a directory that no longer exists meant every
+		// hand-run of this tool refused with "lstat docs: no such file".
+		root     = flag.String("root", "content/en", "the directory of Markdown to check")
 		baseline = flag.String("baseline", "", "read the authoritative BASELINE from this path instead of fetching it")
 		timeout  = flag.Duration("timeout", 30*time.Second, "how long to wait for the fetch")
 	)
