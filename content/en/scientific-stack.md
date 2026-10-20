@@ -176,7 +176,11 @@ edges.save("edges.png")
 
 ## Set {#set}
 
-Binds [go-composites/set](https://github.com/go-composites/set): `Set.new`/`[]`,
+Unlike its neighbours on this page, `Set` binds **no outside library**: it lives
+in rbgo itself and is, as MRI's `set.rb` is, a thin shell over a Hash whose keys
+are the members. That is what makes membership use the very `hash`/`eql?`
+semantics rbgo's Hash keys use — content equality for `Array`/`Hash`/`Set`
+members included. `Set.new`/`[]`,
 `add`(`<<`)/`add?`/`delete`/`merge`/`clear`,
 `include?`/`member?`/`size`/`length`/`count`/`empty?`, `subset?`/`superset?`,
 `union`(`|`)/`intersection`(`&`)/`difference`(`-`), and `each`/`to_a`/`to_set`.
@@ -203,7 +207,10 @@ p b.most_common(1)   # => [[:a, 2]]
 ## Time & Date {#time-date}
 
 `Time` binds [go-composites/time](https://github.com/go-composites/time) and
-`Date` binds [go-composites/date](https://github.com/go-composites/date):
+`Date` binds
+[go-ruby-date/date](https://github.com/go-ruby-date/date) — an MRI-4.0.5
+byte-exact `Date`/`DateTime`, which replaced `go-composites/date` because that
+one was proleptic-Gregorian only and had no 1582 reform:
 construction (`Time.now`/`at`/`parse`, `Date.new`/`parse`), arithmetic,
 `strftime`/`strptime` (Time), the field accessors
 (`year`/`month`/`mday`/`hour`/`min`/`sec`/`wday`/`yday`), weekday predicates and
@@ -217,7 +224,10 @@ p Date.new(2026, 6, 21).next_month.to_s   # => "2026-07-21"
 ## BigDecimal {#bigdecimal}
 
 Arbitrary-precision decimal, binding
-[go-composites/bigfloat](https://github.com/go-composites/bigfloat): `+ - * / **`,
+[go-ruby-bigdecimal/bigdecimal](https://github.com/go-ruby-bigdecimal/bigdecimal)
+— an MRI-4.0.5 byte-exact `BigDecimal`, which replaced an earlier shim over
+`go-composites/bigfloat` that rendered a plain decimal where MRI renders
+`0.15e1`: `+ - * / **`,
 `abs`/`ceil`/`floor`/`round`/`truncate`/`pow`, the integer divisions
 `div`/`divmod`/`modulo`/`remainder`, the parts `frac`/`fix`/`exponent`/
 `precision`/`sign`/`split`, `to_f`/`to_i`/`to_r`/`to_s`, the predicates
