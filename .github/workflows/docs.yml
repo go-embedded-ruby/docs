@@ -106,6 +106,20 @@ jobs:
           GOBIN=/tmp go install github.com/go-embedded-ruby/ruby/cmd/rbgo@main
           go run ./tools/docexample -rbgo /tmp/rbgo -root content/en
 
+      # docexample judges the examples that claim an answer -- 11 of them. The
+      # scientific-stack page also PRINTS around 150 method names in prose, and
+      # nothing read those until this step: it asks the same interpreter whether
+      # each one is a method it really answers, and compares the counts the page
+      # states with the counts the modules have.
+      #
+      # It uses the /tmp/rbgo the step above installed. If that step ever goes
+      # away this one exits 2 -- a refusal, not a pass -- which is the failure
+      # worth having.
+      - name: Every method name the pages print is one the interpreter answers
+        run: |
+          go run ./tools/numericsurface -selftest
+          go run ./tools/numericsurface -rbgo /tmp/rbgo -root content/en
+
       - name: Lay out the site for the link check
         run: |
           mkdir -p _check/docs

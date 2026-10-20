@@ -57,11 +57,17 @@ p FFT.fft([1, 2, 3, 4]).map { |c| c.real.round(3) }   # => [10.0, -2.0, -2.0, -2
 ## Special — scipy.special-style functions {#special-scipyspecial-style-functions}
 
 Binds [go-numerics/special](https://github.com/go-numerics/special) — no SciPy:
-**all 67** of its functions under 66 Ruby names, which are **scipy's own**. The
-names come from the correspondence that module measures itself against in ULPs
-(`bench/scipy_server.py` and `testdata/gen/fam_*.py`), so `Log1pExp` is
-`softplus` and `LogGamma` is `gammaln` rather than a transliteration of the Go
-name. Gamma (`gamma`/`gammaln`/`gammasgn`/`digamma`/`polygamma`/`factorial`),
+**all 67** of its functions under 66 Ruby names. **63 of the 67** names are
+scipy's own: they come from the correspondence that module measures itself
+against in ULPs (`bench/scipy_server.py` and `testdata/gen/fam_*.py`), so
+`Log1pExp` is `softplus` and `LogGamma` is `gammaln` rather than a
+transliteration of the Go name. The four that are not say so — `gammasgn` and
+`kn` exist in scipy but are unpaired in the module; `log_factorial` is scipy's
+`gammaln(n+1)` and equals it exactly; `loggamma_sign` has no scipy counterpart,
+answering the pair \[log |Γ(x)|, sign] that Go's `math.Lgamma` returns and scipy
+splits between `gammaln` and `gammasgn`; and **`in` is not a scipy name at
+all**, because scipy cannot have one — `in` is a Python keyword — so `iv(0, x)`
+is scipy's spelling, `in(0, x)` is ours, and the two are equal exactly. Gamma (`gamma`/`gammaln`/`gammasgn`/`digamma`/`polygamma`/`factorial`),
 beta (`beta`/`betaln`/`binom`/`comb`/`perm`), error and normal
 (`erf`/`erfc`/`erfcx`/`erfinv`/`erfcinv`/`ndtr`/`ndtri`/`log_ndtr`), logistic
 (`expit`/`logit`/`softplus`/`xlogy`), reductions
