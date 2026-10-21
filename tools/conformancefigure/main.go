@@ -23,7 +23,7 @@ package main
 
 import (
 	"bufio"
-	"flag"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -34,6 +34,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/spf13/cobra"
 )
 
 // baselineURL is the gate's own file in the ruby repository. The figure is read
@@ -139,38 +141,80 @@ func allMatches(line string) []string {
 	return out
 }
 
-func main() {
-	var (
-		// content/en since the move to Hugo (#28); it was docs/ under MkDocs,
-		// and a default naming a directory that no longer exists meant every
-		// hand-run of this tool refused with "lstat docs: no such file".
-		root     = flag.String("root", "content/en", "the directory of Markdown to check")
-		baseline = flag.String("baseline", "", "read the authoritative BASELINE from this path instead of fetching it")
-		timeout  = flag.Duration("timeout", 30*time.Second, "how long to wait for the fetch")
-	)
-	flag.Parse()
+// exitError carries the status the command means, so the documented 0/1/2 are
+// not flattened into cobra's single "an error happened" exit of 1.
+type exitError struct {
+	code int
+	msg  string
+}
 
-	// The control first: if the vocabulary is wrong, every verdict after it is
-	// worthless, and a wrong vocabulary that matches nothing is indistinguishable
-	// from a site with no stale figures.
+func (e *exitError) Error() string { return e.msg }
+
+// checkVocabulary runs the guard's own control.
+//
+// ⛔ It runs on EVERY invocation, not only under `go test`. This tool is used
+// from another repository as `go run github.com/go-embedded-ruby/docs/tools/
+// conformancefigure@vX`, and that consumer never runs this module's tests — so
+// a control that lived only in a _test.go would silently stop protecting the
+// landing page, which is the site whose HTML phrasing the vocabulary was
+// extended for. A wrong vocabulary that matches nothing is indistinguishable
+// from a site with no stale figures.
+func checkVocabulary() error {
 	for _, c := range vocabularyCases {
 		n, got := match(c.line)
 		if got != c.want {
-			fmt.Fprintf(os.Stderr, "conformancefigure: the vocabulary itself is wrong: %q matched=%v, want %v\n", c.line, got, c.want)
-			os.Exit(2)
+			return &exitError{2, fmt.Sprintf("the vocabulary itself is wrong: %q matched=%v, want %v", c.line, got, c.want)}
 		}
 		if c.want && n != c.n {
-			fmt.Fprintf(os.Stderr, "conformancefigure: the vocabulary read %q as %q, want %q\n", c.line, n, c.n)
-			os.Exit(2)
+			return &exitError{2, fmt.Sprintf("the vocabulary read %q as %q, want %q", c.line, n, c.n)}
 		}
 	}
+	return nil
+}
 
-	want, err := authoritative(*baseline, *timeout)
+// RootCmd is the whole command, built so a test can drive it with SetArgs,
+// SetOut and SetErr instead of a subprocess.
+func RootCmd() *cobra.Command {
+	var (
+		root     string
+		baseline string
+		timeout  time.Duration
+	)
+	cmd := &cobra.Command{
+		Use:   "conformancefigure",
+		Short: "Check that every stated ruby/spec total agrees with the gate's BASELINE",
+		Long: "conformancefigure reads the present-tense claims this site makes about\n" +
+			"rbgo's ruby/spec total and compares each with the sum of the gate's own\n" +
+			"per-file baseline. A dated sweep going stale is not an error and is\n" +
+			"exempt by its date.",
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		Args:          cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return check(cmd.OutOrStdout(), cmd.ErrOrStderr(), root, baseline, timeout)
+		},
+	}
+	// content/en since the move to Hugo (#28); it was docs/ under MkDocs, and a
+	// default naming a directory that no longer exists meant every hand-run of
+	// this tool refused with "lstat docs: no such file".
+	cmd.Flags().StringVar(&root, "root", "content/en", "the directory of Markdown and HTML to check")
+	cmd.Flags().StringVar(&baseline, "baseline", "", "read the authoritative BASELINE from this path instead of fetching it")
+	cmd.Flags().DurationVar(&timeout, "timeout", 30*time.Second, "how long to wait for the fetch")
+	return cmd
+}
+
+func check(stdout, stderr io.Writer, root, baseline string, timeout time.Duration) error {
+	// The control first: if the vocabulary is wrong, every verdict after it is
+	// worthless.
+	if err := checkVocabulary(); err != nil {
+		return err
+	}
+
+	want, err := authoritative(baseline, timeout)
 	if err != nil {
 		// A refusal, not a pass: an unreadable baseline finds no disagreement
 		// either, and that silence reads exactly like agreement.
-		fmt.Fprintf(os.Stderr, "conformancefigure: cannot read the gate's total: %v\n", err)
-		os.Exit(2)
+		return &exitError{2, fmt.Sprintf("cannot read the gate's total: %v", err)}
 	}
 
 	type finding struct {
@@ -181,7 +225,7 @@ func main() {
 	var wrong []finding
 	checked := 0
 
-	err = filepath.WalkDir(*root, func(path string, d fs.DirEntry, err error) error {
+	err = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -219,25 +263,44 @@ func main() {
 		return sc.Err()
 	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "conformancefigure: walking %s: %v\n", *root, err)
-		os.Exit(2)
+		return &exitError{2, fmt.Sprintf("walking %s: %v", root, err)}
 	}
 
 	// "N of M, never N alone": a walk that matched nothing reports no
 	// disagreement, which is the same output as a correct site.
-	fmt.Printf("%d current claim(s) checked against the gate's %d\n", checked, want)
+	fmt.Fprintf(stdout, "%d current claim(s) checked against the gate's %d\n", checked, want)
 	if checked == 0 {
-		fmt.Fprintf(os.Stderr, "conformancefigure: found no statement of the total in %s; "+
-			"either the vocabulary no longer matches how the docs phrase it, or the figure was dropped\n", *root)
-		os.Exit(1)
+		return &exitError{1, fmt.Sprintf("found no statement of the total in %s; "+
+			"either the vocabulary no longer matches how the docs phrase it, or the figure was dropped", root)}
 	}
 	for _, w := range wrong {
-		fmt.Fprintf(os.Stderr, "%s: claims %d, the gate records %d\n   %s\n", w.where, w.got, want, w.text)
+		fmt.Fprintf(stderr, "%s: claims %d, the gate records %d\n   %s\n", w.where, w.got, want, w.text)
 	}
 	if len(wrong) > 0 {
-		fmt.Fprintf(os.Stderr, "\n%d claim(s) disagree with %s\n", len(wrong), baselineURL)
-		os.Exit(1)
+		return &exitError{1, fmt.Sprintf("%d claim(s) disagree with %s", len(wrong), baselineURL)}
 	}
+	return nil
+}
+
+// osExit is a variable so a test can observe the status without ending the
+// test binary.
+var osExit = os.Exit
+
+func main() {
+	err := RootCmd().Execute()
+	if err == nil {
+		return
+	}
+	var ee *exitError
+	if errors.As(err, &ee) {
+		fmt.Fprintf(os.Stderr, "conformancefigure: %s\n", ee.msg)
+		osExit(ee.code)
+		return
+	}
+	// A cobra error -- an unknown flag, an argument where none is taken. It is
+	// a refusal to run, not a verdict on the pages, so it exits 2.
+	fmt.Fprintf(os.Stderr, "conformancefigure: %v\n", err)
+	osExit(2)
 }
 
 // authoritative sums the gate's per-file baseline: one `OK<TAB>path<TAB>passing`

@@ -33,10 +33,10 @@ after publication.
 ```bash
 GOBIN=/tmp go install github.com/go-embedded-ruby/ruby/cmd/rbgo@main
 
-go run ./tools/conformancefigure -root content/en
-go run ./tools/docexample       -rbgo /tmp/rbgo -root content/en
-go run ./tools/numericsurface   --rbgo /tmp/rbgo --root content/en
-go run ./tools/upstreamlinks    --root content/en
+go run ./tools/conformancefigure --root content/en
+go run ./tools/docexample        --rbgo /tmp/rbgo --root content/en
+go run ./tools/numericsurface    --rbgo /tmp/rbgo --root content/en
+go run ./tools/upstreamlinks     --root content/en
 ```
 
 The authority column is the point. None of these holds the right answer itself:
@@ -46,12 +46,10 @@ library that gets swapped out **disappears** from it, which is what made all
 three stale attributions of 2026-10-20 detectable without anybody writing the
 correct one down.
 
-⚠ `numericsurface` and `upstreamlinks` use **cobra**, so their flags are POSIX
-`--long`; the two older tools still use the standard `flag` package and take
-`-root`. Converting them is
-[#33](https://github.com/go-embedded-ruby/docs/issues/33) — a breaking change,
-because `pflag` reads `-root` as a cluster of short flags rather than as
-`--root`.
+⚠ **All four use [cobra](https://github.com/spf13/cobra) since `v0.4.0`, so
+every flag is POSIX `--long`.** `-root` is no longer accepted by any of them:
+`pflag` reads it as the cluster `-r -o -o -t`. A caller pinned to `v0.3.0` or
+earlier keeps working until it bumps, and must change the spelling when it does.
 
 The section reader and the module table they share live in
 [`internal/surface`](internal/surface), so the two guards cannot end up

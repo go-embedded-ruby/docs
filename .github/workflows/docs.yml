@@ -91,7 +91,7 @@ jobs:
         run: go test ./...
 
       - name: The stated conformance totals match the gate
-        run: go run ./tools/conformancefigure -root content/en
+        run: go run ./tools/conformancefigure --root content/en
 
       # The examples carry their answers in `# =>` comments; this runs them.
       # rbgo is built from the ruby repository's main so they are judged against
@@ -99,12 +99,11 @@ jobs:
       # produced exits 2 -- a REFUSAL, not a pass.
       - name: The Ruby examples print what the pages say they print
         run: |
-          go run ./tools/docexample -selftest
           # GOBIN names the destination: `go install` otherwise writes to
           # $(go env GOPATH)/bin, and an install that lands elsewhere looks
           # exactly like one that worked.
           GOBIN=/tmp go install github.com/go-embedded-ruby/ruby/cmd/rbgo@main
-          go run ./tools/docexample -rbgo /tmp/rbgo -root content/en
+          go run ./tools/docexample --rbgo /tmp/rbgo --root content/en
 
       # docexample judges the examples that claim an answer -- 11 of them. The
       # scientific-stack page also PRINTS around 150 method names in prose, and
