@@ -18,15 +18,17 @@ hugo server                               # http://localhost:1313
 
 ## What the build checks
 
-The pages state figures and print code, and both go stale silently. Three Go
-tools under `tools/` run in the `build` job — which also covers pull requests,
-so a wrong figure blocks the change instead of being found after publication.
+The pages state figures, print code and attribute libraries, and all three go
+stale silently. Four Go tools under `tools/` run in the `build` job — which also
+covers pull requests, so a wrong figure blocks the change instead of being found
+after publication.
 
-| tool | what it judges |
-|---|---|
-| `conformancefigure` | every **present-tense** claim about the ruby/spec total agrees with the gate's own `BASELINE` in the ruby repository. A *dated* sweep going stale is not an error, and is exempt by its date. |
-| `docexample` | every fenced `ruby` block that claims an answer in a `# =>` comment is **run**, and the lines it prints are compared in order. A block that claims nothing is skipped. |
-| `numericsurface` | every method name the prose **prints** in a module's section is one a real interpreter answers, and the counts the pages state are the counts the modules have. |
+| tool | what it judges | its authority |
+|---|---|---|
+| `conformancefigure` | every **present-tense** claim about the ruby/spec total. A *dated* sweep going stale is not an error, and is exempt by its date. | the gate's own `BASELINE` |
+| `docexample` | every fenced `ruby` block that claims an answer in a `# =>` comment is **run**, and the lines it prints compared in order. A block that claims nothing is skipped. | a real interpreter |
+| `numericsurface` | every method name the prose **prints** in a module's section, and the counts the pages state. | a real interpreter |
+| `upstreamlinks` | every **library a module section links to** is one rbgo still depends on. | rbgo's `go.mod` |
 
 ```bash
 GOBIN=/tmp go install github.com/go-embedded-ruby/ruby/cmd/rbgo@main
@@ -34,13 +36,26 @@ GOBIN=/tmp go install github.com/go-embedded-ruby/ruby/cmd/rbgo@main
 go run ./tools/conformancefigure -root content/en
 go run ./tools/docexample       -rbgo /tmp/rbgo -root content/en
 go run ./tools/numericsurface   --rbgo /tmp/rbgo --root content/en
+go run ./tools/upstreamlinks    --root content/en
 ```
 
-⚠ `numericsurface` uses **cobra**, so its flags are POSIX `--long`; the two
-older tools still use the standard `flag` package and take `-root`. Converting
-them is [#33](https://github.com/go-embedded-ruby/docs/issues/33) — a breaking
-change, because `pflag` reads `-root` as a cluster of short flags rather than as
+The authority column is the point. None of these holds the right answer itself:
+a table of right answers kept in **this** repository would repeat the page's
+mistake and agree with it. `upstreamlinks` asks `go.mod` precisely because a
+library that gets swapped out **disappears** from it, which is what made all
+three stale attributions of 2026-10-20 detectable without anybody writing the
+correct one down.
+
+⚠ `numericsurface` and `upstreamlinks` use **cobra**, so their flags are POSIX
+`--long`; the two older tools still use the standard `flag` package and take
+`-root`. Converting them is
+[#33](https://github.com/go-embedded-ruby/docs/issues/33) — a breaking change,
+because `pflag` reads `-root` as a cluster of short flags rather than as
 `--root`.
+
+The section reader and the module table they share live in
+[`internal/surface`](internal/surface), so the two guards cannot end up
+disagreeing about which sections exist.
 
 Each refuses rather than passes when it cannot judge: no interpreter, no
 Markdown read, no section found. A guard that fails open teaches you to trust a

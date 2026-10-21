@@ -119,6 +119,19 @@ jobs:
       - name: Every method name the pages print is one the interpreter answers
         run: go run ./tools/numericsurface --rbgo /tmp/rbgo --root content/en
 
+      # One level up from the method names: each module section also names the
+      # LIBRARY it binds, and 3 of the 12 were wrong on 2026-10-20 -- each one
+      # naming a library rbgo had stopped using. rbgo's go.mod is the
+      # tie-breaker, because a library that is swapped out disappears from it.
+      #
+      # ⛔ A SEPARATE step from the one above on purpose. This one fetches over
+      # the network and that one does not, so a flaky fetch must not be able to
+      # take the interpreter check down with it -- a run here failed once on
+      # sum.golang.org dropping an HTTP/2 stream. It exits 2 when it cannot
+      # read the dependencies, which is a refusal rather than a pass.
+      - name: Every library a module section links to is one rbgo depends on
+        run: go run ./tools/upstreamlinks --root content/en
+
       - name: Lay out the site for the link check
         run: |
           mkdir -p _check/docs
