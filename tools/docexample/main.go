@@ -35,14 +35,17 @@ package main
 
 import (
 	"bytes"
-	"flag"
+	"errors"
 	"fmt"
+	"io"
 	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 // fence opens and closes a Markdown code fence, capturing its language.
@@ -125,29 +128,57 @@ func run(rbgo string, ex example) ([]string, error) {
 	return got, nil
 }
 
-func main() {
-	rbgo := flag.String("rbgo", "", "path to an rbgo binary (required)")
-	root := flag.String("root", "docs", "directory of Markdown files to read")
-	verbose := flag.Bool("v", false, "also list the examples that agree")
-	selftest := flag.Bool("selftest", false, "check the extraction against known cases and exit")
-	flag.Parse()
+// exitError carries the status the command means, so the documented 0/1/2/3 are
+// not flattened into cobra's single "an error happened" exit of 1.
+type exitError struct {
+	code int
+	msg  string
+}
 
-	if *selftest {
-		os.Exit(runSelfTest())
+func (e *exitError) Error() string { return e.msg }
+
+// RootCmd is the whole command, built so a test can drive it with SetArgs,
+// SetOut and SetErr instead of a subprocess.
+func RootCmd() *cobra.Command {
+	var (
+		rbgo    string
+		root    string
+		verbose bool
+	)
+	cmd := &cobra.Command{
+		Use:   "docexample",
+		Short: "Run the Ruby examples on this site and check each against its stated answer",
+		Long: "docexample finds every fenced ruby block that claims an output in a `# =>`\n" +
+			"comment, runs the block as one program, and compares the lines it prints,\n" +
+			"in order, with the answers it claims. A block that claims nothing is\n" +
+			"skipped, which is what makes the selection self-evident.",
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		Args:          cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, _ []string) error {
+			return check(cmd.OutOrStdout(), rbgo, root, verbose)
+		},
 	}
-	if *rbgo == "" {
-		fmt.Fprintln(os.Stderr, "docexample: -rbgo is required: without an interpreter this cannot check anything,")
-		fmt.Fprintln(os.Stderr, "and reporting success would be a pass it did not earn.")
-		os.Exit(2)
+	cmd.Flags().StringVar(&rbgo, "rbgo", "", "path to an rbgo binary (required)")
+	cmd.Flags().StringVar(&root, "root", "content/en", "directory of Markdown files to read")
+	cmd.Flags().BoolVarP(&verbose, "verbose", "v", false, "also list the examples that agree")
+	return cmd
+}
+
+// check is the whole decision. Findings go to stdout, as they did before: they
+// are the tool's answer, not its diagnostics.
+func check(stdout io.Writer, rbgo, root string, verbose bool) error {
+	if rbgo == "" {
+		return &exitError{2, "--rbgo is required: without an interpreter this cannot check anything,\n" +
+			"and reporting success would be a pass it did not earn."}
 	}
-	if _, err := os.Stat(*rbgo); err != nil {
-		fmt.Fprintf(os.Stderr, "docexample: -rbgo %q: %v\n", *rbgo, err)
-		os.Exit(2)
+	if _, err := os.Stat(rbgo); err != nil {
+		return &exitError{2, fmt.Sprintf("--rbgo %q: %v", rbgo, err)}
 	}
 
 	var examples []example
 	walked := 0
-	err := filepath.WalkDir(*root, func(p string, d fs.DirEntry, err error) error {
+	err := filepath.WalkDir(root, func(p string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
@@ -163,32 +194,29 @@ func main() {
 		return nil
 	})
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "docexample: walking %s: %v\n", *root, err)
-		os.Exit(2)
+		return &exitError{2, fmt.Sprintf("walking %s: %v", root, err)}
 	}
 	if walked == 0 {
-		fmt.Fprintf(os.Stderr, "docexample: read no Markdown under %s -- nothing was checked\n", *root)
-		os.Exit(3)
+		return &exitError{3, fmt.Sprintf("read no Markdown under %s -- nothing was checked", root)}
 	}
 	if len(examples) == 0 {
-		fmt.Fprintf(os.Stderr, "docexample: %d Markdown file(s) and no example claiming an answer.\n", walked)
-		fmt.Fprintln(os.Stderr, "For a site that teaches by example that means the extraction broke, not that it is clean.")
-		os.Exit(3)
+		return &exitError{3, fmt.Sprintf("%d Markdown file(s) and no example claiming an answer.\n"+
+			"For a site that teaches by example that means the extraction broke, not that it is clean.", walked)}
 	}
 
 	bad := 0
 	claims := 0
 	for _, ex := range examples {
 		claims += len(ex.want)
-		got, err := run(*rbgo, ex)
+		got, err := run(rbgo, ex)
 		if err != nil {
-			fmt.Printf("%s:%d: the example claims %d answer(s) but will not run: %v\n",
+			fmt.Fprintf(stdout, "%s:%d: the example claims %d answer(s) but will not run: %v\n",
 				ex.file, ex.line, len(ex.want), err)
 			bad++
 			continue
 		}
 		if len(got) != len(ex.want) {
-			fmt.Printf("%s:%d: printed %d line(s), claims %d\n  printed: %v\n  claims:  %v\n",
+			fmt.Fprintf(stdout, "%s:%d: printed %d line(s), claims %d\n  printed: %v\n  claims:  %v\n",
 				ex.file, ex.line, len(got), len(ex.want), got, ex.want)
 			bad++
 			continue
@@ -196,99 +224,43 @@ func main() {
 		ok := true
 		for i := range got {
 			if strings.TrimSpace(got[i]) != ex.want[i] {
-				fmt.Printf("%s:%d: answer %d is %q, the page says %q\n",
+				fmt.Fprintf(stdout, "%s:%d: answer %d is %q, the page says %q\n",
 					ex.file, ex.line, i+1, strings.TrimSpace(got[i]), ex.want[i])
 				ok = false
 			}
 		}
 		if !ok {
 			bad++
-		} else if *verbose {
-			fmt.Printf("%s:%d: %d answer(s) agree\n", ex.file, ex.line, len(ex.want))
+		} else if verbose {
+			fmt.Fprintf(stdout, "%s:%d: %d answer(s) agree\n", ex.file, ex.line, len(ex.want))
 		}
 	}
 
-	fmt.Printf("%d example(s) with %d claimed answer(s) over %d file(s); %d example(s) disagree\n",
+	fmt.Fprintf(stdout, "%d example(s) with %d claimed answer(s) over %d file(s); %d example(s) disagree\n",
 		len(examples), claims, walked, bad)
 	if bad > 0 {
-		os.Exit(1)
+		return &exitError{1, fmt.Sprintf("%d example(s) disagree", bad)}
 	}
+	return nil
 }
 
-// runSelfTest checks the extraction on cases whose answer is known, because a
-// pattern nobody tested is a guess and a guess that matches nothing looks
-// exactly like a clean site. Returns the process exit status.
-func runSelfTest() int {
-	cases := []struct {
-		name     string
-		md       string
-		wantEx   int      // examples found
-		wantWant []string // the claims of the first one
-	}{
-		{
-			name:     "a ruby block claiming one answer",
-			md:       "text\n\n```ruby\np 1 + 1   # => 2\n```\n",
-			wantEx:   1,
-			wantWant: []string{"2"},
-		},
-		{
-			name:     "set-up lines are kept and only claims are collected",
-			md:       "```ruby\na = 1\np a       # => 1\np a + 1   # => 2\n```\n",
-			wantEx:   1,
-			wantWant: []string{"1", "2"},
-		},
-		{
-			name:   "a block claiming nothing is skipped",
-			md:     "```ruby\nImage.load(\"photo.png\").save(\"out.png\")\n```\n",
-			wantEx: 0,
-		},
-		{
-			name:   "a comment that is not an answer is not a claim",
-			md:     "```ruby\np BigDecimal(\"0.1\")   # exact, no 0.30000000000000004\n```\n",
-			wantEx: 0,
-		},
-		{
-			name:   "a shell block is not Ruby",
-			md:     "```sh\necho hi   # => hi\n```\n",
-			wantEx: 0,
-		},
-		{
-			name:     "a value containing a # is kept whole",
-			md:       "```ruby\np \"a#b\"   # => \"a#b\"\n```\n",
-			wantEx:   1,
-			wantWant: []string{`"a#b"`},
-		},
-		{
-			name:   "a bare # => claims nothing",
-			md:     "```ruby\np 1   # =>\n```\n",
-			wantEx: 0,
-		},
-		{
-			name:     "a value is kept even with no space after the arrow",
-			md:       "```ruby\np 1   #=>2\n```\n",
-			wantEx:   1,
-			wantWant: []string{"2"},
-		},
+// osExit is a variable so a test can observe the status without ending the
+// test binary.
+var osExit = os.Exit
+
+func main() {
+	err := RootCmd().Execute()
+	if err == nil {
+		return
 	}
-	bad := 0
-	for _, c := range cases {
-		got := extract("t.md", []byte(c.md))
-		if len(got) != c.wantEx {
-			fmt.Printf("selftest %q: found %d example(s), want %d\n", c.name, len(got), c.wantEx)
-			bad++
-			continue
-		}
-		if c.wantEx == 0 {
-			continue
-		}
-		if strings.Join(got[0].want, "|") != strings.Join(c.wantWant, "|") {
-			fmt.Printf("selftest %q: claims %v, want %v\n", c.name, got[0].want, c.wantWant)
-			bad++
-		}
+	var ee *exitError
+	if errors.As(err, &ee) {
+		fmt.Fprintf(os.Stderr, "docexample: %s\n", ee.msg)
+		osExit(ee.code)
+		return
 	}
-	fmt.Printf("selftest: %d case(s), %d failure(s)\n", len(cases), bad)
-	if bad > 0 {
-		return 1
-	}
-	return 0
+	// A cobra error -- an unknown flag, an argument where none is taken. It is
+	// a refusal to run, not a verdict on the pages, so it exits 2.
+	fmt.Fprintf(os.Stderr, "docexample: %v\n", err)
+	osExit(2)
 }
