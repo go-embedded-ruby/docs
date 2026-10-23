@@ -67,6 +67,11 @@ On top of the oracle, the interpreter holds a hard CI gate:
   which run `go test ./...` — not the coverage gate. The four exotic 64-bit
   targets (riscv64, loong64, ppc64le, s390x) are validated **off** the per-PR
   critical path: nightly under QEMU and on scheduled real hardware (below);
+- a **32-bit `386`** lane (since v0.8.2) runs the suite natively on the amd64
+  runner and vets the `arm` build; 32-bit `arm` runs nightly under QEMU. The
+  `mysql2` tests are 64-bit only: their in-process server,
+  `dolthub/go-mysql-server`, does not compile for 32-bit targets. A buffered
+  IO's position is a Go `int`, so on 32-bit targets it stops at 2**31-1;
 - a **`wasip1/wasm`** lane builds the interpreter and runs it under wazero;
 - with **every feature differential-tested against MRI 4.0.5**.
 
