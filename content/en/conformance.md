@@ -72,6 +72,17 @@ On top of the oracle, the interpreter holds a hard CI gate:
   `mysql2` tests are 64-bit only: their in-process server,
   `dolthub/go-mysql-server`, does not compile for 32-bit targets. A buffered
   IO's position is a Go `int`, so on 32-bit targets it stops at 2**31-1;
+- a **compile on every target** job (since v0.8.3) runs `go vet`, default and
+  `rbgo_core` builds, for every GOOS/GOARCH pair `go tool dist list` names
+  except plan9: aix, android, darwin, dragonfly, freebsd, illumos, ios, js,
+  linux (all 13 arches), netbsd, openbsd, solaris, wasip1, windows. It only
+  compiles. Where modernc.org/sqlite has no port (linux/mips*, linux/ppc64, AIX,
+  Solaris, illumos, DragonFly, most NetBSD and OpenBSD arches), the store gems
+  (SQLite3, Sequel, ActiveRecord's adapter, Bolt, Bleve, Etcd, Confd) load but
+  raise `NotImplementedError` on use; Errno names and `Process::RLIMIT_*`
+  constants a system lacks follow MRI (a `NOERROR` constant, or no constant).
+  plan9 does not compile: its `syscall` package has no errno numbers and no
+  `Kill`, `Flock`, `Getrlimit` or `Stat_t`;
 - a **`wasip1/wasm`** lane builds the interpreter and runs it under wazero;
 - with **every feature differential-tested against MRI 4.0.5**.
 
