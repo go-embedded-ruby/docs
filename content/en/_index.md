@@ -71,9 +71,12 @@ implementations, MRI (CRuby) 4.0.5 and JRuby**
 runs all three side by side) — with **100% coverage enforced in CI** on the two
 POSIX lanes (ubuntu, macOS; the full `-race` suite also runs on windows, where a
 few POSIX-only paths make the gate unreachable). Per-PR architecture cover is the
-native `amd64` and `arm64` lanes; the four exotic 64-bit targets (riscv64,
-loong64, ppc64le, s390x) are validated nightly under QEMU and on scheduled real
-hardware. See [Conformance]({{< relref "conformance.md#what-ci-enforces" >}}). Beyond synthetic tests, the bar is real-world Ruby: idioms and test suites
+native `amd64` and `arm64` lanes plus a 32-bit `386` lane (and `go vet` for
+32-bit `arm`); the four exotic 64-bit targets (riscv64, loong64, ppc64le, s390x)
+and 32-bit `arm` are validated nightly under QEMU, the 64-bit ones also on
+scheduled real hardware. Since v0.8.2 rbgo builds and passes its suite on 32-bit
+targets, with the same Ruby semantics: Integer is a 64-bit Fixnum promoted to
+Bignum on every target. See [Conformance]({{< relref "conformance.md#what-ci-enforces" >}}). Beyond synthetic tests, the bar is real-world Ruby: idioms and test suites
 from **reference applications such as Rails** (ActiveSupport's pure-Ruby
 `core_ext`) and **OpenVox**/Puppet drive the remaining work and double as
 performance baselines against MRI and JRuby.
