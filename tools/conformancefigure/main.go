@@ -232,8 +232,18 @@ func check(stdout, stderr io.Writer, root, baseline string, timeout time.Duratio
 		if d.IsDir() {
 			return nil
 		}
-		// Markdown for the docs site, HTML for the landing page's Hugo layouts.
-		if !strings.HasSuffix(path, ".md") && !strings.HasSuffix(path, ".html") {
+		// Markdown for the docs site, HTML for the landing page's Hugo layouts
+		// — and TOML, because a Hugo site keeps prose in its configuration too.
+		//
+		// ⛔ Measured 2026-10-30: go-embedded-ruby.github.io stated the total in
+		// THREE places. The two under layouts/ read 23,511 and were correct,
+		// because this tool reads them. The third, in hugo.toml's
+		// `params.phases[].blurb`, read 23,481 — thirty behind, and drifting
+		// freely since 2026-10-04, because neither this filter nor the lane's
+		// `--root layouts` could reach it. A guard is only as good as the
+		// population it walks, and prose in a config file is still prose on
+		// the page.
+		if !hasAnySuffix(path, ".md", ".html", ".toml") {
 			return nil
 		}
 		f, oerr := os.Open(path)
@@ -354,4 +364,15 @@ func authoritative(path string, timeout time.Duration) (int, error) {
 		return 0, fmt.Errorf("no OK rows found; this is not a per-file baseline")
 	}
 	return total, nil
+}
+
+// hasAnySuffix is spelled out so the file types this walks are a list in one
+// place rather than a chain of && that grows a bug each time it is extended.
+func hasAnySuffix(path string, suffixes ...string) bool {
+	for _, s := range suffixes {
+		if strings.HasSuffix(path, s) {
+			return true
+		}
+	}
+	return false
 }

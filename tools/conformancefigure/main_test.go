@@ -186,3 +186,41 @@ func TestTheTimeoutIsUsed(t *testing.T) {
 		t.Errorf("took %v; the timeout flag did not reach the client", elapsed)
 	}
 }
+
+// ⛔ A Hugo site keeps prose in its configuration, and until 2026-10-30 this
+// tool could not see it. go-embedded-ruby.github.io stated the total three
+// times: twice under layouts/, correct, because they were walked — and once in
+// hugo.toml, thirty behind and drifting since 2026-10-04, because it was not.
+// This is that file's shape.
+func TestATomlFileIsWalked(t *testing.T) {
+	dir := t.TempDir()
+	base := filepath.Join(dir, "BASELINE")
+	if err := os.WriteFile(base, []byte("OK\ta_spec.rb\t23511\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	root := t.TempDir()
+	// A params.phases blurb, as the landing writes it.
+	toml := "[[params.phases]]\n  name = \"Phase 7\"\n" +
+		"  blurb = \"measured against ruby/spec: **23,481 examples pass** — the total that BASELINE sums to.\"\n"
+	if err := os.WriteFile(filepath.Join(root, "hugo.toml"), []byte(toml), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var out, errb bytes.Buffer
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"--root", root, "--baseline", base, "--timeout", "5s"})
+	cmd.SetOut(&out)
+	cmd.SetErr(&errb)
+	err := cmd.Execute()
+
+	var ee *exitError
+	if !errors.As(err, &ee) {
+		t.Fatalf("a stale figure in hugo.toml was not caught: %v\nstdout: %s", err, out.String())
+	}
+	if ee.code != 1 {
+		t.Errorf("status %d, want 1", ee.code)
+	}
+	if said := errb.String(); !bytes.Contains([]byte(said), []byte("claims 23481")) {
+		t.Errorf("it said %q, want it to name the stale figure", said)
+	}
+}
