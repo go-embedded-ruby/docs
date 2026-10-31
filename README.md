@@ -39,6 +39,16 @@ go run ./tools/numericsurface    --rbgo /tmp/rbgo --root content/en
 go run ./tools/upstreamlinks     --root content/en
 ```
 
+A fifth directory, `tools/wired/`, is not a tool but the guard over the four
+above: its test fails when a tool under `tools/` is invoked by no workflow.
+It exists because the MkDocs-to-Hugo move ([#28](https://github.com/go-embedded-ruby/docs/pull/28))
+rewrote the workflows and dropped two of these guards while leaving them in the
+tree — **a guard nothing calls is indistinguishable from a guard that passes,
+since both are silent**, and the pages could have said anything for two
+releases. It looks for the path `tools/<name>`, not the bare name: `docs.yml`
+mentions `docexample` in a comment as well as in its step, so against the bare
+name, deleting that step would have left the tool reported as wired.
+
 The authority column is the point. None of these holds the right answer itself:
 a table of right answers kept in **this** repository would repeat the page's
 mistake and agree with it. `upstreamlinks` asks `go.mod` precisely because a

@@ -86,11 +86,34 @@ func WorkflowText(dir string) (string, error) {
 	return b.String(), nil
 }
 
-// Unwired returns the commands no workflow mentions.
+// Unwired returns the commands no workflow invokes.
+//
+// ⛔ It looks for `tools/<name>`, the PATH, not for the bare name.
+//
+// Measured 2026-10-31: `.github/workflows/docs.yml` names `docexample` twice —
+// once on the `run:` line that invokes it, and once in a comment on line 108
+// explaining what it judges. Against the bare name, deleting the invocation and
+// leaving the comment would have kept that tool reported as wired. The one
+// defect this package exists to catch would have been invisible for the one
+// tool whose step carries prose about it.
+//
+// This stays deliberately crude — it still does not check for a well-formed
+// step, because the failure it guards is not subtle (a tool nobody calls) and a
+// crude test that would have failed #28 beats a precise one nobody wrote. But
+// "appears in a sentence" and "appears in a command" are not the same claim, and
+// `tools/` is what every spelling of the invocation has in common:
+//
+//	go run ./tools/upstreamlinks --root content/en
+//	go run github.com/go-embedded-ruby/docs/tools/conformancefigure@v0.6.0
+//
+// while a prose comment does not. A workflow that invoked a tool some other way
+// — through a variable, a matrix — would now read as unwired, which fails loudly
+// rather than quietly, and that is the right direction for this guard to be
+// wrong in.
 func Unwired(commands []string, workflows string) []string {
 	var out []string
 	for _, c := range commands {
-		if !strings.Contains(workflows, c) {
+		if !strings.Contains(workflows, "tools/"+c) {
 			out = append(out, c)
 		}
 	}
