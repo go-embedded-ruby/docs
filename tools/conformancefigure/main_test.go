@@ -306,6 +306,58 @@ func TestAVersionClaimSplitAcrossLinesIsSeen(t *testing.T) {
 	}
 }
 
+// ⛔ The shape this check will meet when the defect it guards is REPAIRED.
+// ruby#799 asks the shim to derive the version instead of typing it again:
+//
+//	CUR_VERSION = RUBY_VERSION
+//
+// A guard that only knew `CUR_VERSION = "x.y.z"` would then refuse — failing
+// because the drift it watches for became impossible, in another repository,
+// with nothing in that PR to predict it. That is the cross-repository breakage
+// this project has already paid for once.
+func TestADerivedShimVersionIsNotADisagreement(t *testing.T) {
+	dir := t.TempDir()
+	base := filepath.Join(dir, "BASELINE")
+	if err := os.WriteFile(base, []byte("OK\ta_spec.rb\t23511\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "page.md"),
+		[]byte("It passes **23,511**, and those guards resolve at Ruby 4.0.9.\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	fix := t.TempDir()
+	rp := filepath.Join(fix, "kernel_introspect.go")
+	if err := os.WriteFile(rp, []byte("const (\n\trubyVersion = \"4.0.9\"\n)\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	sp := filepath.Join(fix, "spec_helper.rb")
+	// With a trailing comment, because that is how the line will actually be
+	// written: the change wants explaining at the site.
+	if err := os.WriteFile(sp,
+		[]byte("CUR_VERSION = RUBY_VERSION  # one fact, one place (#799)\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	var out, errb bytes.Buffer
+	cmd := RootCmd()
+	cmd.SetArgs([]string{"--root", root, "--baseline", base,
+		"--runtime", rp, "--shim", sp, "--timeout", "5s"})
+	cmd.SetOut(&out)
+	cmd.SetErr(&errb)
+	if err := cmd.Execute(); err != nil {
+		t.Fatalf("a derived shim version was treated as a failure: %v\nstdout: %s\nstderr: %s",
+			err, out.String(), errb.String())
+	}
+	// And it SAYS there is only one copy: "the two agree" and "there is only one"
+	// are different states of that repository, and the second is the one worth
+	// seeing on the day it arrives.
+	if got := out.String(); !bytes.Contains([]byte(got), []byte("derived from RUBY_VERSION")) {
+		t.Errorf("it said %q, want it to report the version as derived", got)
+	}
+}
+
 // A renamed constant must read as "I cannot tell", not as a version. A pattern
 // that silently matches nothing is how a guard stops guarding.
 func TestAMissingVersionConstantRefuses(t *testing.T) {

@@ -78,6 +78,18 @@ const (
 var (
 	runtimeVersionRe = regexp.MustCompile(`(?m)^\trubyVersion\s*=\s*"(\d+\.\d+\.\d+)"`)
 	shimVersionRe    = regexp.MustCompile(`(?m)^CUR_VERSION\s*=\s*"(\d+\.\d+\.\d+)"`)
+	// ⛔ AND THE SHAPE THAT APPEARS WHEN THE DEFECT IS FIXED. ruby#799 asks for
+	// the shim to stop typing the version a second time and derive it:
+	//
+	//	CUR_VERSION = RUBY_VERSION
+	//
+	// On that day `shimVersionRe` stops matching, and a guard that only knew the
+	// literal form would refuse with "no CUR_VERSION = \"x.y.z\"" — this check
+	// failing *because* the thing it checks for was repaired, in a different
+	// repository, with nothing in that PR to suggest it. A drift guard has to
+	// recognise when there is only one copy left and say so, not treat the
+	// absence of the second copy as an unreadable answer.
+	shimDerivedRe = regexp.MustCompile(`(?m)^CUR_VERSION\s*=\s*RUBY_VERSION\s*(?:#.*)?$`)
 )
 
 // Two shapes of CURRENT claim, because two sites phrase it two ways round.
@@ -375,7 +387,7 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 		return &exitError{2, fmt.Sprintf("cannot read the gate's total: %v", err)}
 	}
 
-	wantVersion, err := authoritativeVersion(runtimePath, shimPath, timeout)
+	wantVersion, howSpelled, err := authoritativeVersion(runtimePath, shimPath, timeout)
 	if err != nil {
 		return &exitError{2, fmt.Sprintf("cannot read the version the gate measures at: %v", err)}
 	}
@@ -462,8 +474,8 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 
 	// "N of M, never N alone": a walk that matched nothing reports no
 	// disagreement, which is the same output as a correct site.
-	fmt.Fprintf(stdout, "%d total claim(s) and %d version claim(s) checked against the gate's %d at Ruby %s\n",
-		checked, versionsChecked, want, wantVersion)
+	fmt.Fprintf(stdout, "%d total claim(s) and %d version claim(s) checked against the gate's %d at Ruby %s (%s)\n",
+		checked, versionsChecked, want, wantVersion, howSpelled)
 	// ⛔ THE DISAGREEMENTS ARE REPORTED BEFORE THE ABSENCES, and that order is
 	// the whole of it. Written the other way round -- the version-absence
 	// refusal returning first -- this tool answered "found no statement of the
@@ -604,30 +616,39 @@ func fetch(path, url string, timeout time.Duration) ([]byte, error) {
 // two copies differ. The third is the one worth having: it is the exact state
 // ruby#799 describes as waiting to happen, and on the day half a parity change
 // lands this is what says so.
-func authoritativeVersion(runtimePath, shimPath string, timeout time.Duration) (string, error) {
+func authoritativeVersion(runtimePath, shimPath string, timeout time.Duration) (string, string, error) {
 	rt, err := fetch(runtimePath, runtimeURL, timeout)
 	if err != nil {
-		return "", fmt.Errorf("the runtime's version: %w", err)
+		return "", "", fmt.Errorf("the runtime's version: %w", err)
 	}
 	sh, err := fetch(shimPath, shimURL, timeout)
 	if err != nil {
-		return "", fmt.Errorf("the shim's version: %w", err)
+		return "", "", fmt.Errorf("the shim's version: %w", err)
 	}
 	rm := runtimeVersionRe.FindSubmatch(rt)
 	if rm == nil {
-		return "", fmt.Errorf("no `rubyVersion = \"x.y.z\"` in %s", runtimeURL)
+		return "", "", fmt.Errorf("no `rubyVersion = \"x.y.z\"` in %s", runtimeURL)
 	}
+	runtime := string(rm[1])
+
+	// One copy left: the shim reads RUBY_VERSION at run time, so there is nothing
+	// that can drift and the runtime's value IS the gate's. Reported as "derived"
+	// rather than silently, because "the two agree" and "there is only one" are
+	// different states of this repository and the second is the one worth seeing.
+	if shimDerivedRe.Match(sh) {
+		return runtime, "derived from RUBY_VERSION", nil
+	}
+
 	sm := shimVersionRe.FindSubmatch(sh)
 	if sm == nil {
-		return "", fmt.Errorf("no `CUR_VERSION = \"x.y.z\"` in %s", shimURL)
+		return "", "", fmt.Errorf("no `CUR_VERSION = \"x.y.z\"` and no `CUR_VERSION = RUBY_VERSION` in %s", shimURL)
 	}
-	runtime, shim := string(rm[1]), string(sm[1])
-	if runtime != shim {
-		return "", fmt.Errorf("the two copies of the version disagree: the runtime reports %s "+
+	if shim := string(sm[1]); runtime != shim {
+		return "", "", fmt.Errorf("the two copies of the version disagree: the runtime reports %s "+
 			"(kernel_introspect.go) while the gate measures at %s (spec_helper.rb) — "+
 			"half a version change has landed; see ruby#799", runtime, shim)
 	}
-	return runtime, nil
+	return runtime, "two copies, agreeing", nil
 }
 
 // hasAnySuffix is spelled out so the file types this walks are a list in one
