@@ -38,14 +38,15 @@ func TestEveryToolIsWiredIntoAWorkflow(t *testing.T) {
 
 	bad := wired.Unwired(cmds, wf)
 	if len(bad) > 0 {
-		t.Errorf("no workflow mentions %v.\n"+
+		t.Errorf("no workflow invokes %v (looked for `tools/<name>`, not the bare name:\n"+
+			"a tool named in a comment is documented, not called).\n"+
 			"A tool nothing calls is indistinguishable from a tool that passes: both are "+
 			"silent. Either wire it into .github/workflows or delete it; leaving it is the "+
 			"state that let the MkDocs-to-Hugo move (#28) drop both documentation guards "+
 			"without a red build.", bad)
 		return
 	}
-	t.Logf("%d tool(s) under tools/, all named by a workflow: %v", len(cmds), cmds)
+	t.Logf("%d tool(s) under tools/, all invoked by a workflow: %v", len(cmds), cmds)
 }
 
 // TestUnwiredNamesOnlyWhatIsMissing checks the rule itself against literals, so
@@ -61,6 +62,43 @@ func TestUnwiredNamesOnlyWhatIsMissing(t *testing.T) {
 	}
 	if n := len(wired.Unwired([]string{"docexample", "conformancefigure"}, "")); n != 2 {
 		t.Errorf("with no workflow text, %d of 2 tools looked wired", 2-n)
+	}
+}
+
+// ⛔ A NAME IN A SENTENCE IS NOT AN INVOCATION, and this repository already
+// contains the sentence: docs.yml:108 reads
+//
+//	# docexample judges the examples that claim an answer -- 11 of them. The
+//
+// so against the bare name, deleting the `go run ./tools/docexample` step and
+// leaving that comment kept the tool reported as wired — the exact blindness
+// this package exists to remove, for the one tool whose step is documented.
+//
+// The two halves are asserted together: the comment alone must NOT count, and
+// the invocation must still count, so a rule tightened into matching nothing
+// cannot pass this.
+func TestAMentionInProseIsNotAnInvocation(t *testing.T) {
+	const comment = "      # docexample judges the examples that claim an answer -- 11 of them. The\n"
+	if got := wired.Unwired([]string{"docexample"}, comment); len(got) != 1 {
+		t.Errorf("a tool named only in a comment was reported as wired (Unwired = %v)", got)
+	}
+
+	// The real spellings of an invocation, each of which must count.
+	for _, yaml := range []string{
+		"        run: go run ./tools/docexample --rbgo /tmp/rbgo --root content/en\n",
+		"        run: go run github.com/go-embedded-ruby/docs/tools/docexample@v0.6.0\n",
+		"        run: cd tools/docexample && go run .\n",
+	} {
+		if got := wired.Unwired([]string{"docexample"}, yaml); len(got) != 0 {
+			t.Errorf("an invoked tool was reported as unwired (%v) for:\n%s", got, yaml)
+		}
+	}
+
+	// And the comment beside a real invocation is the repository's actual state:
+	// wired because of the step, not because of the prose.
+	both := "        run: go run ./tools/docexample --root content/en\n" + comment
+	if got := wired.Unwired([]string{"docexample"}, both); len(got) != 0 {
+		t.Errorf("Unwired = %v, want the step to count", got)
 	}
 }
 
