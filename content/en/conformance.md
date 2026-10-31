@@ -147,6 +147,11 @@ workflow enforces it on every push and pull request.
 {{< callout type="info" >}}
 **The gate's current total is **23 511****
 
+Counted with ruby/spec's version guards set to resolve at Ruby **3.4.1** — the
+version `RUBY_VERSION` reports and the version the shim measures at. That
+selects the population before any counting happens, so the total is not a
+percentage of Ruby 4.0; see [Known limitations](#known-limitations).
+
 The table below is one **dated full sweep**, and a dated measurement going
 stale is not an error: it is what it says it is. The number that moves with
 every merge is the per-file baseline's sum, which the badge and the README
@@ -286,7 +291,7 @@ the call returns successfully and nothing says the guarantee is missing:
 
 | | |
 | --- | --- |
-| `RUBY_VERSION` reports `"3.4.1"`, though the differential oracle is MRI 4.0.7 and the pinned corpus is 4.0.x. That is not only cosmetic: the shim's version guard is pinned to the same `3.4.1`, so **167 examples behind a `ruby_version_is "4.0"` guard are never reached**, while 40 guards that end *before* 4.0 are being asserted | [#799](https://github.com/go-embedded-ruby/ruby/issues/799) |
+| `RUBY_VERSION` reports `"3.4.1"`, though the differential oracle is MRI 4.0.7, the pinned corpus is 4.0.x, and the latest MRI release is 4.0.9 (2026-10-23). That is not only cosmetic: the shim's `CUR_VERSION` is pinned to the same `3.4.1`, so **61 block guards and 5 inline sites at the `ruby_version_is "4.0"` boundary never run**, while **41 guards that end *before* 4.0 are being asserted**. Guard counts are exact, censused by `scripts/conformance/rubyspec/cmd/guards`; the example count behind them is not stated here because a static scan cannot expand `it_behaves_like`, and the figure of 167 quoted when this was first reported does not reproduce — it needs a CI sweep that moves `CUR_VERSION` without regenerating the baseline, so the ratchet names every file that moves in both directions | [#799](https://github.com/go-embedded-ruby/ruby/issues/799) |
 | `Errno` carries all **158** of MRI's constant names, but **32** report errno `0` where MRI has a real number (`EAUTH`, `EBADRPC`, `EDEVERR`, …). By set difference on darwin: 81 names are zero-valued under rbgo, 49 under MRI, and every MRI zero is also zero under rbgo | [#633](https://github.com/go-embedded-ruby/ruby/issues/633) |
 | `Thread#backtrace` answers for the **current** thread only; another thread raises `NotImplementedError` | — |
 | `Process.fork` **does not exist** — Go's runtime cannot be forked safely | — |

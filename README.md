@@ -25,7 +25,7 @@ after publication.
 
 | tool | what it judges | its authority |
 |---|---|---|
-| `conformancefigure` | every **present-tense** claim about the ruby/spec total. A *dated* sweep going stale is not an error, and is exempt by its date. | the gate's own `BASELINE` |
+| `conformancefigure` | every **present-tense** claim about the ruby/spec total, **and the Ruby version that total was counted at** — the version selects the population before anything is counted, so a total stated without it is half a measurement. A *dated* sweep going stale is not an error, and is exempt by its date. The differential **oracle** named on these pages is a different claim, free to be newer, and is deliberately not matched. | the gate's own `BASELINE`, and the version read from **both** files that spell it — the runtime's `rubyVersion` and the shim's `CUR_VERSION` — refusing if they disagree, and reporting which state it found (`two copies, agreeing`, or `derived from RUBY_VERSION` once [ruby#799](https://github.com/go-embedded-ruby/ruby/issues/799) lands and there is only one) |
 | `docexample` | every fenced `ruby` block that claims an answer in a `# =>` comment is **run**, and the lines it prints compared in order. A block that claims nothing is skipped. | a real interpreter |
 | `numericsurface` | every method name the prose **prints** in a module's section, and the counts the pages state. | a real interpreter |
 | `upstreamlinks` | every **library a module section links to** is one rbgo still depends on. | rbgo's `go.mod` |

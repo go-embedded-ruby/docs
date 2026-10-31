@@ -12,7 +12,13 @@ C toolchain and no libruby.
 
 **How complete is it?** It passes **23,511** of ruby/spec's `language/` + `core/`
 examples — a large and growing subset of Ruby, and **not** a drop-in replacement for
-CRuby. [Conformance]({{< relref "conformance.md#where-it-stands-measured-2026-09-26" >}}) states
+CRuby. That count is taken with ruby/spec's own version guards set to resolve at
+Ruby **3.4.1**, the version this runtime reports: every example behind a
+`ruby_version_is "4.0"` guard is removed from the suite before anything is
+counted, so the figure describes 3.4-shaped behaviour even though the project
+targets 4.0 semantics — 61 block guards and 5 inline sites sit at that boundary
+([ruby#799](https://github.com/go-embedded-ruby/ruby/issues/799)).
+[Conformance]({{< relref "conformance.md#where-it-stands-measured-2026-09-26" >}}) states
 exactly what that counts and what it leaves out, and
 [Known limitations]({{< relref "conformance.md#known-limitations" >}}) is worth reading before you
 depend on it.
