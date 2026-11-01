@@ -85,7 +85,7 @@ jobs:
       # blocks the change rather than being found after publication.
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.27.2'
+          go-version: '1.27.3'
 
       - name: Every tool under tools/ is called by a workflow
         run: go test ./...
@@ -190,7 +190,7 @@ jobs:
 
       - uses: actions/setup-go@v6
         with:
-          go-version: '1.27.2'
+          go-version: '1.27.3'
 
       # ⛔ THE VERSION GOES AT THE BRANCH ROOT. This step used to write
       # docs/<version>/ — but a project repository named "docs" is ALREADY
