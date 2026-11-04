@@ -154,12 +154,17 @@ workflow enforces it on every push and pull request.
 ### Where it stands — measured 2026-09-26 {#where-it-stands-measured-2026-09-26}
 
 {{< callout type="info" >}}
-**The gate's current total is **23 511****
+**The gate's current total is **23 672****
 
-Counted with ruby/spec's version guards set to resolve at Ruby **3.4.1** — the
-version `RUBY_VERSION` reports and the version the shim measures at. That
-selects the population before any counting happens, so the total is not a
-percentage of Ruby 4.0; see [Known limitations](#known-limitations).
+Counted with ruby/spec's version guards set to resolve at Ruby **4.0.9** — the
+version `RUBY_VERSION` reports and the version the shim measures at, since
+`CUR_VERSION = RUBY_VERSION`. That selects the population before any counting
+happens, so the total is still not a percentage of Ruby; see
+[Known limitations](#known-limitations).
+
+The baseline was re-recorded at 4.0.9 **on the pinned runner that enforces
+it**, not on a developer's machine — one laptop reads +9 against CI for no
+change in the code at all.
 
 The table below is one **dated full sweep**, and a dated measurement going
 stale is not an error: it is what it says it is. The number that moves with
@@ -168,7 +173,7 @@ quote, and it is read straight out of the gate's own file:
 
 ```console
 $ awk -F'\t' '/^OK\t/{n+=$3} END{print n}' scripts/conformance/rubyspec/BASELINE
-23511
+23673
 ```
 
 The breakdown below — failing, erroring, skipped — needs a full sweep to
@@ -201,7 +206,7 @@ same ten files producing no result.
 level **CI guarantees**; a measured total is **what rbgo did on a given run**.
 Quoting the guaranteed figure as the conformance result understates rbgo by
 whatever has landed since the record was last written; quoting a measured total
-as a guarantee overstates it by the same amount. The sum is **23 511**, and
+as a guarantee overstates it by the same amount. The sum is **23 672**, and
 both the repository README and this page read that figure out of the file
 mechanically, each with a check that fails if they disagree — which is why
 neither carries a release number beside it. The figure is verified
@@ -254,7 +259,7 @@ Both are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
 ([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** by the
-time it was replaced by the per-file baseline, whose sum is **23 511**.
+time it was replaced by the per-file baseline, whose sum is **23 672**.
 
 ### Known limitations {#known-limitations}
 
@@ -300,7 +305,7 @@ the call returns successfully and nothing says the guarantee is missing:
 
 | | |
 | --- | --- |
-| `RUBY_VERSION` reports `"3.4.1"`, though the differential oracle is MRI 4.0.7, the pinned corpus is 4.0.x, and the latest MRI release is 4.0.9 (2026-10-23). That is not only cosmetic: the shim's `CUR_VERSION` is pinned to the same `3.4.1`, so **61 block guards and 5 inline sites at the `ruby_version_is "4.0"` boundary never run**, while **41 guards that end *before* 4.0 are being asserted**. Guard counts are exact, censused by `scripts/conformance/rubyspec/cmd/guards`; the example count behind them is not stated here because a static scan cannot expand `it_behaves_like`, and the figure of 167 quoted when this was first reported does not reproduce — it needs a CI sweep that moves `CUR_VERSION` without regenerating the baseline, so the ratchet names every file that moves in both directions | [#799](https://github.com/go-embedded-ruby/ruby/issues/799) |
+| **Resolved 2026-11-03.** `RUBY_VERSION` now reports `"4.0.9"`, the latest MRI release, and `CUR_VERSION = RUBY_VERSION` so the shim cannot disagree with it. The sweep this entry asked for was run — both engines built from **one commit minus the version string**, over `core` and `language` together: **+144 passing, 45 files moved, 27 examples that WENT RED**. The 27 are the move's real remaining work and are listed per item on the issue. Two cautions the figures carry: `+144` is a **net** and `13 regressed` is not 13 defects — six of the thirteen lost only examples the corpus stops asking for, each with a `CLOSED` guard in the census, and `core/objectspace/_id2ref_spec.rb` reading `10 → 0` is eleven examples below 4.0 against **one** above it | [#799](https://github.com/go-embedded-ruby/ruby/issues/799) |
 | `Errno` carries all **158** of MRI's constant names, but **32** report errno `0` where MRI has a real number (`EAUTH`, `EBADRPC`, `EDEVERR`, …). By set difference on darwin: 81 names are zero-valued under rbgo, 49 under MRI, and every MRI zero is also zero under rbgo | [#633](https://github.com/go-embedded-ruby/ruby/issues/633) |
 | `Thread#backtrace` answers for the **current** thread only; another thread raises `NotImplementedError` | — |
 | `Process.fork` **does not exist** — Go's runtime cannot be forked safely | — |

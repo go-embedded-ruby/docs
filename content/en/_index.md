@@ -10,13 +10,15 @@ the lexer, parser and compiler embedded in the binary. Embed it in a Go program,
 ship it as a single static executable that cross-compiles wherever Go does, with no
 C toolchain and no libruby.
 
-**How complete is it?** It passes **23,511** of ruby/spec's `language/` + `core/`
+**How complete is it?** It passes **23,672** of ruby/spec's `language/` + `core/`
 examples — a large and growing subset of Ruby, and **not** a drop-in replacement for
 CRuby. That count is taken with ruby/spec's own version guards set to resolve at
-Ruby **3.4.1**, the version this runtime reports: every example behind a
-`ruby_version_is "4.0"` guard is removed from the suite before anything is
-counted, so the figure describes 3.4-shaped behaviour even though the project
-targets 4.0 semantics — 61 block guards and 5 inline sites sit at that boundary
+Ruby **4.0.9**, the version this runtime reports and the latest MRI release: the
+examples behind a `ruby_version_is "4.0"` guard are counted, and those behind
+`ruby_version_is ""..."4.0"` are no longer asked for. The move from 3.4.1 was
+measured before it was made, both engines built from one commit minus the
+version string: **+144 passing**, and **27 examples that went red** — a figure
+no pass total shows
 ([ruby#799](https://github.com/go-embedded-ruby/ruby/issues/799)).
 [Conformance]({{< relref "conformance.md#where-it-stands-measured-2026-09-26" >}}) states
 exactly what that counts and what it leaves out, and
