@@ -154,7 +154,7 @@ workflow enforces it on every push and pull request.
 ### Where it stands — measured 2026-09-26 {#where-it-stands-measured-2026-09-26}
 
 {{< callout type="info" >}}
-**The gate's current total is **23 673****
+**The gate's current total is **23 672****
 
 Counted with ruby/spec's version guards set to resolve at Ruby **4.0.9** — the
 version `RUBY_VERSION` reports and the version the shim measures at, since
@@ -206,7 +206,7 @@ same ten files producing no result.
 level **CI guarantees**; a measured total is **what rbgo did on a given run**.
 Quoting the guaranteed figure as the conformance result understates rbgo by
 whatever has landed since the record was last written; quoting a measured total
-as a guarantee overstates it by the same amount. The sum is **23 673**, and
+as a guarantee overstates it by the same amount. The sum is **23 672**, and
 both the repository README and this page read that figure out of the file
 mechanically, each with a check that fails if they disagree — which is why
 neither carries a release number beside it. The figure is verified
@@ -259,7 +259,7 @@ Both are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
 ([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** by the
-time it was replaced by the per-file baseline, whose sum is **23 673**.
+time it was replaced by the per-file baseline, whose sum is **23 672**.
 
 ### Known limitations {#known-limitations}
 

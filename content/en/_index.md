@@ -10,7 +10,7 @@ the lexer, parser and compiler embedded in the binary. Embed it in a Go program,
 ship it as a single static executable that cross-compiles wherever Go does, with no
 C toolchain and no libruby.
 
-**How complete is it?** It passes **23,673** of ruby/spec's `language/` + `core/`
+**How complete is it?** It passes **23,672** of ruby/spec's `language/` + `core/`
 examples — a large and growing subset of Ruby, and **not** a drop-in replacement for
 CRuby. That count is taken with ruby/spec's own version guards set to resolve at
 Ruby **4.0.9**, the version this runtime reports and the latest MRI release: the

@@ -106,8 +106,24 @@ var (
 // Thousands may be separated by a space (the docs' style) or a comma (the
 // landing page's and the README's), and the figure may be wrapped in Markdown
 // bold or HTML tags.
+//
+// "total is" and the "sum of <words> is" shape were added on 2026-11-04. The
+// run that refreshed the figure for 23,672 reported "4 total claim(s) checked"
+// on a docs tree that held FIVE and "5 … checked" on a landing tree that held
+// SIX. The two it could not see said "The gate's current total is 23 673" and
+// "The sum of those rows is 23,673": the first used a word the alternation did
+// not have, the second put two words between "sum" and "is", and the
+// alternation spelled only the three determiners it had met so far ("the", "its",
+// "whose"). Nothing was wrong with the verdicts it did reach; the stale lines
+// were simply never candidates, and only the printed denominator -- against a
+// grep of the same trees -- made the gap visible. A vocabulary list is a
+// filter, so every phrasing missing from it is a figure the gate cannot refuse.
+//
+// Nothing speculative goes in this list: each alternative is a phrasing that
+// exists in the two sites today, because a word added for a sentence nobody
+// writes is a false positive waiting for the sentence that does.
 var (
-	claimBefore = regexp.MustCompile(`(?i)\b(it passes|the sum is|its sum is|whose sum is|summing|passes)\b[^0-9]{0,24}\*{0,2}(\d{1,3}[ ,]?\d{3})\*{0,2}`)
+	claimBefore = regexp.MustCompile(`(?i)\b(it passes|passes|summing|(?:sum|total)\s+of\s+[a-z ]{1,24}\s+is|(?:sum|total)\s+is)\b[^0-9]{0,24}\*{0,2}(\d{1,3}[ ,]?\d{3})\*{0,2}`)
 	claimAfter  = regexp.MustCompile(`(?i)\**(\d{1,3}[ ,]?\d{3})\**(?:</b>|</div>)?[^.!?0-9]{0,90}?\bexamples?\s+(?:pass|passing)\b`)
 )
 
@@ -182,6 +198,14 @@ var vocabularyCases = []struct {
 	{"**How complete is it?** It passes **23,511** of ruby/spec's `language/`", true, "23,511"},
 	{"baseline, whose sum is **23 511** at v0.3.0 (2026-10-11).", true, "23 511"},
 	{"as a guarantee overstates it by the same amount. The sum is **23 511** as of", true, "23 511"},
+	// ⛔ These two sat in conformance.md and on the landing page with a stale
+	// figure while the tool reported four and five claims checked. The first
+	// says "total is", a word the alternation did not have; the second puts
+	// two words between "sum" and "is", which the three spelled-out
+	// determiners could not cross. Neither was ever a candidate, so both runs
+	// looked complete.
+	{"**The gate's current total is **23 511****", true, "23 511"},
+	{"<li>CI gates <b>file by file</b>, not on a total: … The sum of those rows is <b>23,511</b>, re-recorded at Ruby 4.0.9</li>", true, "23,511"},
 	// Figure first: the landing page's style, in all three shapes it uses.
 	{`<div class="trust"><span><b>23,511</b> ruby/spec <code>language/</code>+<code>core/</code> examples passing</span>`, true, "23,511"},
 	{`<p><b>23,511</b> ruby/spec <code>language/</code> + <code>core/</code> examples pass, gated in CI <b>file by file</b>`, true, "23,511"},
