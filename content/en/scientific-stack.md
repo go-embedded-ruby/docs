@@ -33,13 +33,21 @@ p Math.hypot(3, 4)                  # => 5.0
 Binds [go-ndarray](https://github.com/go-ndarray/ndarray): constructors
 `zeros`/`ones`/`full`/`arange`/`from`, element-wise `+ - * /` with scalar
 broadcasting, ufuncs (`sqrt`/`exp`/`log`/`sin`/`cos`/`abs`), reductions
-(`sum`/`mean`/`max`/`min`/`prod`/`argmax`/`argmin`), `matmul`/`dot`,
-`transpose`/`reshape`/`flatten`, and `shape`/`to_a`/`[]`.
+(`sum`/`mean`/`max`/`min`/`prod`/`argmax`/`argmin`) and `cumsum`,
+`matmul`/`dot`, `transpose`/`reshape`/`flatten`, and `shape`/`to_a`/`[]`.
+
+A reduction with no axis collapses the whole array; with an axis it reduces
+along it. The axis may be given positionally or by keyword, the way NumPy
+spells it — `a.sum(0)` and `a.sum(axis: 0)` are the same call, and giving both
+at once raises `ArgumentError`. `keepdims: true` keeps the reduced axes at
+length 1.
 
 ```ruby
 a = NDArray.arange(0, 6).reshape(2, 3)
-p a.sum                 # => 15.0
-p a.transpose.shape     # => [3, 2]
+p a.sum                      # => 15.0
+p a.sum(axis: 0).to_a        # => [3.0, 5.0, 7.0]
+p a.argmax(axis: 1).to_a     # => [2.0, 2.0]
+p a.transpose.shape          # => [3, 2]
 ```
 
 ## FFT — numpy.fft-style transforms {#fft-numpyfft-style-transforms}
