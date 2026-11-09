@@ -145,9 +145,17 @@ margin could not distinguish *one file failing to load* from *hundreds of specs
 regressing*. A run that gains examples overall still fails here if any single
 file drops, which a total could not see.
 
-The shim stubs a few MSpec matchers (`complain`, `output`, `ruby_exe`, …), so
-their examples count as *skipped* rather than passing — the record is a
-deliberately **conservative lower bound**. The
+The shim stubs `ruby_exe`, `ruby_cmd` and `output_to_fd` — three helpers that
+would need a subprocess or real file-descriptor redirection — so their examples
+count as *skipped* rather than passing, and the record is a deliberately
+**conservative lower bound**.
+
+`complain`, `output` and `be_computed_by` are **implemented**, not stubbed; this
+page said otherwise until 2026-11-09, and the error ran in the direction that
+matters. An example using a stubbed helper *skips*; one using `complain` **runs**
+and, when the behaviour is missing, **fails** — so a reader trusting the old
+sentence would have looked for it among the skips, where it is not. That list is
+now derived from the shim by `tools/conformancefigure` rather than retyped. The
 [`rubyspec-ratchet`](https://github.com/go-embedded-ruby/ruby/blob/main/.github/workflows/rubyspec-ratchet.yml)
 workflow enforces it on every push and pull request.
 
@@ -220,12 +228,13 @@ a checked fact carry an unchecked one.
 It is **not** "rbgo implements 93 % of Ruby", and it cannot be turned into a
 percentage of the language:
 
-- **Only `language/` and `core/` are swept.** ruby/spec's `library/`,
-  `optional/` and `security/` trees are **not run at all** — most of what people
-  mean by "the standard library" is outside this measurement entirely.
-- **The shim is not mspec.** Some matchers are stubbed, so the examples needing
-  them are counted as *skipped*, never as passing. The total is a conservative
-  lower bound.
+- **Only `language/` and `core/` are swept.** `run.sh` walks those two trees and
+  no others, so ruby/spec's `library/`, `optional/`, `command_line/` and
+  `security/` trees are **not run at all** — most of what people mean by "the
+  standard library" is outside this measurement entirely.
+- **The shim is not mspec.** Three helpers are stubbed — `ruby_exe`, `ruby_cmd` and `output_to_fd` —
+  so the examples needing them are counted as *skipped*, never as passing. The
+  total is a conservative lower bound.
 - **Skips are outside the ratio.** The 93.3 % divides passes by the examples
   that ran; the 477 skips and the 10 unreadable files are in neither column.
 - **Examples are not weighted.** A heavily specified method contributes far more

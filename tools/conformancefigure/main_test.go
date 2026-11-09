@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"errors"
+	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -71,11 +73,29 @@ func versionFixtures(t *testing.T, runtimeV, shimV string) (string, string) {
 		t.Fatal(err)
 	}
 	sp := filepath.Join(dir, "spec_helper.rb")
-	if err := os.WriteFile(sp, []byte("CUR_VERSION = \""+shimV+"\"\nPLATFORMS = [:darwin]\n"), 0o644); err != nil {
+	if err := os.WriteFile(sp, []byte("CUR_VERSION = \""+shimV+"\"\nPLATFORMS = [:darwin]\n"+shimStubs), 0o644); err != nil {
 		t.Fatal(err)
 	}
 	return rp, sp
 }
+
+// shimStubs is the part of spec_helper.rb the stubbed-helper check reads, in the
+// exact shapes the real file uses: a bare `raise`, a `::Kernel.raise`, and --
+// the one that must NOT be read as a stub -- `skip`, which raises a SpecSkip
+// SUBCLASS because the spec asked to be skipped.
+//
+// The implemented matchers are here too, with bodies, so a pattern that started
+// matching any `def` in the file would be caught by a fixture rather than on
+// the live site.
+const shimStubs = `
+def output_to_fd(*a); raise SpecSkip, "output_to_fd matcher unsupported"; end
+def be_computed_by(sym, *extra); BeComputedByMatcher.new(sym, *extra); end
+def complain(pat = nil, options = {}); ComplainMatcher.new(pat, options[:verbose]); end
+class SkippedSpecError < SpecSkip; end
+def skip(reason = 'no reason'); ::Kernel.raise(SkippedSpecError, reason); end
+def ruby_exe(*a, **k); ::Kernel.raise(SpecSkip, "ruby_exe subprocess unsupported"); end
+def ruby_cmd(*a, **k); ::Kernel.raise(SpecSkip, "ruby_cmd unsupported"); end
+`
 
 // ⛔ An unreadable baseline is a refusal (2), never a pass: it finds no
 // disagreement either, and that silence reads exactly like agreement.
@@ -336,7 +356,7 @@ func TestADerivedShimVersionIsNotADisagreement(t *testing.T) {
 	// With a trailing comment, because that is how the line will actually be
 	// written: the change wants explaining at the site.
 	if err := os.WriteFile(sp,
-		[]byte("CUR_VERSION = RUBY_VERSION  # one fact, one place (#799)\n"), 0o644); err != nil {
+		[]byte("CUR_VERSION = RUBY_VERSION  # one fact, one place (#799)\n"+shimStubs), 0o644); err != nil {
 		t.Fatal(err)
 	}
 
@@ -460,4 +480,123 @@ func TestATomlFileIsWalked(t *testing.T) {
 	if said := errb.String(); !bytes.Contains([]byte(said), []byte("claims 23481")) {
 		t.Errorf("it said %q, want it to name the stale figure", said)
 	}
+}
+
+// ⛔ The three cases the stubbed-helper check exists for, each one a state this
+// site was actually in on 2026-11-09.
+func TestTheStubbedHelperListIsJudged(t *testing.T) {
+	dir := t.TempDir()
+	base := filepath.Join(dir, "BASELINE")
+	if err := os.WriteFile(base, []byte("OK\ta_spec.rb\t23511\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	rp, sp := versionFixtures(t, "4.0.9", "4.0.9")
+
+	// Every page carries a correct total and version, so nothing but the stub
+	// list can decide these cases.
+	const preamble = "It passes **23,511**, and those guards resolve at Ruby 4.0.9.\n"
+
+	for _, tc := range []struct {
+		name   string
+		page   string
+		status int
+		says   string
+	}{{
+		name: "the list as this site carried it, naming two implemented matchers",
+		page: preamble + "The shim stubs a few MSpec matchers (`complain`, `output`, `ruby_exe`, …), so\n" +
+			"their examples count as skipped.\n",
+		status: 1,
+		says:   "calls `complain` a stubbed shim helper",
+	}, {
+		name: "a list missing one, which is how `ruby_cmd` went unmentioned everywhere",
+		page: preamble + "The shim stubs two MSpec helpers — `ruby_exe` and `output_to_fd` — so their\n" +
+			"examples count as skipped.\n",
+		status: 1,
+		says:   "names ruby_cmd nowhere",
+	}, {
+		name: "the whole list, and a sentence DENYING that the others are stubbed",
+		page: preamble + "The shim stubs `ruby_exe`, `ruby_cmd` and `output_to_fd`, so their examples\n" +
+			"skip. `complain`, `output` and `be_computed_by` are **implemented**, not\n" +
+			"stubbed; an example using a stubbed helper skips, one using `complain` runs.\n",
+		status: 0,
+	}} {
+		t.Run(tc.name, func(t *testing.T) {
+			root := t.TempDir()
+			if err := os.WriteFile(filepath.Join(root, "page.md"), []byte(tc.page), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			var out, errb bytes.Buffer
+			cmd := RootCmd()
+			cmd.SetArgs([]string{"--root", root, "--baseline", base,
+				"--runtime", rp, "--shim", sp, "--timeout", "5s"})
+			cmd.SetOut(&out)
+			cmd.SetErr(&errb)
+			err := cmd.Execute()
+			if tc.status == 0 {
+				if err != nil {
+					t.Fatalf("Execute: %v\nstdout: %s\nstderr: %s", err, out.String(), errb.String())
+				}
+				return
+			}
+			var ee *exitError
+			if !errors.As(err, &ee) {
+				t.Fatalf("got %v, want an exitError", err)
+			}
+			if ee.code != tc.status {
+				t.Errorf("status %d, want %d", ee.code, tc.status)
+			}
+			said := ee.Error() + errb.String()
+			if !strings.Contains(said, tc.says) {
+				t.Errorf("it said %q, want it to name %q", said, tc.says)
+			}
+		})
+	}
+}
+
+// ⛔ THE HOLE THE WALK ITSELF CANNOT CLOSE. The completeness check only applies
+// where the list is made at all, so deleting the enumeration outright would
+// leave the tool with nothing to complete and a clean exit. This reads the real
+// content/en and requires it to name every helper the shim stubs -- and only
+// those -- independently of any figure on the page, so a figure refresh never
+// makes this test noisy.
+func TestTheSiteNamesEveryStubbedHelper(t *testing.T) {
+	want := map[string]bool{}
+	for _, m := range shimStubRe.FindAllStringSubmatch(shimStubs, -1) {
+		want[m[1]] = false
+	}
+	if len(want) != 3 {
+		t.Fatalf("the fixture shim yielded %d stubbed helper(s), want 3: the pattern and the fixture have drifted apart", len(want))
+	}
+
+	mentions := 0
+	err := filepath.WalkDir("../../content/en", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || d.IsDir() || !hasAnySuffix(path, ".md", ".html", ".toml") {
+			return err
+		}
+		body, rerr := os.ReadFile(path)
+		if rerr != nil {
+			return rerr
+		}
+		for i, line := range strings.Split(string(body), "\n") {
+			for _, name := range matchStubs(line) {
+				mentions++
+				if _, ok := want[name]; !ok {
+					t.Errorf("%s:%d calls `%s` a stubbed shim helper; the shim stubs it nowhere", path, i+1, name)
+					continue
+				}
+				want[name] = true
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walking content/en: %v", err)
+	}
+	for name, seen := range want {
+		if !seen {
+			t.Errorf("content/en names `%s` nowhere, and the shim stubs it: the page explains that the\n"+
+				"total is a lower bound without saying which examples it is low by", name)
+		}
+	}
+	t.Logf("%d stubbed-helper mention(s) across content/en", mentions)
 }
