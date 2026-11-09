@@ -33,6 +33,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -90,6 +91,24 @@ var (
 	// recognise when there is only one copy left and say so, not treat the
 	// absence of the second copy as an unreadable answer.
 	shimDerivedRe = regexp.MustCompile(`(?m)^CUR_VERSION\s*=\s*RUBY_VERSION\s*(?:#.*)?$`)
+
+	// ⛔ THE THIRD FACT THESE PAGES RESTATE, and the one that was wrong on both
+	// of them. The shim stubs some mspec helpers by raising SpecSkip; those
+	// examples are counted as SKIPPED, which is why every page says the total is
+	// a conservative lower bound. Which helpers those are was retyped, and on
+	// 2026-11-09 conformance.md said "`complain`, `output`, `ruby_exe`, …" when
+	// `complain` and `output` are implemented and `ruby_cmd` -- stubbed one line
+	// below the `ruby_exe` that was named -- appeared nowhere.
+	//
+	// The error runs in the direction that hides work: an example using a
+	// genuinely stubbed helper SKIPS, but one using `complain` RUNS and, when the
+	// behaviour is missing, FAILS. A reader sent to look for it among the skips
+	// does not find it there (ruby#909 was nearly missed exactly so).
+	//
+	// `skip` is deliberately outside this set: it raises SkippedSpecError, which
+	// this pattern does not match, because the spec ASKED to be skipped -- mspec
+	// behaviour rbgo implements, not a hole in the shim.
+	shimStubRe = regexp.MustCompile(`(?m)^\s*def\s+([a-z_][a-z0-9_]*[?!]?)\b[^\n]*\braise[\s(]+SpecSkip\b`)
 )
 
 // Two shapes of CURRENT claim, because two sites phrase it two ways round.
@@ -228,6 +247,108 @@ var vocabularyCases = []struct {
 	// recorded as a case so a later widening of either pattern cannot start
 	// reading a ratio as a total without this failing first.
 	{`<li>Of the examples that ran, <b>93.3%</b> pass (22,488 of 24,116); 477 more are skipped because our shim stubs the matcher they need, and 10 of 2,206 spec files produce no result.</li>`, false, ""},
+}
+
+// The stubbed-helper vocabulary.
+//
+// A line makes this claim in one of three phrasings -- "the shim stubs X",
+// "N helpers are stubbed: X", "the matchers stubbed are X" -- and the
+// enumeration must sit on the same line as the phrase that introduces it.
+//
+// It is a VOCABULARY, like the total's, and for the same reason: "stub" is an
+// ordinary English word on these sites. `webassembly.md` has a row about a
+// "graceful stub" listing `sqlite3`, `sequel`, `activerecord` in code spans,
+// and the paragraph recording this very correction says "an example using a
+// stubbed helper *skips*; one using `complain` **runs**". Matched on the word
+// alone, both would be read as claims about mspec helpers and both would fail a
+// page that is right. Measured: they did, on the first run of this check.
+//
+// The cost of a vocabulary is the same here as there -- a phrasing missing from
+// it is a claim the gate cannot refuse -- which is why the enumeration is kept
+// to one line in both pages and why stubCases holds the real sentences.
+//
+// A line that DENIES stubbing is not a claim of it: "`complain`, `output` and
+// `be_computed_by` are **implemented**, not stubbed" is the sentence that
+// records the correction, and it names three helpers that must not be in the
+// set. It is excluded by its negation rather than by its names, so the next such
+// sentence is handled without touching this code.
+var (
+	stubClaim    = regexp.MustCompile(`(?i)\bshim stubs\b|\b(?:helpers?|matchers?)\s+(?:are|is)\s+stubbed\b|\b(?:helpers?|matchers?)\s+stubbed\s+(?:are|is)\b`)
+	stubNegation = regexp.MustCompile(`(?i)\bnot stubbed\b|\bimplemented\b`)
+	// Markdown backticks for the docs, <code> for the landing page's layouts.
+	// `language/` and `core/` carry a slash and so are never identifiers.
+	codeSpanName = regexp.MustCompile("(?:`|<code>)([a-z_][a-z0-9_]*[?!]?)(?:`|</code>)")
+)
+
+// stubCases is this vocabulary's own control, in the same spirit as
+// vocabularyCases and versionCases, and run on every invocation for the same
+// reason: a pattern that matches nothing is indistinguishable from a site that
+// states the list correctly.
+var stubCases = []struct {
+	line string
+	want []string
+}{
+	// The docs' prose and its bullet, as this change writes them: the phrase and
+	// the whole enumeration on one line.
+	{"The shim stubs `ruby_exe`, `ruby_cmd` and `output_to_fd` — three helpers that",
+		[]string{"ruby_exe", "ruby_cmd", "output_to_fd"}},
+	{"- **The shim is not mspec.** Three helpers are stubbed — `ruby_exe`, `ruby_cmd` and `output_to_fd` —",
+		[]string{"ruby_exe", "ruby_cmd", "output_to_fd"}},
+	// The landing page's HTML, where a list item is one long line anyway.
+	{"<li>477 more are skipped because the shim stubs <code>ruby_exe</code>, <code>ruby_cmd</code> and <code>output_to_fd</code>.</li>",
+		[]string{"ruby_exe", "ruby_cmd", "output_to_fd"}},
+	// ⛔ The sentence that was WRONG, as it stood on 2026-11-09. It must be a
+	// claim, or the gate could not have caught it.
+	{"The shim stubs a few MSpec matchers (`complain`, `output`, `ruby_exe`, …), so",
+		[]string{"complain", "output", "ruby_exe"}},
+	// The correction itself: a denial, not a claim.
+	{"`complain`, `output` and `be_computed_by` are **implemented**, not stubbed; this", nil},
+	// ⛔ THE SENTENCE THAT EXPLAINS THE CORRECTION, which names `complain` and is
+	// not a claim about what is stubbed. Matched on the word "stub" alone it was
+	// read as one, and this check failed conformance.md on its own explanation.
+	{"matters. An example using a stubbed helper *skips*; one using `complain` **runs**", nil},
+	// Vague but true, and naming nobody: nothing to check.
+	{"- **The shim is not mspec.** Some matchers are stubbed, so the examples needing", nil},
+	{"<li>477 more are skipped because our shim stubs the matcher they need</li>", nil},
+	// ⛔ Real lines from this site that use "stub" about something else. The
+	// first names four gems and would fail a correct page.
+	{"| **graceful stub** | **succeeds** | the module loads, but constructing a connection / handle raises | `sqlite3`, `sequel`, `activerecord` |", nil},
+	{"    - *RPC, serialization & columnar data* — **`grpc`** (server + client stub,", nil},
+	// A line about the suites, which names code spans and no stub.
+	{"- **Only `language/` and `core/` are swept.** ruby/spec's `library/`,", nil},
+}
+
+// matchStubs returns the helpers a line claims the shim stubs.
+func matchStubs(line string) []string {
+	if !stubClaim.MatchString(line) {
+		return nil
+	}
+	if stubNegation.MatchString(line) {
+		return nil
+	}
+	var out []string
+	for _, m := range codeSpanName.FindAllStringSubmatch(line, -1) {
+		out = append(out, m[1])
+	}
+	return out
+}
+
+// checkStubVocabulary runs stubCases, like checkVocabulary, before any verdict.
+func checkStubVocabulary() error {
+	for _, c := range stubCases {
+		got := matchStubs(c.line)
+		if len(got) != len(c.want) {
+			return &exitError{2, fmt.Sprintf("the stubbed-helper vocabulary is wrong: %q yielded %v, expected %v",
+				c.line, got, c.want)}
+		}
+		for i := range got {
+			if got[i] != c.want[i] {
+				return &exitError{2, fmt.Sprintf("the stubbed-helper vocabulary is wrong: %q yielded %v, expected %v",
+					c.line, got, c.want)}
+			}
+		}
+	}
+	return nil
 }
 
 // match returns the figure a line claims as the CURRENT total, if any.
@@ -403,6 +524,9 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 	if err := checkVocabulary(); err != nil {
 		return err
 	}
+	if err := checkStubVocabulary(); err != nil {
+		return err
+	}
 
 	want, err := authoritative(baseline, timeout)
 	if err != nil {
@@ -416,6 +540,17 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 		return &exitError{2, fmt.Sprintf("cannot read the version the gate measures at: %v", err)}
 	}
 
+	// ⛔ NOT a refusal here, and the ⛔ further down says why: a structural
+	// complaint must never arrive before a concrete disagreement. An unreadable
+	// stub list does not stop this tool reading a stale TOTAL, so the refusal is
+	// held until the findings have been printed.
+	wantStubs, stubErr := authoritativeStubs(shimPath, timeout)
+	isStub := map[string]bool{}
+	for _, s := range wantStubs {
+		isStub[s] = true
+	}
+	namedSomewhere := map[string]bool{}
+
 	type finding struct {
 		where string
 		got   int
@@ -425,9 +560,14 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 		where string
 		got   string
 	}
+	type stubFinding struct {
+		where string
+		got   string
+	}
 	var wrong []finding
 	var wrongVersion []versionFinding
-	checked, versionsChecked := 0, 0
+	var wrongStub []stubFinding
+	checked, versionsChecked, stubsChecked := 0, 0, 0
 
 	err = filepath.WalkDir(root, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -476,6 +616,19 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 					})
 				}
 			}
+			for _, name := range matchStubs(text) {
+				if stubErr != nil {
+					break // no oracle for this fact; the refusal waits its turn below
+				}
+				stubsChecked++
+				namedSomewhere[name] = true
+				if !isStub[name] {
+					wrongStub = append(wrongStub, stubFinding{
+						where: fmt.Sprintf("%s:%d", path, line),
+						got:   name,
+					})
+				}
+			}
 			own := allVersions(text)
 			ownHad := len(own) > 0
 			versions := append(own, versionsAcross(prev, prevHadVersion, text, ownHad)...)
@@ -498,8 +651,9 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 
 	// "N of M, never N alone": a walk that matched nothing reports no
 	// disagreement, which is the same output as a correct site.
-	fmt.Fprintf(stdout, "%d total claim(s) and %d version claim(s) checked against the gate's %d at Ruby %s (%s)\n",
-		checked, versionsChecked, want, wantVersion, howSpelled)
+	fmt.Fprintf(stdout, "%d total claim(s), %d version claim(s) and %d stubbed-helper mention(s) checked "+
+		"against the gate's %d at Ruby %s (%s); the shim stubs %s\n",
+		checked, versionsChecked, stubsChecked, want, wantVersion, howSpelled, strings.Join(wantStubs, ", "))
 	// ⛔ THE DISAGREEMENTS ARE REPORTED BEFORE THE ABSENCES, and that order is
 	// the whole of it. Written the other way round -- the version-absence
 	// refusal returning first -- this tool answered "found no statement of the
@@ -513,8 +667,17 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 	for _, w := range wrongVersion {
 		fmt.Fprintf(stderr, "%s: says the gate measures at %s, it measures at %s\n", w.where, w.got, wantVersion)
 	}
-	if n := len(wrong) + len(wrongVersion); n > 0 {
+	for _, w := range wrongStub {
+		fmt.Fprintf(stderr, "%s: calls `%s` a stubbed shim helper; the shim stubs %s and not it, "+
+			"so its examples RUN -- and when the behaviour is missing they FAIL rather than skip\n",
+			w.where, w.got, strings.Join(wantStubs, ", "))
+	}
+	if n := len(wrong) + len(wrongVersion) + len(wrongStub); n > 0 {
 		return &exitError{1, fmt.Sprintf("%d claim(s) disagree with the ruby repository", n)}
+	}
+	// Now the held refusal, after every concrete finding has been printed.
+	if stubErr != nil {
+		return &exitError{2, fmt.Sprintf("cannot read the helpers the shim stubs: %v", stubErr)}
 	}
 	if checked == 0 {
 		return &exitError{1, fmt.Sprintf("found no statement of the total in %s; "+
@@ -527,6 +690,27 @@ func check(stdout, stderr io.Writer, root, baseline, runtimePath, shimPath strin
 	if versionsChecked == 0 {
 		return &exitError{1, fmt.Sprintf("found no statement of the version the gate measures at in %s; "+
 			"a total without it is a count over an unnamed population (Ruby %s today)", root, wantVersion)}
+	}
+	// And the absence that matters most here: a page may name the stubbed
+	// helpers correctly and still be missing one, which is how `ruby_cmd` stayed
+	// unmentioned on both sites while `ruby_exe`, one line above it in the shim,
+	// was named everywhere. Naming a subset is the failure this cannot let pass.
+	//
+	// It applies only where the list is made at all: a tree that never names a
+	// stubbed helper has nothing to be incomplete about, and this tool is run
+	// over two trees of very different depth. That leaves one hole -- deleting
+	// the enumeration outright -- and it is closed by a test that runs this over
+	// the real content/en and requires the mentions to be there.
+	var unnamed []string
+	for _, s := range wantStubs {
+		if !namedSomewhere[s] {
+			unnamed = append(unnamed, s)
+		}
+	}
+	if stubsChecked > 0 && len(unnamed) > 0 {
+		return &exitError{1, fmt.Sprintf("the shim stubs %s, and %s names %s nowhere; "+
+			"every page that explains why the total is a lower bound owes the reader the whole list",
+			strings.Join(wantStubs, ", "), root, strings.Join(unnamed, ", "))}
 	}
 	return nil
 }
@@ -673,6 +857,32 @@ func authoritativeVersion(runtimePath, shimPath string, timeout time.Duration) (
 			"half a version change has landed; see ruby#799", runtime, shim)
 	}
 	return runtime, "two copies, agreeing", nil
+}
+
+// authoritativeStubs reports the mspec helpers the shim stubs, read out of
+// spec_helper.rb itself.
+//
+// It fetches the shim a second time rather than sharing authoritativeVersion's
+// copy on purpose: each of the two facts then refuses on its own terms, and a
+// version check that cannot read the file does not also decide the stub list.
+func authoritativeStubs(shimPath string, timeout time.Duration) ([]string, error) {
+	sh, err := fetch(shimPath, shimURL, timeout)
+	if err != nil {
+		return nil, fmt.Errorf("the shim's stubbed helpers: %w", err)
+	}
+	var out []string
+	for _, m := range shimStubRe.FindAllSubmatch(sh, -1) {
+		out = append(out, string(m[1]))
+	}
+	if len(out) == 0 {
+		// Not "nothing is stubbed": every page says the total is a lower bound
+		// BECAUSE something is, so an empty answer here means the pattern stopped
+		// matching the shim, and judging the pages against an empty set would
+		// turn every correct enumeration into a finding.
+		return nil, fmt.Errorf("no `def … raise SpecSkip` in %s; the pattern no longer matches the shim", shimURL)
+	}
+	sort.Strings(out)
+	return out, nil
 }
 
 // hasAnySuffix is spelled out so the file types this walks are a list in one
