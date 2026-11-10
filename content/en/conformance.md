@@ -245,6 +245,52 @@ An earlier revision of this page reported run-to-run spread from an intermittent
 crash in `core/module/autoload_spec.rb`. That did not reproduce during this
 measurement: five consecutive runs of that file returned identical counts, and it
 appeared in none of the three full sweeps.
+
+### What the unswept 42 % holds — measured once, 2026-11-10 {#the-unswept-42-percent}
+
+The four trees above are not gated. They have now been measured a single time
+against **MRI 4.0.7** through the same shim, so the gap is a number instead of a
+guess — `cmd/specdelta` for the comparison, `cmd/specroll` for the rollup, on
+the pinned corpus at `c604cce1`.
+
+| | |
+| --- | --- |
+| spec files in the corpus | 3 814 — 2 206 swept, **1 608 not** |
+| files where the two engines differ | 970 |
+| MRI's score across those files | 3 676 |
+| rbgo's score across the same files | 1 335 |
+| the gap | 2 341 |
+| files rbgo produces no result for | 152 — **75 of them hang** |
+
+Three readings matter more than the total, and each changes what somebody would
+do next.
+
+**78 of the unswept files cannot be measured under this shim at all.** Every one
+of the 32 `command_line/` files is built on `ruby_exe`, and the 46
+`optional/capi/` files need a compiled C extension — so **MRI itself scores 0**
+in them. That share of the corpus asks for harness work, not interpreter work,
+and no amount of conformance would move it.
+
+**The largest single debt is a hang, not a missing feature.** `Net::FTP` is 442
+examples behind, and 39 of its 56 spec files have to be killed by the clock on
+rbgo while none are on MRI. Counting `Net::HTTP`, `Socket` and `Timeout`, 75
+spec files hang
+([ruby#916](https://github.com/go-embedded-ruby/ruby/issues/916)) — and until
+[ruby#915](https://github.com/go-embedded-ruby/ruby/pull/915) the harness
+reported every one of them as *"did not load"*, which is the opposite finding.
+
+**The rest is concentrated.** `matrix` 233, `bigdecimal` 180, `stringscanner`
+154, `date` + `datetime` 179, `zlib` 130, `stringio` 94, `openssl` 93. The
+outright absences are small beside them: `Coverage` 53 examples, three
+`StringScanner` byte methods 27, four `CGI` escape files 19, `WeakRef` 9.
+
+{{< callout type="warning" >}}
+**One dated run, and not a gate**
+
+Nothing re-measures this. It is a map of where the work is, not a figure to
+quote — the only machine-checked number on this page remains the gated
+`language/` + `core/` baseline above.
+{{< /callout >}}
 ### Not every gain is VM conformance {#not-every-gain-is-vm-conformance}
 
 Two of the recent jumps came from fixing the **measurement**, not the
