@@ -259,8 +259,8 @@ the pinned corpus at `c604cce1`.
 | files where the two engines differ | 970 |
 | MRI's score across those files | 3 676 |
 | rbgo's score across the same files | 1 335 |
-| the gap | 2 341 |
-| files rbgo produces no result for | 152 — **75 of them hang** |
+| the gap | 2 341 — a **floor**, not a total (see `library/socket` below) |
+| files rbgo produces no result for | 152 — **75 of them hung** in this run; **8 do today** |
 
 Three readings matter more than the total, and each changes what somebody would
 do next.
@@ -271,15 +271,52 @@ of the 32 `command_line/` files is built on `ruby_exe`, and the 46
 in them. That share of the corpus asks for harness work, not interpreter work,
 and no amount of conformance would move it.
 
-**The largest single debt is a hang, not a missing feature.** `Net::FTP` is 442
-examples behind, and 39 of its 56 spec files have to be killed by the clock on
-rbgo while none are on MRI. Counting `Net::HTTP`, `Socket` and `Timeout`, 75
-spec files hang
+**The hangs were the largest single debt in this run, and 75 of them are now 8.**
+At the time of the run `Net::FTP` was 442 examples behind with 39 of its 56 spec
+files killed by the clock while none were on MRI; counting `Net::HTTP`, `Socket`
+and `Timeout`, 75 spec files hung
 ([ruby#916](https://github.com/go-embedded-ruby/ruby/issues/916)) — and until
 [ruby#915](https://github.com/go-embedded-ruby/ruby/pull/915) the harness
 reported every one of them as *"did not load"*, which is the opposite finding.
 
-**The rest is concentrated.** `matrix` 233, `bigdecimal` 180, `stringscanner`
+Re-measured 2026-11-13 against MRI 4.0.6, same corpus, 30 s per file:
+
+| | then | now | the cause |
+| --- | --- | --- | --- |
+| `library/net-ftp` | 39 killed, −442 | **0 killed, −128** | a blocking socket call held rbgo's emulated GVL — on the *data* connection, which is why fixing the control connection first moved nothing |
+| `library/net-http` | 27 killed | **0** | `TCPSocket.open { … }` never closed the socket, so the peer waited for an EOF that never came |
+| `library/socket` | 8 killed | **7** | `Thread#kill` could not interrupt a blocking native call; one of thirteen sites is converted |
+| `library/timeout` | 1 killed | 1 | the same, with twelve sites left ([ruby#933](https://github.com/go-embedded-ruby/ruby/issues/933)) |
+
+One symptom, **three unrelated causes**. The first fix therefore looked like it
+had done nothing, because it was measured against the specs belonging to the
+other half of the mechanism.
+
+{{< callout type="warning" >}}
+**The largest debt is not a hang — and it read as zero while its control was broken**
+
+`library/socket`'s own `spec_helper.rb` calls `MSpec.enable_feature`, which the
+conformance shim did not define, so all 190 of those files raised `NameError` at
+load and scored **0 — including under MRI**. A control of zero is
+indistinguishable from a module with no gap, and the same sweep that now reads
+−1566 read *"+217 in rbgo's favour"* twenty minutes earlier.
+
+Repaired ([ruby#936](https://github.com/go-embedded-ruby/ruby/pull/936)) and
+measured 2026-11-14 against MRI 4.0.6: **MRI 1790 / rbgo 224**, so `library/socket`
+alone is about **−1560** — larger than every module in *"the rest is concentrated"*
+below put together ([ruby#937](https://github.com/go-embedded-ruby/ruby/issues/937)).
+It is **unimplemented surface rather than hangs**: `Addrinfo#initialize` alone is
+−151, `BasicSocket#recvmsg` + `#recvmsg_nonblock` −100, the address and option
+accessors −188 together.
+
+The two totals are deliberately **not added up**: they come from different runs
+against different MRI patch releases (4.0.7 and 4.0.6), and a sum across two
+measurements is how two errors cancel. That is why the gap in the table above is
+labelled a floor.
+{{< /callout >}}
+
+**The rest is concentrated** — and the list was compiled while `library/socket`
+contributed a flat zero on both sides. `matrix` 233, `bigdecimal` 180, `stringscanner`
 154, `date` + `datetime` 179, `zlib` 130, `stringio` 94, `openssl` 93. The
 outright absences are small beside them: `Coverage` 53 examples, three
 `StringScanner` byte methods 27, four `CGI` escape files 19, `WeakRef` 9.
