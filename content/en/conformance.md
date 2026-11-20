@@ -162,7 +162,7 @@ workflow enforces it on every push and pull request.
 ### Where it stands — measured 2026-09-26 {#where-it-stands-measured-2026-09-26}
 
 {{< callout type="info" >}}
-**The gate's current total is **23 672****
+**The gate's current total is **24 106****
 
 Counted with ruby/spec's version guards set to resolve at Ruby **4.0.9** — the
 version `RUBY_VERSION` reports and the version the shim measures at, since
@@ -181,7 +181,7 @@ quote, and it is read straight out of the gate's own file:
 
 ```console
 $ awk -F'\t' '/^OK\t/{n+=$3} END{print n}' scripts/conformance/rubyspec/BASELINE
-23673
+24106
 ```
 
 The breakdown below — failing, erroring, skipped — needs a full sweep to
@@ -214,7 +214,7 @@ same ten files producing no result.
 level **CI guarantees**; a measured total is **what rbgo did on a given run**.
 Quoting the guaranteed figure as the conformance result understates rbgo by
 whatever has landed since the record was last written; quoting a measured total
-as a guarantee overstates it by the same amount. The sum is **23 672**, and
+as a guarantee overstates it by the same amount. The sum is **24 106**, and
 both the repository README and this page read that figure out of the file
 mechanically, each with a check that fails if they disagree — which is why
 neither carries a release number beside it. The figure is verified
@@ -330,7 +330,7 @@ quote — the only machine-checked number on this page remains the gated
 {{< /callout >}}
 ### Not every gain is VM conformance {#not-every-gain-is-vm-conformance}
 
-Two of the recent jumps came from fixing the **measurement**, not the
+Three of the recent jumps came from fixing the **measurement**, not the
 interpreter, and blurring the two would be misleading:
 
 - **The mspec shim** ([#624](https://github.com/go-embedded-ruby/ruby/pull/624),
@@ -346,12 +346,23 @@ interpreter, and blurring the two would be misleading:
   been contributing zero to *both* columns — not failing, invisible. `language/`
   went 1 443 → 1 776 passing (**+333**), while `fail+error` rose 283 → 436 at the
   same time, because those files brought their own failures with them.
+- **The shim's platform guards**
+  ([#961](https://github.com/go-embedded-ruby/ruby/pull/961), refs
+  [#837](https://github.com/go-embedded-ruby/ruby/issues/837)) answered
+  `platform_is` from a hardcoded list while the class beside it read
+  `RUBY_PLATFORM`, and compared `pointer_size: 64` against a size in **bytes** —
+  so every `pointer_size` guard was shut on every machine.
+  `core/array/pack/j_spec.rb` and `core/string/unpack/j_spec.rb` had been counted
+  at **0**, and measured **188** and **216** with only the shim changed. On the
+  pinned runner the fix is **+404** of the day's **+434**: main alone read 23 702.
+  It also *removed* examples that were never that machine's to run — darwin
+  expectations that the old list had been counting as linux passes.
 
-Both are gains in what the measurement can **see**, not in what the VM can
+All three are gains in what the measurement can **see**, not in what the VM can
 **do**. The rest of the climb is the VM: the floor went from **6 000** when the
 ratchet landed on 2026-08-03
 ([#263](https://github.com/go-embedded-ruby/ruby/pull/263)) to **22 475** by the
-time it was replaced by the per-file baseline, whose sum is **23 672**.
+time it was replaced by the per-file baseline, whose sum is **24 106**.
 
 ### Known limitations {#known-limitations}
 
